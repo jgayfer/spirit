@@ -18,6 +18,7 @@ async def role(ctx, role="None"):
     else:
         await bot.say(ctx.message.author.mention + ": Oops! Role must be one of: Titan, Hunter, Warlock")
 
+
 @bot.command()
 async def roster():
 
@@ -25,18 +26,18 @@ async def roster():
         roster = db.get_roster()
         if roster:
 
-            members = ""
-            roles = ""
-
+            message = "```css\n"
             for row in roster:
-                members += row[0].split("#")[0] + "\n"
-                roles += row[1] + "\n"
+                message += row[0].split("#")[0]
+                spaces = 17 - len(row[0].split("#")[0])
+                for _ in range (0, spaces):
+                    message += " "
+                message += row[1] + "\n"
+            message += "```"
 
-            embed_msg = discord.Embed(color=discord.Colour(3381759))
-            embed_msg.add_field(name='Member', value=members, inline=True)
-            embed_msg.add_field(name='Role', value=roles, inline=True)
-            
+            embed_msg = discord.Embed(title="Destiny 2 Pre Launch Roster", description=message, color=discord.Colour(3381759))
             await bot.say(embed=embed_msg)
+
 
 @bot.event
 async def on_ready():
@@ -45,9 +46,11 @@ async def on_ready():
     print(bot.user.id)
     print('------')
 
+
 def load_credentials():
     with open('credentials.json') as f:
         return json.load(f)
+
 
 if __name__ == '__main__':
     credentials = load_credentials()
