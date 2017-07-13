@@ -1,13 +1,16 @@
 from discord.ext import commands
 from database import DBase
 import json
+import discord
 
 bot = commands.Bot(command_prefix='!')
 
 @bot.command(pass_context=True)
-async def role(ctx, role):
+async def role(ctx, role="None"):
+
     user = str(ctx.message.author)
     role = role.lower().title()
+
     if role == "Titan" or role == "Warlock" or role == "Hunter":
         with DBase() as db:
             db.update_roster(user, role)
@@ -17,13 +20,23 @@ async def role(ctx, role):
 
 @bot.command()
 async def roster():
+
     with DBase() as db:
         roster = db.get_roster()
         if roster:
-            message = ""
+
+            members = ""
+            roles = ""
+
             for row in roster:
-                message += ("%s - %s\n" % (row[0],row[1]))
-            await bot.say(message)
+                members += row[0].split("#")[0] + "\n"
+                roles += row[1] + "\n"
+
+            embed_msg = discord.Embed(color=discord.Colour(3381759))
+            embed_msg.add_field(name='Member', value=members, inline=True)
+            embed_msg.add_field(name='Role', value=roles, inline=True)
+            
+            await bot.say(embed=embed_msg)
 
 @bot.event
 async def on_ready():
