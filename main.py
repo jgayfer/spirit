@@ -30,11 +30,11 @@ async def role(ctx, role="None"):
         await bot.delete_message(ctx.message)
 
 
-@bot.command()
-async def roster():
+@bot.command(pass_context=True)
+async def roster(ctx):
 
     with DBase() as db:
-        roster = db.get_roster()
+        roster = db.get_roster(ctx.message.server.id)
         if roster:
 
             message = "```\n"
