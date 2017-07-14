@@ -7,6 +7,10 @@ import asyncio
 bot = commands.Bot(command_prefix='!')
 
 @bot.command(pass_context=True)
+async def test(ctx):
+    print(ctx.message.server.id)
+
+@bot.command(pass_context=True)
 async def role(ctx, role="None"):
 
     user = str(ctx.message.author)
@@ -15,7 +19,7 @@ async def role(ctx, role="None"):
 
     if role == "Titan" or role == "Warlock" or role == "Hunter":
         with DBase() as db:
-            db.update_roster(user, role)
+            db.update_roster(user, role, ctx.message.server.id)
         msg_res = await bot.say(ctx.message.author.mention + ": Your role has been updated!")
     else:
         msg_res = await bot.say(ctx.message.author.mention + ": Oops! Role must be one of: Titan, Hunter, Warlock")

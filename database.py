@@ -2,7 +2,7 @@ import MySQLdb
 
 class DBase:
 
-    dsn = ("localhost","root","0perator","destiny")
+    dsn = ("localhost","root","0perator","Spirit")
 
     def __init__(self):
         self.conn = MySQLdb.connect(*self.dsn)
@@ -15,10 +15,10 @@ class DBase:
         if self.conn:
             self.conn.close()
 
-    def get_roster(self):
-        self.cur.execute("SELECT * FROM roster")
+    def get_roster(self, server_id)
+        self.cur.execute("SELECT * FROM roster where server_id='%s'" % server_id)
         return self.cur.fetchall()
 
-    def update_roster(self, user, role):
-        self.cur.execute("INSERT INTO roster VALUES('%s', '%s') ON DUPLICATE KEY UPDATE class='%s'" % (user, role, role))
+    def update_roster(self, user, role, server_id):
+        self.cur.execute("INSERT INTO roster VALUES('%s', '%s', '%s) ON DUPLICATE KEY UPDATE class='%s'" % (user, role, server_id, role))
         self.conn.commit()
