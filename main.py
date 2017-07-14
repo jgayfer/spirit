@@ -6,12 +6,12 @@ import asyncio
 
 bot = commands.Bot(command_prefix='!')
 
-@bot.command(pass_context=True)
-async def test(ctx):
-    print(ctx.message.server.id)
 
 @bot.command(pass_context=True)
 async def role(ctx, role="None"):
+
+    if ctx.message.channel.is_private:
+        return await bot.say(ctx.message.author.mention + ": That command is not supported in a direct message.")
 
     user = str(ctx.message.author)
     role = role.lower().title()
@@ -24,14 +24,16 @@ async def role(ctx, role="None"):
     else:
         msg_res = await bot.say(ctx.message.author.mention + ": Oops! Role must be one of: Titan, Hunter, Warlock")
 
-    if ctx.message.channel.type is not discord.ChannelType.private:
-        await asyncio.sleep(3)
-        await bot.delete_message(msg_res)
-        await bot.delete_message(ctx.message)
+    await asyncio.sleep(3)
+    await bot.delete_message(msg_res)
+    await bot.delete_message(ctx.message)
 
 
 @bot.command(pass_context=True)
 async def roster(ctx):
+
+    if ctx.message.channel.is_private:
+        return await bot.say(ctx.message.author.mention + ": That command is not supported in a direct message.")
 
     with DBase() as db:
         roster = db.get_roster(ctx.message.server.id)
