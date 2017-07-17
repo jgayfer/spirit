@@ -2,7 +2,7 @@ import MySQLdb
 
 class DBase:
 
-    dsn = ("localhost","root","Blue7Bone","Spirit")
+    dsn = ("localhost","root","0perator","Spirit")
 
     def __init__(self):
         self.conn = MySQLdb.connect(*self.dsn)
