@@ -16,8 +16,16 @@ class DBase:
             self.conn.close()
 
     def get_roster(self, server_id):
-        self.cur.execute("SELECT * FROM roles where server_id='%s'" % server_id)
-        return self.cur.fetchall()
+        sql = '''SELECT a.username, a.role
+                 FROM users a, user_server b, servers c
+                 WHERE a.username = b.username
+                 AND b.server_id = c.server_id
+                 AND c.server_id = "{0}";'''.format(server_id)
+        self.cur.execute(sql)
+        if self.cur.rowcount != 0:
+            return self.cur.fetchall()
+        else:
+            return False
 
     def update_roster(self, user, role, server_id):
         self.cur.execute("INSERT INTO roles VALUES('%s', '%s', '%s') ON DUPLICATE KEY UPDATE role='%s'" % (user, role, server_id, role))

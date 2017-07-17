@@ -24,7 +24,7 @@ async def role(ctx, role="None"):
     else:
         msg_res = await bot.say(ctx.message.author.mention + ": Oops! Role must be one of: Titan, Hunter, Warlock")
 
-    await asyncio.sleep(3)
+    await asyncio.sleep(5)
     await bot.delete_message(msg_res)
     await bot.delete_message(ctx.message)
 
@@ -50,7 +50,11 @@ async def roster(ctx):
 
             embed_msg = discord.Embed(title="Destiny 2 Pre Launch Roster", description=message, color=discord.Colour(3381759))
             await bot.say(embed=embed_msg)
-
+        else:
+            msg_res = await bot.say(ctx.message.author.mention + ": No roles have been assigned yet. Use !role to add one.")
+            await asyncio.sleep(5)
+            await bot.delete_message(msg_res)
+            await bot.delete_message(ctx.message)
 
 @bot.event
 async def on_ready():
