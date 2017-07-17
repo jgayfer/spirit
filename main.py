@@ -16,12 +16,11 @@ async def role(ctx, role="None"):
     user = str(ctx.message.author)
     role = role.lower().title()
     server_id = ctx.message.server.id
-    server_name = ctx.message.server.name
     msg_res = None
 
     if role == "Titan" or role == "Warlock" or role == "Hunter":
         with DBase() as db:
-            db.update_roster(user, role, server_id, server_name)
+            db.update_roster(user, role, server_id)
         msg_res = await bot.say(ctx.message.author.mention + ": Your role has been updated!")
     else:
         msg_res = await bot.say(ctx.message.author.mention + ": Oops! Role must be one of: Titan, Hunter, Warlock")
