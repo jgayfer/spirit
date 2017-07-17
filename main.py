@@ -15,11 +15,13 @@ async def role(ctx, role="None"):
 
     user = str(ctx.message.author)
     role = role.lower().title()
+    server_id = ctx.message.server.id
+    server_name = ctx.message.server.name
     msg_res = None
 
     if role == "Titan" or role == "Warlock" or role == "Hunter":
         with DBase() as db:
-            db.update_roster(user, role, ctx.message.server.id)
+            db.update_roster(user, role, server_id, server_name)
         msg_res = await bot.say(ctx.message.author.mention + ": Your role has been updated!")
     else:
         msg_res = await bot.say(ctx.message.author.mention + ": Oops! Role must be one of: Titan, Hunter, Warlock")
@@ -37,7 +39,7 @@ async def roster(ctx):
 
     with DBase() as db:
         roster = db.get_roster(ctx.message.server.id)
-        if roster:
+        if len(roster) != 0:
 
             message = "```\n"
             for row in roster:
@@ -50,11 +52,13 @@ async def roster(ctx):
 
             embed_msg = discord.Embed(title="Destiny 2 Pre Launch Roster", description=message, color=discord.Colour(3381759))
             await bot.say(embed=embed_msg)
+
         else:
-            msg_res = await bot.say(ctx.message.author.mention + ": No roles have been assigned yet. Use !role to add one.")
+            msg_res = await bot.say(ctx.message.author.mention + ": No roles have been assigned yet. Use !role to select a role.")
             await asyncio.sleep(5)
             await bot.delete_message(msg_res)
             await bot.delete_message(ctx.message)
+
 
 @bot.event
 async def on_ready():
