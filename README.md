@@ -1,4 +1,4 @@
 # Spirit
-A discord bot to assist Destiny 2 clans
+Spirit is a discord bot designed to assist Destiny 2 players with everything from clan management to keeping track of in game events.
 
-https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344
+To add Spirit to your server, click [here](https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344)!
