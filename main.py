@@ -7,8 +7,15 @@ import asyncio
 
 bot = commands.Bot(command_prefix='!')
 
-@bot.command(pass_context=True)
+@bot.group(pass_context=True)
 async def event(ctx):
+
+    if ctx.invoked_subcommand is None:
+        await bot.say(ctx.message.author.mention + ": Invalid event command passed. Use '!event help' for more information.")
+
+
+@event.command(pass_context=True)
+async def create(ctx):
 
     await bot.say(ctx.message.author.mention + ": Enter the event title")
     msg = await bot.wait_for_message(author=ctx.message.author)
@@ -32,8 +39,27 @@ async def event(ctx):
 
     with DBase() as db:
         db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
-
     await bot.say(ctx.message.author.mention + ": Event has been created! Use '!event list' to display upcoming events in the events channel.")
+
+
+@event.command(pass_context=True)
+async def list(ctx):
+
+    event_channel = None
+    if ctx.message.channel.name != "upcoming-events":
+        for channel in ctx.message.server.channels:
+            if channel.name == "upcoming-events":
+                event_channel = channel
+                break
+        if event_channel is None:
+            event_channel = await bot.create_channel(ctx.message.server, "upcoming-events")
+        return await bot.say(ctx.message.author.mention + ": That command can only be used in the 'upcoming-events' channel.")
+
+    events = None
+    with DBase() as db:
+        events = db.get_events(ctx.message.server.id)
+    if len(events) != 0:
+        await bot.say(events[0])
 
 
 @bot.command(pass_context=True)
@@ -46,7 +72,6 @@ async def role(ctx, role="None"):
     role = role.lower().title()
     server_id = ctx.message.server.id
     msg_res = None
-
     if role == "Titan" or role == "Warlock" or role == "Hunter":
         with DBase() as db:
             db.update_roster(user, role, server_id)
@@ -80,7 +105,6 @@ async def roster(ctx):
 
             embed_msg = discord.Embed(title="Destiny 2 Pre Launch Roster", description=message, color=discord.Colour(3381759))
             await bot.say(embed=embed_msg)
-
         else:
             msg_res = await bot.say(ctx.message.author.mention + ": No roles have been assigned yet. Use !role to select a role.")
             await asyncio.sleep(5)

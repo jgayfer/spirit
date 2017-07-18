@@ -43,3 +43,22 @@ class DBase:
                  """.format(title, start_time, time_zone, server_id, description)
         self.cur.execute(sql)
         self.conn.commit()
+
+    def get_events(self, server_id):
+        sql = """SELECT user_event.event_id, title, description, start_time, time_zone, (
+                   SELECT GROUP_CONCAT(username)
+                   FROM user_event
+                   WHERE user_event.event_id = event_id
+                   AND user_event.attending = 1)
+                   AS accepted, (
+                   SELECT GROUP_CONCAT(username)
+                   FROM user_event
+                   WHERE user_event.event_id = event_id
+                   AND user_event.attending = 0)
+                   AS declined
+                 FROM user_event, events
+                 WHERE events.server_id = {0}
+                 GROUP BY event_id, title, description, start_time, time_zone;
+                 """.format(server_id)
+        self.cur.execute(sql)
+        return self.cur.fetchall()
