@@ -59,7 +59,15 @@ async def list(ctx):
     with DBase() as db:
         events = db.get_events(ctx.message.server.id)
     if len(events) != 0:
-        await bot.say(events[0])
+        for row in events:
+            embed_msg = discord.Embed(color=discord.Colour(3381759))
+            embed_msg.title = row[1]
+            if row[2]:
+                embed_msg.description = row[2]
+            embed_msg.add_field(name="Time", value=str(row[3]) + row[4], inline=False)
+            embed_msg.add_field(name="Accepted", value=row[5])
+            embed_msg.add_field(name="Declined", value=row[6])
+            await bot.say(embed=embed_msg)
 
 
 @bot.command(pass_context=True)
@@ -93,7 +101,6 @@ async def roster(ctx):
     with DBase() as db:
         roster = db.get_roster(ctx.message.server.id)
         if len(roster) != 0:
-
             message = "```\n"
             for row in roster:
                 message += row[0].split("#")[0]
@@ -102,7 +109,6 @@ async def roster(ctx):
                     message += " "
                 message += row[1] + "\n"
             message += "```"
-
             embed_msg = discord.Embed(title="Destiny 2 Pre Launch Roster", description=message, color=discord.Colour(3381759))
             await bot.say(embed=embed_msg)
         else:
