@@ -97,10 +97,11 @@ async def on_reaction_add(reaction, user):
             attending = 1
         elif reaction.emoji == "\N{CROSS MARK}":
             attending = 0
-        else:
-            return await bot.remove_reaction(reaction.message, reaction.emoji, user)
-        with DBase() as db:
-            db.update_attendance(username, event_id, attending)
+        if attending:
+            with DBase() as db:
+                db.update_attendance(username, event_id, attending)
+        await asyncio.sleep(1)
+        await bot.remove_reaction(reaction.message, reaction.emoji, user)
 
 
 @bot.command(pass_context=True)
