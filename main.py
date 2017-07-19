@@ -17,25 +17,30 @@ async def event(ctx):
 @event.command(pass_context=True)
 async def create(ctx):
 
-    await bot.say(ctx.message.author.mention + ": Enter the event title")
+    await bot.say(ctx.message.author.mention + ": Enter event title")
     msg = await bot.wait_for_message(author=ctx.message.author)
     title = msg.content
 
-    await bot.say(ctx.message.author.mention + ": Enter the event description (type 'none' for no description)")
+    await bot.say(ctx.message.author.mention + ": Enter event description (type 'none' for no description)")
     msg = await bot.wait_for_message(author=ctx.message.author)
     description = ''
     if msg.content.upper() != 'NONE':
         description = msg.content
 
-    await bot.say(ctx.message.author.mention + ": Enter the event time (YYYY-MM-DD HH:MM AM/PM)")
-    msg = await bot.wait_for_message(author=ctx.message.author)
-    start_time_str = msg.content
-    start_time_format = '%Y-%m-%d %I:%M %p'
-    start_time = datetime.strptime(start_time_str, start_time_format)
+    start_time = None
+    while not start_time:
+        await bot.say(ctx.message.author.mention + ": Enter event time (YYYY-MM-DD HH:MM AM/PM)")
+        msg = await bot.wait_for_message(author=ctx.message.author)
+        start_time_str = msg.content
+        start_time_format = '%Y-%m-%d %I:%M %p'
+        try:
+            start_time = datetime.strptime(start_time_str, start_time_format)
+        except ValueError:
+            await bot.say(ctx.message.author.mention + ": Invalid event time!")
 
     await bot.say(ctx.message.author.mention + ": Enter the time zone (PST, EST, etc.)")
     msg = await bot.wait_for_message(author=ctx.message.author)
-    time_zone = msg.content
+    time_zone = msg.content.upper()
 
     with DBase() as db:
         db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
