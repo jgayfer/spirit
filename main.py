@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 import discord
 import asyncio
+import re
 
 bot = commands.Bot(command_prefix='!')
 
@@ -66,13 +67,44 @@ async def list(ctx):
     if len(events) != 0:
         for row in events:
             embed_msg = discord.Embed(color=discord.Colour(3381759))
+            embed_msg.set_footer(text="Use '!event delete " + str(row[0]) + "' to remove this event")
             embed_msg.title = row[1]
             if row[2]:
                 embed_msg.description = row[2]
             embed_msg.add_field(name="Time", value=str(row[3]) + row[4], inline=False)
             embed_msg.add_field(name="Accepted", value=row[5])
             embed_msg.add_field(name="Declined", value=row[6])
-            await bot.say(embed=embed_msg)
+            msg = await bot.say(embed=embed_msg)
+            await bot.add_reaction(msg, "\N{WHITE HEAVY CHECK MARK}")
+            await bot.add_reaction(msg, "\N{CROSS MARK}")
+
+
+@bot.event
+async def on_reaction_add(reaction, user):
+
+    channel_name = reaction.message.channel.name
+    author = reaction.message.author
+    num_embeds = len(reaction.message.embeds)
+    if (channel_name == "upcoming-events"
+            and author == bot.user
+            and num_embeds is not 0
+            and user is not author):
+        username = user.name
+        footer = reaction.message.embeds[0]['footer']['text']
+        event_id = re.search('\d+', footer).group()
+        attending = None
+        if reaction.emoji == "\N{WHITE HEAVY CHECK MARK}":
+            attending = 1
+        elif reaction.emoji == "\N{CROSS MARK}":
+            attending = 0
+        else:
+            return
+        with DBase() as db:
+            db.update_attendance(username, event_id, attending)
+
+
+
+
 
 
 @bot.command(pass_context=True)

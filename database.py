@@ -2,7 +2,7 @@ import MySQLdb
 
 class DBase:
 
-    dsn = ("localhost","root","0perator","Spirit")
+    dsn = ("localhost","root","Blue7Bone","Spirit")
 
     def __init__(self):
         self.conn = MySQLdb.connect(*self.dsn)
@@ -45,15 +45,17 @@ class DBase:
         self.conn.commit()
 
     def get_events(self, server_id):
-        sql = """SELECT events.event_id, title, description, start_time, time_zone, (
-                   SELECT GROUP_CONCAT(username)
-                   FROM user_event
-                   WHERE user_event.event_id = event_id
+        sql = """SELECT events.event_id as e, title, description, start_time, time_zone, (
+                   SELECT GROUP_CONCAT(DISTINCT username)
+                   FROM user_event, events
+                   WHERE user_event.event_id = e
+                   AND events.server_id = {0}
                    AND user_event.attending = 1)
                    AS accepted, (
-                   SELECT GROUP_CONCAT(username)
-                   FROM user_event
-                   WHERE user_event.event_id = event_id
+                   SELECT GROUP_CONCAT(DISTINCT username)
+                   FROM user_event, events
+                   WHERE user_event.event_id = e
+                   AND events.server_id = {0}
                    AND user_event.attending = 0)
                    AS declined
                  FROM events
@@ -62,3 +64,17 @@ class DBase:
                  """.format(server_id)
         self.cur.execute(sql)
         return self.cur.fetchall()
+
+    def update_attendance(self, username, event_id, attending):
+        sql = []
+        sql.append("""INSERT INTO users (username)
+                      VALUES ('{0}')
+                      ON DUPLICATE KEY UPDATE username = '{0}';
+                      """.format(username))
+        sql.append("""INSERT INTO user_event (username, event_id, attending)
+                      VALUES ('{0}', '{1}', '{2}')
+                      ON DUPLICATE KEY UPDATE attending = '{2}';
+                      """.format(username, event_id, attending))
+        for query in sql:
+            self.cur.execute(query)
+        self.conn.commit()
