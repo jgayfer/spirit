@@ -45,7 +45,7 @@ class DBase:
         self.conn.commit()
 
     def get_events(self, server_id):
-        sql = """SELECT user_event.event_id, title, description, start_time, time_zone, (
+        sql = """SELECT events.event_id, title, description, start_time, time_zone, (
                    SELECT GROUP_CONCAT(username)
                    FROM user_event
                    WHERE user_event.event_id = event_id
@@ -56,7 +56,7 @@ class DBase:
                    WHERE user_event.event_id = event_id
                    AND user_event.attending = 0)
                    AS declined
-                 FROM user_event, events
+                 FROM events
                  WHERE events.server_id = {0}
                  GROUP BY event_id, title, description, start_time, time_zone;
                  """.format(server_id)
