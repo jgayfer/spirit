@@ -12,7 +12,8 @@ bot = commands.Bot(command_prefix='!')
 async def event(ctx):
 
     if ctx.invoked_subcommand is None:
-        await bot.say(ctx.message.author.mention + ": Invalid event command passed. Use '!event help' for more information.")
+        await bot.say(ctx.message.author.mention
+                      + ": Invalid event command passed. Use '!event help' for more information.")
 
 
 @event.command(pass_context=True)
@@ -22,7 +23,8 @@ async def create(ctx):
     msg = await bot.wait_for_message(author=ctx.message.author)
     title = msg.content
 
-    await bot.say(ctx.message.author.mention + ": Enter event description (type 'none' for no description)")
+    await bot.say(ctx.message.author.mention
+                  + ": Enter event description (type 'none' for no description)")
     msg = await bot.wait_for_message(author=ctx.message.author)
     description = ''
     if msg.content.upper() != 'NONE':
@@ -45,7 +47,9 @@ async def create(ctx):
 
     with DBase() as db:
         db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
-    await bot.say(ctx.message.author.mention + ": Event has been created! Use '!event list' to display upcoming events in the events channel.")
+    await bot.say(ctx.message.author.mention
+                  + ": Event has been created! "
+                  + "Use '!event list' to display upcoming events in the events channel.")
 
 
 @event.command(pass_context=True)
@@ -59,15 +63,18 @@ async def list(ctx):
                 break
         if event_channel is None:
             event_channel = await bot.create_channel(ctx.message.server, "upcoming-events")
-        return await bot.say(ctx.message.author.mention + ": That command can only be used in the 'upcoming-events' channel.")
+        return await bot.say(ctx.message.author.mention + ": That command can only be used in the "
+                             + event_channel.mention + " channel.")
 
     events = None
     with DBase() as db:
         events = db.get_events(ctx.message.server.id)
     if len(events) != 0:
+        await bot.purge_from(ctx.message.channel, limit=999, check=check_delete)
         for row in events:
             embed_msg = discord.Embed(color=discord.Colour(3381759))
-            embed_msg.set_footer(text="Use '!event delete " + str(row[0]) + "' to remove this event")
+            embed_msg.set_footer(text="Use '!event delete "
+                                       + str(row[0]) + "' to remove this event")
             embed_msg.title = row[1]
             if row[2]:
                 embed_msg.description = row[2]
@@ -78,6 +85,8 @@ async def list(ctx):
             await bot.add_reaction(msg, "\N{WHITE HEAVY CHECK MARK}")
             await bot.add_reaction(msg, "\N{CROSS MARK}")
 
+def check_delete(m):
+    return True;
 
 @bot.event
 async def on_reaction_add(reaction, user):
@@ -104,8 +113,6 @@ async def on_reaction_add(reaction, user):
             return await bot.remove_reaction(reaction.message, reaction.emoji, user)
         with DBase() as db:
             db.update_attendance(username, event_id, attending)
-        await asyncio.sleep(1)
-        await bot.remove_reaction(reaction.message, reaction.emoji, user)
 
         # Update contents of event message
         event = None
@@ -121,12 +128,17 @@ async def on_reaction_add(reaction, user):
         embed_msg.add_field(name="Declined", value=event[0][5])
         await bot.edit_message(reaction.message, embed=embed_msg)
 
+        # Remove reaction
+        await asyncio.sleep(0.5)
+        await bot.remove_reaction(reaction.message, reaction.emoji, user)
+
 
 @bot.command(pass_context=True)
 async def role(ctx, role="None"):
 
     if ctx.message.channel.is_private:
-        return await bot.say(ctx.message.author.mention + ": That command is not supported in a direct message.")
+        return await bot.say(ctx.message.author.mention
+                             + ": That command is not supported in a direct message.")
 
     user = str(ctx.message.author)
     role = role.lower().title()
@@ -135,9 +147,11 @@ async def role(ctx, role="None"):
     if role == "Titan" or role == "Warlock" or role == "Hunter":
         with DBase() as db:
             db.update_roster(user, role, server_id)
-        msg_res = await bot.say(ctx.message.author.mention + ": Your role has been updated!")
+        msg_res = await bot.say(ctx.message.author.mention
+                                + ": Your role has been updated!")
     else:
-        msg_res = await bot.say(ctx.message.author.mention + ": Oops! Role must be one of: Titan, Hunter, Warlock")
+        msg_res = await bot.say(ctx.message.author.mention
+                                + ": Oops! Role must be one of: Titan, Hunter, Warlock")
 
     await asyncio.sleep(5)
     await bot.delete_message(msg_res)
@@ -148,7 +162,8 @@ async def role(ctx, role="None"):
 async def roster(ctx):
 
     if ctx.message.channel.is_private:
-        return await bot.say(ctx.message.author.mention + ": That command is not supported in a direct message.")
+        return await bot.say(ctx.message.author.mention
+                             + ": That command is not supported in a direct message.")
 
     with DBase() as db:
         roster = db.get_roster(ctx.message.server.id)
@@ -161,10 +176,13 @@ async def roster(ctx):
                     message += " "
                 message += row[1] + "\n"
             message += "```"
-            embed_msg = discord.Embed(title="Destiny 2 Pre Launch Roster", description=message, color=discord.Colour(3381759))
+            embed_msg = discord.Embed(title="Destiny 2 Pre Launch Roster",
+                                      description=message, color=discord.Colour(3381759))
             await bot.say(embed=embed_msg)
         else:
-            msg_res = await bot.say(ctx.message.author.mention + ": No roles have been assigned yet. Use !role to select a role.")
+            msg_res = await bot.say(ctx.message.author.mention
+                                    + ": No roles have been assigned yet. "
+                                    + "Use !role to select a role.")
             await asyncio.sleep(5)
             await bot.delete_message(msg_res)
             await bot.delete_message(ctx.message)
