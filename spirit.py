@@ -68,14 +68,12 @@ async def create(ctx):
         db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
     await bot.say(ctx.message.author.mention
                   + ": Event has been created! "
-                  + "Use '!event list' to display upcoming events in the events channel.")
+                  + "The list of upcoming events will be updated momentarily.")
+    await asyncio.sleep(5)
+    await list_events(ctx)
 
 
-@event.command(pass_context=True)
-async def list(ctx):
-
-    if not await events_channel(ctx):
-        return
+async def list_events(ctx):
 
     events = None
     with DBase() as db:
