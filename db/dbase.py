@@ -2,18 +2,22 @@ import MySQLdb
 
 class DBase:
 
-    dsn = ("localhost","root","0perator","Spirit")
+    dsn = ("localhost","root","Blue7Bone","Spirit")
+
 
     def __init__(self):
         self.conn = MySQLdb.connect(*self.dsn)
         self.cur = self.conn.cursor()
 
+
     def __enter__(self):
         return DBase()
+
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.conn:
             self.conn.close()
+
 
     def get_roster(self, server_id):
         sql = """SELECT username, role
@@ -22,6 +26,7 @@ class DBase:
                  """.format(server_id)
         self.cur.execute(sql)
         return self.cur.fetchall()
+
 
     def update_roster(self, username, role, server_id):
         sql = []
@@ -37,12 +42,14 @@ class DBase:
             self.cur.execute(query)
         self.conn.commit()
 
+
     def create_event(self, title, start_time, time_zone, server_id, description):
         sql = """INSERT INTO events (title, start_time, time_zone, server_id, description)
                  VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')
                  """.format(title, start_time, time_zone, server_id, description)
         self.cur.execute(sql)
         self.conn.commit()
+
 
     def get_events(self, server_id):
         sql = """SELECT events.event_id as e, title, description, start_time, time_zone, (
@@ -65,6 +72,7 @@ class DBase:
         self.cur.execute(sql)
         return self.cur.fetchall()
 
+
     def update_attendance(self, username, event_id, attending):
         sql = []
         sql.append("""INSERT INTO users (username)
@@ -78,6 +86,7 @@ class DBase:
         for query in sql:
             self.cur.execute(query)
         self.conn.commit()
+
 
     def get_event(self, event_id):
         sql = """SELECT title, description, start_time, time_zone, (
@@ -96,3 +105,12 @@ class DBase:
                  """.format(event_id)
         self.cur.execute(sql)
         return self.cur.fetchall()
+
+
+    def delete_event(self, event_id):
+        sql = """DELETE FROM events
+                 WHERE event_id = {0}
+                 """.format(event_id)
+        affected_count = self.cur.execute(sql)
+        self.conn.commit()
+        return affected_count

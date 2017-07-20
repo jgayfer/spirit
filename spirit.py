@@ -16,7 +16,6 @@ bot.add_cog(roster.Roster(bot))
 
 @bot.event
 async def on_ready():
-
     print('Logged in as')
     print(bot.user.name)
     print(bot.user.id)
@@ -24,13 +23,11 @@ async def on_ready():
 
 
 def load_credentials():
-
     with open('credentials.json') as f:
         return json.load(f)
 
 
 if __name__ == '__main__':
-
     credentials = load_credentials()
     token = credentials['token']
     bot.run(token)

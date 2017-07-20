@@ -14,7 +14,6 @@ class Events:
 
     @commands.group(pass_context=True)
     async def event(self, ctx):
-
         if ctx.invoked_subcommand is None:
             return await self.bot.say(ctx.message.author.mention
                                       + ": Invalid event command passed. "
@@ -61,6 +60,38 @@ class Events:
                            + "The list of upcoming events will be updated momentarily.")
         await asyncio.sleep(4)
         await self.list_events(ctx)
+
+
+    @event.command(pass_context=True)
+    async def delete(self, ctx, event_id=None):
+
+        # Attempt to delete the event with the given event_id
+        # If successful, update the events channel
+        msg = None
+        deleted = False
+        if event_id is not None:
+            with DBase() as db:
+                affected_count = db.delete_event(event_id)
+                if affected_count > 0:
+                    deleted = True
+        else:
+            msg = await self.bot.say(ctx.message.author.mention
+                                     + ": An event ID must be specified! (Eg. '!event delete 117')")
+            await asyncio.sleep(4)
+            await self.bot.delete_message(msg)
+            await self.bot.delete_message(ctx.message)
+            return
+        if deleted:
+            msg = await self.bot.say(ctx.message.author.mention
+                                     + ": Event successfuly deleted. The list of upcoming "
+                                     + "events will be updated momentarily.")
+        else:
+            msg = await self.bot.say(ctx.message.author.mention + ": That event doesn't exist.")
+        await asyncio.sleep(4)
+        await self.bot.delete_message(msg)
+        await self.bot.delete_message(ctx.message)
+        if deleted:
+            await self.list_events(ctx)
 
 
     async def list_events(self, ctx):
