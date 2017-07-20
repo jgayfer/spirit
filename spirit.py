@@ -12,12 +12,31 @@ bot = commands.Bot(command_prefix='!')
 async def event(ctx):
 
     if ctx.invoked_subcommand is None:
-        await bot.say(ctx.message.author.mention
-                      + ": Invalid event command passed. Use '!event help' for more information.")
+        return await bot.say(ctx.message.author.mention
+                             + ": Invalid event command passed. "
+                             + "Use '!event help' to view available commands.")
 
+async def events_channel(ctx):
+
+    event_channel = None
+    if ctx.message.channel.name != "upcoming-events":
+        for channel in ctx.message.server.channels:
+            if channel.name == "upcoming-events":
+                event_channel = channel
+                break
+        if event_channel is None:
+            event_channel = await bot.create_channel(ctx.message.server, "upcoming-events")
+        await bot.say(ctx.message.author.mention + ": That command can only be used in the "
+                      + event_channel.mention + " channel.")
+        return False
+    else:
+        return True
 
 @event.command(pass_context=True)
 async def create(ctx):
+
+    if not await events_channel(ctx):
+        return
 
     await bot.say(ctx.message.author.mention + ": Enter event title")
     msg = await bot.wait_for_message(author=ctx.message.author)
@@ -55,16 +74,8 @@ async def create(ctx):
 @event.command(pass_context=True)
 async def list(ctx):
 
-    event_channel = None
-    if ctx.message.channel.name != "upcoming-events":
-        for channel in ctx.message.server.channels:
-            if channel.name == "upcoming-events":
-                event_channel = channel
-                break
-        if event_channel is None:
-            event_channel = await bot.create_channel(ctx.message.server, "upcoming-events")
-        return await bot.say(ctx.message.author.mention + ": That command can only be used in the "
-                             + event_channel.mention + " channel.")
+    if not await events_channel(ctx):
+        return
 
     events = None
     with DBase() as db:
