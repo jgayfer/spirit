@@ -2,7 +2,7 @@ import MySQLdb
 
 class DBase:
 
-    dsn = ("localhost","root","Blue7Bone","Spirit")
+    dsn = ("localhost","root","0perator","Spirit")
 
     def __init__(self):
         self.conn = MySQLdb.connect(*self.dsn)
@@ -78,3 +78,21 @@ class DBase:
         for query in sql:
             self.cur.execute(query)
         self.conn.commit()
+
+    def get_event(self, event_id):
+        sql = """SELECT title, description, start_time, time_zone, (
+                   SELECT GROUP_CONCAT(DISTINCT username)
+                   FROM user_event
+                   WHERE event_id = {0}
+                   AND user_event.attending = 1)
+                   AS accepted, (
+                   SELECT GROUP_CONCAT(DISTINCT username)
+                   FROM user_event
+                   WHERE event_id = {0}
+                   AND user_event.attending = 0)
+                   AS declined
+                 FROM events
+                 WHERE event_id = {0};
+                 """.format(event_id)
+        self.cur.execute(sql)
+        return self.cur.fetchall()

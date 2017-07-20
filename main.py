@@ -82,6 +82,8 @@ async def list(ctx):
 @bot.event
 async def on_reaction_add(reaction, user):
 
+    # If reaction is indicating event attendance,
+    # update the database and remove the reaction
     channel_name = reaction.message.channel.name
     author = reaction.message.author
     num_embeds = len(reaction.message.embeds)
@@ -97,11 +99,27 @@ async def on_reaction_add(reaction, user):
             attending = 1
         elif reaction.emoji == "\N{CROSS MARK}":
             attending = 0
-        if attending:
-            with DBase() as db:
-                db.update_attendance(username, event_id, attending)
+        else:
+            await asyncio.sleep(1)
+            return await bot.remove_reaction(reaction.message, reaction.emoji, user)
+        with DBase() as db:
+            db.update_attendance(username, event_id, attending)
         await asyncio.sleep(1)
         await bot.remove_reaction(reaction.message, reaction.emoji, user)
+
+        # Update contents of event message
+        event = None
+        with DBase() as db:
+            event = db.get_event(event_id)
+        embed_msg = discord.Embed(color=discord.Colour(3381759))
+        embed_msg.set_footer(text="Use '!event delete " + event_id + "' to remove this event")
+        embed_msg.title = event[0][0]
+        if event[0][1]:
+            embed_msg.description = event[0][1]
+        embed_msg.add_field(name="Time", value=str(event[0][2]) + event[0][3], inline=False)
+        embed_msg.add_field(name="Accepted", value=event[0][4])
+        embed_msg.add_field(name="Declined", value=event[0][5])
+        await bot.edit_message(reaction.message, embed=embed_msg)
 
 
 @bot.command(pass_context=True)
