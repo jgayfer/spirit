@@ -23,9 +23,6 @@ class Events:
     @event.command(pass_context=True)
     async def create(self, ctx):
 
-        if not await self.events_channel(ctx):
-            return
-
         await self.bot.say(ctx.message.author.mention + ": Enter event title")
         msg = await self.bot.wait_for_message(author=ctx.message.author)
         title = msg.content
@@ -59,7 +56,7 @@ class Events:
                            + ": Event has been created! "
                            + "The list of upcoming events will be updated momentarily.")
         await asyncio.sleep(4)
-        await self.list_events(ctx)
+        await self.list_events(ctx.message.server)
 
 
     @event.command(pass_context=True)
@@ -91,17 +88,18 @@ class Events:
         await self.bot.delete_message(msg)
         await self.bot.delete_message(ctx.message)
         if deleted:
-            await self.list_events(ctx)
+            await self.list_events(ctx.message.server)
 
 
-    async def list_events(self, ctx):
+    async def list_events(self, server):
 
         # Clear the event channel and display all upcoming events
         events = None
+        events_channel = await self.get_events_channel(server)
         with DBase() as db:
-            events = db.get_events(ctx.message.server.id)
+            events = db.get_events(server.id)
         if len(events) != 0:
-            await self.bot.purge_from(ctx.message.channel, limit=999, check=self.check_delete)
+            await self.bot.purge_from(events_channel, limit=999, check=self.check_delete)
             for row in events:
                 embed_msg = discord.Embed(color=discord.Colour(3381759))
                 embed_msg.set_footer(text="Use '!event delete "
@@ -112,7 +110,7 @@ class Events:
                 embed_msg.add_field(name="Time", value=str(row[3]) + row[4], inline=False)
                 embed_msg.add_field(name="Accepted", value=row[5])
                 embed_msg.add_field(name="Declined", value=row[6])
-                msg = await self.bot.say(embed=embed_msg)
+                msg = await self.bot.send_message(events_channel, embed=embed_msg)
                 await self.bot.add_reaction(msg, "\N{WHITE HEAVY CHECK MARK}")
                 await self.bot.add_reaction(msg, "\N{CROSS MARK}")
 
@@ -161,23 +159,22 @@ class Events:
             await self.bot.remove_reaction(reaction.message, reaction.emoji, user)
 
 
-    async def events_channel(self, ctx):
+    async def get_events_channel(self, server):
 
-        # Check if the user is in the events channel (True is yes, False otherwise)
-        # Create the events channel if it doesn't exist
-        event_channel = None
-        if ctx.message.channel.name != "upcoming-events":
-            for channel in ctx.message.server.channels:
-                if channel.name == "upcoming-events":
-                    event_channel = channel
-                    break
-            if event_channel is None:
-                event_channel = await bot.create_channel(ctx.message.server, "upcoming-events")
-            await self.bot.say(ctx.message.author.mention + ": That command can only be used in the "
-                          + event_channel.mention + " channel.")
-            return False
-        else:
-            return True
+        # Return the event channel if it already exists
+        for channel in server.channels:
+            if channel.name == "upcoming-events":
+                return channel
+
+        # Otherwise, create an event channel and return it
+        return await self.bot.create_channel(server, "upcoming-events")
+
+
+    # When the bot starts, refresh the events channel
+    # We do this because messages need to be in the bot's cache in order for
+    # wait_for_reaction() to work properly
+    async def on_server_available(self, server):
+        await self.list_events(server)
 
 
     # Helper function used to delete all messages
