@@ -1,7 +1,7 @@
 from discord.ext import commands
 from db.dbase import DBase
 from datetime import datetime
-from utils.messages import delete_all
+from utils.messages import delete_all, clear_messages
 import discord
 import asyncio
 import re
@@ -16,84 +16,111 @@ class Events:
     @commands.group(pass_context=True)
     async def event(self, ctx):
         if ctx.invoked_subcommand is None:
-            return await self.bot.say(ctx.message.author.mention
-                                      + ": Invalid event command passed. "
-                                      + "Use '!event help' to view available commands.")
+            m = await self.bot.say(ctx.message.author.mention
+                                   + ": Invalid event command passed. "
+                                   + "Use '!event help' to view available commands.")
+            return await clear_messages(self.bot, [ctx.message, m])
 
 
     @event.command(pass_context=True)
     async def create(self, ctx):
 
+        # Check if the user has the permissions to create events
+        if not ctx.message.author.server_permissions.manage_server:
+            m = await self.bot.say(ctx.message.author.mention
+                                     + ": Sorry, you must have the Manage Server permission to do that.")
+            return await bot.clear_messages(bot, [ctx.message, m])
+
+        # Return if the user is in a private message
         if ctx.message.channel.is_private:
             return await self.bot.say(ctx.message.author.mention
                                       + ": That command is not supported in a direct message.")
 
-        await self.bot.say(ctx.message.author.mention + ": Enter event title")
-        msg = await self.bot.wait_for_message(author=ctx.message.author)
-        title = msg.content
+        # Get event title from user
+        to_delete = [ctx.message]
+        m1 = await self.bot.say(ctx.message.author.mention + ": Enter event title")
+        m2 = await self.bot.wait_for_message(author=ctx.message.author)
+        to_delete.extend((m1, m2))
+        title = m2.content
 
-        await self.bot.say(ctx.message.author.mention + ": Enter event description (type 'none' for no description)")
-        msg = await self.bot.wait_for_message(author=ctx.message.author)
+        # Get description from user
+        m1 = await self.bot.say(ctx.message.author.mention + ": Enter event description (type 'none' for no description)")
+        m2 = await self.bot.wait_for_message(author=ctx.message.author)
+        to_delete.extend((m1, m2))
         description = ''
-        if msg.content.upper() != 'NONE':
-            description = msg.content
+        if m2.content.upper() != 'NONE':
+            description = m2.content
 
+        # Get start time from user
         start_time = None
-        time_msg_count = 0
         while not start_time:
-            time_msg_count += 3
-            await self.bot.say(ctx.message.author.mention + ": Enter event time (YYYY-MM-DD HH:MM AM/PM)")
-            msg = await self.bot.wait_for_message(author=ctx.message.author)
-            start_time_str = msg.content
+            m1 = await self.bot.say(ctx.message.author.mention + ": Enter event time (YYYY-MM-DD HH:MM AM/PM)")
+            m2 = await self.bot.wait_for_message(author=ctx.message.author)
+            to_delete.extend((m1, m2))
+            start_time_str = m2.content
             start_time_format = '%Y-%m-%d %I:%M %p'
             try:
                 start_time = datetime.strptime(start_time_str, start_time_format)
             except ValueError:
-                await self.bot.say(ctx.message.author.mention + ": Invalid event time!")
+                m3 = await self.bot.say(ctx.message.author.mention + ": Invalid event time!")
+                to_delete.append(m3)
 
-        await self.bot.say(ctx.message.author.mention + ": Enter the time zone (PST, EST, etc.)")
-        msg = await self.bot.wait_for_message(author=ctx.message.author)
-        time_zone = msg.content.upper()
+        # Get time zone from user
+        m1 = await self.bot.say(ctx.message.author.mention + ": Enter the time zone (PST, EST, etc.)")
+        m2 = await self.bot.wait_for_message(author=ctx.message.author)
+        to_delete.extend((m1, m2))
+        time_zone = m2.content.upper()
 
         # Add event to the database
         with DBase() as db:
             db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
-        await self.bot.say(ctx.message.author.mention
-                           + ": Event has been created! "
-                           + "The list of upcoming events will be updated momentarily.")
+        m = await self.bot.say(ctx.message.author.mention
+                               + ": Event has been created! "
+                               + "The list of upcoming events will be updated momentarily.")
+        to_delete.append(m)
 
         # Clean up messages and update events channel
-        await asyncio.sleep(4)
-        await self.bot.purge_from(ctx.message.channel, limit=(7 + time_msg_count), check=delete_all)
+        await clear_messages(self.bot, to_delete)
         await self.list_events(ctx.message.server)
 
 
     @event.command(pass_context=True)
     async def delete(self, ctx, event_id=None):
 
+        # Check if the user has the permissions to create events
+        if not ctx.message.author.server_permissions.manage_server:
+            m = await self.bot.say(ctx.message.author.mention
+                                     + ": Sorry, you must have the Manage Server permission to do that.")
+            return await bot.clear_messages(bot, [ctx.message, m])
+
+        # Return if the user is in a private message
         if ctx.message.channel.is_private:
             return await self.bot.say(ctx.message.author.mention
                                       + ": That command is not supported in a direct message.")
 
-        # Attempt to delete the event with the given event_id
+        # Attempt to delete the event
         deleted = False
+        to_delete = [ctx.message]
         if event_id is not None:
             with DBase() as db:
                 affected_count = db.delete_event(event_id)
                 if affected_count > 0:
                     deleted = True
             if deleted:
-                await self.bot.say(ctx.message.author.mention
-                                   + ": Event successfuly deleted. The list of upcoming "
-                                   + "events will be updated momentarily.")
+                m = await self.bot.say(ctx.message.author.mention
+                                       + ": Event successfuly deleted. The list of upcoming "
+                                       + "events will be updated momentarily.")
+                to_delete.append(m)
             else:
-                await self.bot.say(ctx.message.author.mention + ": That event doesn't exist.")
+                m = await self.bot.say(ctx.message.author.mention + ": That event doesn't exist.")
+                to_delete.append(m)
         else:
-            await self.bot.say(ctx.message.author.mention
-                               + ": An event ID must be specified! (Eg. '!event delete 117')")
+            m = await self.bot.say(ctx.message.author.mention
+                                   + ": An event ID must be specified! (Eg. '!event delete 117')")
+            to_delete.append(m)
 
-        # Clean up messages and update the events channel if necessary
-        await self.bot.purge_from(ctx.message.channel, limit=2, check=delete_all)
+        # Clean up messages and update the events channel if event was deleted
+        await clear_messages(self.bot, to_delete)
         if deleted:
             await self.list_events(ctx.message.server)
 
