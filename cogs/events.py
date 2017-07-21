@@ -40,12 +40,18 @@ class Events:
         to_delete = [ctx.message]
         m1 = await self.bot.say(ctx.message.author.mention + ": Enter event title")
         m2 = await self.bot.wait_for_message(author=ctx.message.author)
+        if m2.content.startswith('!'):
+            to_delete.append(m1)
+            return await clear_messages(self.bot, to_delete)
         to_delete.extend((m1, m2))
         title = m2.content
 
         # Get description from user
         m1 = await self.bot.say(ctx.message.author.mention + ": Enter event description (type 'none' for no description)")
         m2 = await self.bot.wait_for_message(author=ctx.message.author)
+        if m2.content.startswith('!'):
+            to_delete.append(m1)
+            return await clear_messages(self.bot, to_delete)
         to_delete.extend((m1, m2))
         description = ''
         if m2.content.upper() != 'NONE':
@@ -56,6 +62,9 @@ class Events:
         while not start_time:
             m1 = await self.bot.say(ctx.message.author.mention + ": Enter event time (YYYY-MM-DD HH:MM AM/PM)")
             m2 = await self.bot.wait_for_message(author=ctx.message.author)
+            if m2.content.startswith('!'):
+                to_delete.append(m1)
+                return await clear_messages(self.bot, to_delete)
             to_delete.extend((m1, m2))
             start_time_str = m2.content
             start_time_format = '%Y-%m-%d %I:%M %p'
@@ -68,6 +77,9 @@ class Events:
         # Get time zone from user
         m1 = await self.bot.say(ctx.message.author.mention + ": Enter the time zone (PST, EST, etc.)")
         m2 = await self.bot.wait_for_message(author=ctx.message.author)
+        if m2.content.startswith('!'):
+            to_delete.append(m1)
+            return await clear_messages(self.bot, to_delete)
         to_delete.extend((m1, m2))
         time_zone = m2.content.upper()
 
