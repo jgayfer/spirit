@@ -24,97 +24,104 @@ class DBase:
 
 
     def get_roster(self, server_id):
-        sql = """SELECT username, role
-                 FROM roles
-                 WHERE roles.server_id = {0};
-                 """.format(server_id)
-        self.cur.execute(sql)
+        sql = """
+              SELECT username, role
+              FROM roles
+              WHERE roles.server_id = %s;
+              """
+        self.cur.execute(sql, (server_id,))
         return self.cur.fetchall()
 
 
     def update_roster(self, username, role, server_id):
-        sql = []
-        sql.append("""INSERT INTO users (username)
-                      VALUES ('{0}')
-                      ON DUPLICATE KEY UPDATE username = '{0}';
-                      """.format(username))
-        sql.append("""INSERT INTO roles (username, server_id, role)
-                      VALUES ('{0}', '{1}', '{2}')
-                      ON DUPLICATE KEY UPDATE role = '{2}';
-                      """.format(username, server_id, role))
-        for query in sql:
-            self.cur.execute(query)
+        sql1 = """
+               INSERT INTO users (username)
+               VALUES (%s)
+               ON DUPLICATE KEY UPDATE username = %s;
+               """
+        sql2 = """
+               INSERT INTO roles (username, server_id, role)
+               VALUES (%s, %s, %s)
+               ON DUPLICATE KEY UPDATE role = %s;
+               """
+        self.cur.execute(sql1, (username, username))
+        self.cur.execute(sql2, (username, server_id, role, role))
         self.conn.commit()
 
 
     def create_event(self, title, start_time, time_zone, server_id, description):
-        sql = """INSERT INTO events (title, start_time, time_zone, server_id, description)
-                 VALUES ('{0}', '{1}', '{2}', '{3}', '{4}')
-                 """.format(title, start_time, time_zone, server_id, description)
-        self.cur.execute(sql)
+        sql = """
+              INSERT INTO events (title, start_time, time_zone, server_id, description)
+              VALUES (%s, %s, %s, %s, %s)
+              """
+        self.cur.execute(sql, (title, start_time, time_zone, server_id, description))
         self.conn.commit()
 
 
     def get_events(self, server_id):
-        sql = """SELECT events.event_id as e, title, description, start_time, time_zone, (
-                   SELECT GROUP_CONCAT(DISTINCT username)
-                   FROM user_event, events
-                   WHERE user_event.event_id = e
-                   AND events.server_id = {0}
-                   AND user_event.attending = 1)
-                   AS accepted, (
-                   SELECT GROUP_CONCAT(DISTINCT username)
-                   FROM user_event, events
-                   WHERE user_event.event_id = e
-                   AND events.server_id = {0}
-                   AND user_event.attending = 0)
-                   AS declined
-                 FROM events
-                 WHERE events.server_id = {0}
-                 GROUP BY event_id, title, description, start_time, time_zone;
-                 """.format(server_id)
-        self.cur.execute(sql)
+        sql = """
+              SELECT events.event_id as e, title, description, start_time, time_zone, (
+                SELECT GROUP_CONCAT(DISTINCT username)
+                FROM user_event, events
+                WHERE user_event.event_id = e
+                AND events.server_id = %s
+                AND user_event.attending = 1)
+                AS accepted, (
+                SELECT GROUP_CONCAT(DISTINCT username)
+                FROM user_event, events
+                WHERE user_event.event_id = e
+                AND events.server_id = %s
+                AND user_event.attending = 0)
+                AS declined
+              FROM events
+              WHERE events.server_id = %s
+              GROUP BY event_id, title, description, start_time, time_zone;
+              """
+        self.cur.execute(sql, (server_id, server_id, server_id))
         return self.cur.fetchall()
 
 
     def update_attendance(self, username, event_id, attending):
-        sql = []
-        sql.append("""INSERT INTO users (username)
-                      VALUES ('{0}')
-                      ON DUPLICATE KEY UPDATE username = '{0}';
-                      """.format(username))
-        sql.append("""INSERT INTO user_event (username, event_id, attending)
-                      VALUES ('{0}', '{1}', '{2}')
-                      ON DUPLICATE KEY UPDATE attending = '{2}';
-                      """.format(username, event_id, attending))
-        for query in sql:
-            self.cur.execute(query)
+        sql1 = """
+               INSERT INTO users (username)
+               VALUES (%s)
+               ON DUPLICATE KEY UPDATE username = %s;
+               """
+        sql2 = """
+               INSERT INTO user_event (username, event_id, attending)
+               VALUES (%s, %s, %s)
+               ON DUPLICATE KEY UPDATE attending = %s;
+               """
+        self.cur.execute(sql1, (username, username))
+        self.cur.execute(sql2, (username, event_id, attending, attending))
         self.conn.commit()
 
 
     def get_event(self, event_id):
-        sql = """SELECT title, description, start_time, time_zone, (
-                   SELECT GROUP_CONCAT(DISTINCT username)
-                   FROM user_event
-                   WHERE event_id = {0}
-                   AND user_event.attending = 1)
-                   AS accepted, (
-                   SELECT GROUP_CONCAT(DISTINCT username)
-                   FROM user_event
-                   WHERE event_id = {0}
-                   AND user_event.attending = 0)
-                   AS declined
-                 FROM events
-                 WHERE event_id = {0};
-                 """.format(event_id)
-        self.cur.execute(sql)
+        sql = """
+              SELECT title, description, start_time, time_zone, (
+                SELECT GROUP_CONCAT(DISTINCT username)
+                FROM user_event
+                WHERE event_id = %s
+                AND user_event.attending = 1)
+                AS accepted, (
+                SELECT GROUP_CONCAT(DISTINCT username)
+                FROM user_event
+                WHERE event_id = %s
+                AND user_event.attending = 0)
+                AS declined
+              FROM events
+              WHERE event_id = %s;
+              """
+        self.cur.execute(sql, (event_id, event_id, event_id))
         return self.cur.fetchall()
 
 
     def delete_event(self, event_id):
-        sql = """DELETE FROM events
-                 WHERE event_id = {0}
-                 """.format(event_id)
-        affected_count = self.cur.execute(sql)
+        sql = """
+              DELETE FROM events
+              WHERE event_id = %s
+              """
+        affected_count = self.cur.execute(sql, (event_id,))
         self.conn.commit()
         return affected_count
