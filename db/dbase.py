@@ -1,8 +1,12 @@
+from utils.admin import load_credentials
 import MySQLdb
+import json
 
 class DBase:
 
-    dsn = ("localhost","root","Blue7Bone","Spirit")
+    credentials = load_credentials()
+    dsn = (credentials["dbhost"], credentials["dbuser"],
+           credentials["dbpass"], credentials["dbname"])
 
 
     def __init__(self):
