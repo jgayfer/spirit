@@ -29,7 +29,7 @@ It should look something like this!
 }
 
 ```
-That's it! The bot can be with with
+That's it! The bot can be run with with
 ```
 python3 spirit.py
 ```
