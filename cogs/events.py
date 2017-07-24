@@ -207,7 +207,8 @@ class Events:
 
         if description:
             embed_msg.description = description
-        embed_msg.add_field(name="Time", value=str(time) + " " + time_zone, inline=False)
+        time_str = time.strftime("%A %b %-d, %Y @ %-I:%M %p")
+        embed_msg.add_field(name="Time", value=time_str + " " + time_zone, inline=False)
 
         if accepted:
             accepted = accepted.split(',')
@@ -216,7 +217,7 @@ class Events:
                 accepted_list += "{}\n".format(member)
             embed_msg.add_field(name="Accepted", value=accepted_list)
         else:
-            embed_msg.add_field(name="Accepted", value="None")
+            embed_msg.add_field(name="Accepted", value="-")
 
         if declined:
             declined = declined.split(',')
@@ -225,7 +226,7 @@ class Events:
                 declined_list += "{}\n".format(member)
             embed_msg.add_field(name="Declined", value=declined_list)
         else:
-            embed_msg.add_field(name="Declined", value="None")
+            embed_msg.add_field(name="Declined", value="-")
 
         return embed_msg
 
