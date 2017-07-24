@@ -12,7 +12,6 @@ class Roster:
     def __init__(self, bot):
         self.bot = bot
 
-
     @commands.command(pass_context=True)
     async def role(self, ctx, role="None"):
         """Update the user's role on current server"""
@@ -35,7 +34,6 @@ class Roster:
         await asyncio.sleep(constants.SPAM_DELAY)
         await self.bot.delete_message(msg_res)
         await self.bot.delete_message(ctx.message)
-
 
     @commands.command(pass_context=True)
     async def roster(self, ctx):

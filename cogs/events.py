@@ -6,7 +6,7 @@ from discord.ext import commands
 from db.dbase import DBase
 import discord
 
-from utils.messages import delete_all, clear_messages
+from utils.messages import delete_all, clear_messages, MessageManager
 import utils.constants as constants
 
 
@@ -14,7 +14,6 @@ class Events:
 
     def __init__(self, bot):
         self.bot = bot
-
 
     @commands.group(pass_context=True)
     async def event(self, ctx):
@@ -25,81 +24,54 @@ class Events:
                                    + "Use '!event help' to view available commands.")
             return await clear_messages(self.bot, [ctx.message, m])
 
-
     @event.command(pass_context=True)
     async def create(self, ctx):
         """Create an event. Update the events channel on success"""
+        user = ctx.message.author
+        channel = ctx.message.channel
+        manager = MessageManager(self.bot, user, channel)
+
         if not ctx.message.author.server_permissions.manage_server:
-            m = await self.bot.say(ctx.message.author.mention
-                                     + ": Sorry, you must have the Manage Server permission to do that.")
-            return await bot.clear_messages(bot, [ctx.message, m])
+            await manager.say(user.mention + ": You must have the Manage Server permission to do that.")
+            return await manager.clear()
 
         # Return if the user is in a private message as events are server specific
         if ctx.message.channel.is_private:
-            return await self.bot.say(ctx.message.author.mention
-                                      + ": That command is not supported in a direct message.")
+            return await manager.say(user.mention + ": That command is not supported in a direct message.")
 
-        to_delete = [ctx.message]
-        m1 = await self.bot.say(ctx.message.author.mention + ": Enter event title")
-        m2 = await self.bot.wait_for_message(author=ctx.message.author)
-        if m2.content.startswith('!'):
-            to_delete.append(m1)
-            return await clear_messages(self.bot, to_delete)
-        to_delete.extend((m1, m2))
-        title = m2.content
+        res = await manager.say_and_wait(user.mention + ": Enter event title")
+        title = res.content
 
-        m1 = await self.bot.say(ctx.message.author.mention + ": Enter event description (type 'none' for no description)")
-        m2 = await self.bot.wait_for_message(author=ctx.message.author)
-        if m2.content.startswith('!'):
-            to_delete.append(m1)
-            return await clear_messages(self.bot, to_delete)
-        to_delete.extend((m1, m2))
-        description = ''
-        if m2.content.upper() != 'NONE':
-            description = m2.content
+        description = ""
+        res = await manager.say_and_wait(user.mention + ": Enter event description ('none' for no description)")
+        if res.content.upper() != 'NONE':
+            description = res.content
 
         start_time = None
         while not start_time:
-            m1 = await self.bot.say(ctx.message.author.mention + ": Enter event time (YYYY-MM-DD HH:MM AM/PM)")
-            m2 = await self.bot.wait_for_message(author=ctx.message.author)
-            if m2.content.startswith('!'):
-                to_delete.append(m1)
-                return await clear_messages(self.bot, to_delete)
-            to_delete.extend((m1, m2))
-            start_time_str = m2.content
+            res = await manager.say_and_wait(user.mention + ": Enter event time (YYYY-MM-DD HH:MM AM/PM)")
             start_time_format = '%Y-%m-%d %I:%M %p'
             try:
-                start_time = datetime.strptime(start_time_str, start_time_format)
+                start_time = datetime.strptime(res.content, start_time_format)
             except ValueError:
-                m3 = await self.bot.say(ctx.message.author.mention + ": Invalid event time!")
-                to_delete.append(m3)
+                await manager.say(user.mention + ": Invalid event time!")
 
         time_zone = None
         while not time_zone:
-            m1 = await self.bot.say(ctx.message.author.mention + ": Enter the time zone (PST, EST, etc.)")
-            m2 = await self.bot.wait_for_message(author=ctx.message.author)
-            to_delete.append(m1)
-            if m2.content.startswith('!'):
-                to_delete.append(m1)
-                return await clear_messages(self.bot, to_delete)
-            elif len(m2.content) > 5:
-                m3 =  await self.bot.say(ctx.message.author.mention
-                                         + ": Time zone must be less than 6 characters!")
-                to_delete.extend((m2,m3))
+            res = await manager.say_and_wait(user.mention + ": Enter the time zone (PST, EST, etc.)")
+            if len(res.content) > 5:
+                await manager.say(user.mention + ": Time zone must be less than 6 characters!")
             else:
-                to_delete.append(m2)
-                time_zone = m2.content.upper()
+                time_zone = res.content.upper()
 
         with DBase() as db:
             db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
-        m = await self.bot.say(ctx.message.author.mention
-                               + ": Event has been created! "
-                               + "The list of upcoming events will be updated momentarily.")
-        to_delete.append(m)
+        await manager.say(user.mention
+                          + ": Event has been created! "
+                          + "The list of upcoming events will be updated momentarily.")
 
-        await clear_messages(self.bot, to_delete)
+        await manager.clear()
         await self.list_events(ctx.message.server)
-
 
     @event.command(pass_context=True)
     async def delete(self, ctx, event_id=None):
@@ -137,7 +109,6 @@ class Events:
         if deleted:
             await self.list_events(ctx.message.server)
 
-
     async def list_events(self, server):
         """Clear the event channel and display all upcoming events"""
         events_channel = await self.get_events_channel(server)
@@ -149,7 +120,6 @@ class Events:
                 msg = await self.bot.send_message(events_channel, embed=event_embed)
                 await self.bot.add_reaction(msg, "\N{WHITE HEAVY CHECK MARK}")
                 await self.bot.add_reaction(msg, "\N{CROSS MARK}")
-
 
     async def on_reaction_add(self, reaction, user):
         """If a reaction represents a user RSVP, update the DB and event message"""
@@ -184,14 +154,12 @@ class Events:
             await asyncio.sleep(constants.REACTION_DELAY)
             await self.bot.remove_reaction(message, reaction.emoji, user)
 
-
     async def get_events_channel(self, server):
         """Return the events channel if it exists, otherwise create one and return it"""
         for channel in server.channels:
             if channel.name == "upcoming-events":
                 return channel
         return await self.bot.create_channel(server, "upcoming-events")
-
 
     def create_event_embed(self, id, title, description, time, time_zone, accepted=None, declined=None):
         """Create and return a Discord Embed object that represents an upcoming event"""
@@ -223,7 +191,6 @@ class Events:
             embed_msg.add_field(name="Declined", value="-")
 
         return embed_msg
-
 
     async def on_server_available(self, server):
         """Refresh upcoming events when the bot starts so that the event messages
