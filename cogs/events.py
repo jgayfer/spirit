@@ -7,6 +7,7 @@ from db.dbase import DBase
 import discord
 
 from utils.messages import delete_all, clear_messages
+import utils.constants as constants
 
 
 class Events:
@@ -172,7 +173,7 @@ class Events:
                     await self.bot.edit_message(reaction.message, embed=event_embed)
 
             # Remove the reaction to keep the event message looking clean
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(constants.REACTION_DELAY)
             await self.bot.remove_reaction(message, reaction.emoji, user)
 
 
@@ -186,7 +187,7 @@ class Events:
 
     def create_event_embed(self, id, title, description, time, time_zone, accepted=None, declined=None):
         """Create and return a Discord Embed object that represents an upcoming event"""
-        embed_msg = discord.Embed(color=discord.Colour(3381759))
+        embed_msg = discord.Embed(color=constants.BLUE)
         embed_msg.set_footer(text="Use '!event delete " + str(id) + "' to remove this event")
         embed_msg.title = title
 

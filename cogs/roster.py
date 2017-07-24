@@ -4,6 +4,8 @@ from discord.ext import commands
 from db.dbase import DBase
 import discord
 
+import utils.constants as constants
+
 
 class Roster:
 
@@ -30,7 +32,7 @@ class Roster:
         else:
             msg_res = await self.bot.say(ctx.message.author.mention
                                          + ": Oops! Role must be one of: Titan, Hunter, Warlock")
-        await asyncio.sleep(4)
+        await asyncio.sleep(constants.SPAM_DELAY)
         await self.bot.delete_message(msg_res)
         await self.bot.delete_message(ctx.message)
 
@@ -56,17 +58,17 @@ class Roster:
                     message += row[1] + "\n"
                 message += "```"
 
-                embed_msg = discord.Embed(color=discord.Colour(3381759))
+                embed_msg = discord.Embed(color=constants.BLUE)
                 embed_msg.title="Destiny 2 Pre Launch Roster"
                 embed_msg.description = message
 
                 await self.bot.say(embed=embed_msg)
-                await asyncio.sleep(4)
+                await asyncio.sleep(constants.SPAM_DELAY)
                 await self.bot.delete_message(ctx.message)
             else:
                 msg_res = await self.bot.say(ctx.message.author.mention
                                              + ": No roles have been assigned yet. "
                                              + "Use !role to assign yourself a role.")
-                await asyncio.sleep(4)
+                await asyncio.sleep(constants.SPAM_DELAY)
                 await self.bot.delete_message(msg_res)
                 await self.bot.delete_message(ctx.message)
