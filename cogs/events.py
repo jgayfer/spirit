@@ -147,15 +147,8 @@ class Events:
             events = db.get_events(server.id)
         if len(events) != 0:
             for row in events:
-                embed_msg = discord.Embed(color=discord.Colour(3381759))
-                embed_msg.set_footer(text="Use '!event delete " + str(row[0]) + "' to remove this event")
-                embed_msg.title = row[1]
-                if row[2]:
-                    embed_msg.description = row[2]
-                embed_msg.add_field(name="Time", value=str(row[3]) + row[4], inline=False)
-                embed_msg.add_field(name="Accepted", value=row[5])
-                embed_msg.add_field(name="Declined", value=row[6])
-                msg = await self.bot.send_message(events_channel, embed=embed_msg)
+                event_embed = self.create_event_embed(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
+                msg = await self.bot.send_message(events_channel, embed=event_embed)
                 await self.bot.add_reaction(msg, "\N{WHITE HEAVY CHECK MARK}")
                 await self.bot.add_reaction(msg, "\N{CROSS MARK}")
 
@@ -171,8 +164,7 @@ class Events:
                 and num_embeds is not 0
                 and user is not author):
             username = user.name
-            footer = reaction.message.embeds[0]['footer']['text']
-            event_id = re.search('\d+', footer).group()
+            event_id = re.search('\d+', reaction.message.embeds[0]['footer']['text']).group()
             attending = None
             if reaction.emoji == "\N{WHITE HEAVY CHECK MARK}":
                 attending = 1
@@ -188,15 +180,8 @@ class Events:
             event = None
             with DBase() as db:
                 event = db.get_event(event_id)
-            embed_msg = discord.Embed(color=discord.Colour(3381759))
-            embed_msg.set_footer(text="Use '!event delete " + event_id + "' to remove this event")
-            embed_msg.title = event[0][0]
-            if event[0][1]:
-                embed_msg.description = event[0][1]
-            embed_msg.add_field(name="Time", value=str(event[0][2]) + event[0][3], inline=False)
-            embed_msg.add_field(name="Accepted", value=event[0][4])
-            embed_msg.add_field(name="Declined", value=event[0][5])
-            await self.bot.edit_message(reaction.message, embed=embed_msg)
+            event_embed = self.create_event_embed(event_id, event[0][0], event[0][1], event[0][2], event[0][3], event[0][4], event[0][5])
+            await self.bot.edit_message(reaction.message, embed=event_embed)
 
             # Remove reaction
             await asyncio.sleep(0.5)
@@ -212,6 +197,37 @@ class Events:
 
         # Otherwise, create an event channel and return it
         return await self.bot.create_channel(server, "upcoming-events")
+
+
+    def create_event_embed(self, id, title, description, time, time_zone, accepted=None, declined=None):
+
+        embed_msg = discord.Embed(color=discord.Colour(3381759))
+        embed_msg.set_footer(text="Use '!event delete " + str(id) + "' to remove this event")
+        embed_msg.title = title
+
+        if description:
+            embed_msg.description = description
+        embed_msg.add_field(name="Time", value=str(time) + " " + time_zone, inline=False)
+
+        if accepted:
+            accepted = accepted.split(',')
+            accepted_list = ""
+            for member in accepted:
+                accepted_list += "{}\n".format(member)
+            embed_msg.add_field(name="Accepted", value=accepted_list)
+        else:
+            embed_msg.add_field(name="Accepted", value="None")
+
+        if declined:
+            declined = declined.split(',')
+            declined_list = ""
+            for member in declined:
+                declined_list += "{}\n".format(member)
+            embed_msg.add_field(name="Declined", value=declined_list)
+        else:
+            embed_msg.add_field(name="Declined", value="None")
+
+        return embed_msg
 
 
     # When the bot starts, refresh the events channel
