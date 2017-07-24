@@ -28,8 +28,7 @@ class Events:
     async def create(self, ctx):
         """Create an event. Update the events channel on success"""
         user = ctx.message.author
-        channel = ctx.message.channel
-        manager = MessageManager(self.bot, user, channel)
+        manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
         if not ctx.message.author.server_permissions.manage_server:
             await manager.say(user.mention + ": You must have the Manage Server permission to do that.")
@@ -76,36 +75,30 @@ class Events:
     @event.command(pass_context=True)
     async def delete(self, ctx, event_id=None):
         """Delete an event. Update the events channel on success"""
+        user = ctx.message.author
+        manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
+
         if not ctx.message.author.server_permissions.manage_server:
-            m = await self.bot.say(ctx.message.author.mention
-                                     + ": Sorry, you must have the Manage Server permission to do that.")
-            return await bot.clear_messages(bot, [ctx.message, m])
+            await manager.say(user.mention + ": You must have the Manage Server permission to do that.")
+            return await manager.clear()
 
         # Return if the user is in a private message as events are server specific
         if ctx.message.channel.is_private:
-            return await self.bot.say(ctx.message.author.mention
-                                      + ": That command is not supported in a direct message.")
+            return await manager.say(user.mention + ": That command is not supported in a direct message.")
 
         deleted = None
-        to_delete = [ctx.message]
         if event_id is not None:
             with DBase() as db:
                 affected_count = db.delete_event(event_id)
                 if affected_count > 0:
                     deleted = True
-                    m = await self.bot.say(ctx.message.author.mention
-                                           + ": Event successfuly deleted. The list of upcoming "
-                                           + "events will be updated momentarily.")
-                    to_delete.append(m)
+                    await manager.say(user.mention + ": Event successfuly deleted. "
+                                      + "The list of upcoming events will be updated momentarily.")
                 else:
-                    m = await self.bot.say(ctx.message.author.mention + ": That event doesn't exist.")
-                    to_delete.append(m)
+                    m = await self.bot.say(user.mention + ": That event doesn't exist.")
         else:
-            m = await self.bot.say(ctx.message.author.mention
-                                   + ": An event ID must be specified! (Eg. '!event delete 117')")
-            to_delete.append(m)
-
-        await clear_messages(self.bot, to_delete)
+            await manager.say(user.mention + ": An event ID must be specified! (Eg. '!event delete 117')")
+        await manager.clear()
         if deleted:
             await self.list_events(ctx.message.server)
 

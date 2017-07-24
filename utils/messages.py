@@ -19,11 +19,11 @@ async def clear_messages(bot, messages):
 
 class MessageManager:
 
-    def __init__(self, bot, user, channel):
+    def __init__(self, bot, user, channel, message):
         self.bot = bot
         self.user = user
         self.channel = channel
-        self.messages = []
+        self.messages = [message]
 
     async def say_and_wait(self, content):
         """Send a message and wait for user's response"""
@@ -39,10 +39,15 @@ class MessageManager:
         else:
             return res
 
-    async def say(self, content):
+    async def say(self, content, embed=False, delete=True):
         """Send a single message"""
-        msg = await self.bot.send_message(self.channel, content)
-        self.messages.append(msg)
+        msg = None
+        if embed:
+            msg = await self.bot.send_message(self.channel, embed=content)
+        else:
+            msg = await self.bot.send_message(self.channel, content)
+        if delete:
+            self.messages.append(msg)
 
     async def clear(self):
         """Delete all messages"""
