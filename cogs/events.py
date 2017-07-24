@@ -74,13 +74,21 @@ class Events:
                 m3 = await self.bot.say(ctx.message.author.mention + ": Invalid event time!")
                 to_delete.append(m3)
 
-        m1 = await self.bot.say(ctx.message.author.mention + ": Enter the time zone (PST, EST, etc.)")
-        m2 = await self.bot.wait_for_message(author=ctx.message.author)
-        if m2.content.startswith('!'):
+        time_zone = None
+        while not time_zone:
+            m1 = await self.bot.say(ctx.message.author.mention + ": Enter the time zone (PST, EST, etc.)")
+            m2 = await self.bot.wait_for_message(author=ctx.message.author)
             to_delete.append(m1)
-            return await clear_messages(self.bot, to_delete)
-        to_delete.extend((m1, m2))
-        time_zone = m2.content.upper()
+            if m2.content.startswith('!'):
+                to_delete.append(m1)
+                return await clear_messages(self.bot, to_delete)
+            elif len(m2.content) > 5:
+                m3 =  await self.bot.say(ctx.message.author.mention
+                                         + ": Time zone must be less than 6 characters!")
+                to_delete.extend((m2,m3))
+            else:
+                to_delete.append(m2)
+                time_zone = m2.content.upper()
 
         with DBase() as db:
             db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
