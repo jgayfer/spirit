@@ -57,7 +57,7 @@ class Events:
         time_zone = None
         while not time_zone:
             res = await manager.say_and_wait("Enter the time zone (PST, EST, etc.)")
-            if res.content not in constants.time_zones:
+            if res.content.upper() not in constants.time_zones:
                 await manager.say("Unsupported time zone")
             else:
                 time_zone = res.content.upper()
