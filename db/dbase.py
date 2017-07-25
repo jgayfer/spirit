@@ -25,7 +25,8 @@ class DBase:
         sql = """
               SELECT username, role
               FROM roles
-              WHERE roles.server_id = %s;
+              WHERE roles.server_id = %s
+              ORDER BY role;
               """
         self.cur.execute(sql, (server_id,))
         return self.cur.fetchall()
