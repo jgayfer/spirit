@@ -4,8 +4,8 @@ from discord.ext import commands
 from db.dbase import DBase
 import discord
 
-from utils.messages import MessageManager
-import utils.constants as constants
+from cogs.utils.messages import MessageManager
+from cogs.utils import constants
 
 
 class Roster:

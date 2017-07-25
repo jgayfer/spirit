@@ -2,7 +2,6 @@ import json
 
 from discord.ext import commands
 
-from utils.admin import load_credentials
 from cogs.events import Events
 from cogs.roster import Roster
 from cogs.help import Help
@@ -24,6 +23,6 @@ async def on_ready():
 
 
 if __name__ == '__main__':
-    credentials = load_credentials()
-    token = credentials['token']
-    bot.run(token)
+    with open('credentials.json') as f:
+        token = json.load(f)['token']
+        bot.run(token)

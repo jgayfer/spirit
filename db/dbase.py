@@ -1,27 +1,25 @@
-from utils.admin import load_credentials
-import MySQLdb
 import json
+
+import MySQLdb
+
 
 class DBase:
 
-    credentials = load_credentials()
-    dsn = (credentials["dbhost"], credentials["dbuser"],
-           credentials["dbpass"], credentials["dbname"])
-
+    with open('credentials.json') as f:
+        credentials = json.load(f)
+        dsn = (credentials["dbhost"], credentials["dbuser"],
+               credentials["dbpass"], credentials["dbname"])
 
     def __init__(self):
         self.conn = MySQLdb.connect(*self.dsn)
         self.cur = self.conn.cursor()
 
-
     def __enter__(self):
         return DBase()
-
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.conn:
             self.conn.close()
-
 
     def get_roster(self, server_id):
         sql = """
@@ -31,7 +29,6 @@ class DBase:
               """
         self.cur.execute(sql, (server_id,))
         return self.cur.fetchall()
-
 
     def update_roster(self, username, role, server_id):
         sql1 = """
@@ -48,7 +45,6 @@ class DBase:
         self.cur.execute(sql2, (username, server_id, role, role))
         self.conn.commit()
 
-
     def create_event(self, title, start_time, time_zone, server_id, description):
         sql = """
               INSERT INTO events (title, start_time, time_zone, server_id, description)
@@ -56,7 +52,6 @@ class DBase:
               """
         self.cur.execute(sql, (title, start_time, time_zone, server_id, description))
         self.conn.commit()
-
 
     def get_events(self, server_id):
         sql = """
@@ -80,7 +75,6 @@ class DBase:
         self.cur.execute(sql, (server_id, server_id, server_id))
         return self.cur.fetchall()
 
-
     def update_attendance(self, username, event_id, attending):
         sql1 = """
                INSERT INTO users (username)
@@ -95,7 +89,6 @@ class DBase:
         self.cur.execute(sql1, (username, username))
         self.cur.execute(sql2, (username, event_id, attending, attending))
         self.conn.commit()
-
 
     def get_event(self, event_id):
         sql = """
@@ -115,7 +108,6 @@ class DBase:
               """
         self.cur.execute(sql, (event_id, event_id, event_id))
         return self.cur.fetchall()
-
 
     def delete_event(self, event_id):
         sql = """

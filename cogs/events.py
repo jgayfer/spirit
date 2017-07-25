@@ -6,8 +6,8 @@ from discord.ext import commands
 from db.dbase import DBase
 import discord
 
-from utils.messages import delete_all, clear_messages, MessageManager
-import utils.constants as constants
+from cogs.utils.messages import delete_all, MessageManager
+from cogs.utils import constants
 
 
 class Events:

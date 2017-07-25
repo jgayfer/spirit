@@ -2,7 +2,7 @@ import asyncio
 
 import discord
 
-import utils.constants as constants
+from cogs.utils import constants
 
 
 def delete_all(message):

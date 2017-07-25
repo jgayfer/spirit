@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 
-from utils import constants
-from utils.messages import MessageManager
+from cogs.utils import constants
+from cogs.utils.messages import MessageManager
 
 
 class Help:
