@@ -8,7 +8,6 @@ from utils.messages import MessageManager
 import utils.constants as constants
 
 
-
 class Roster:
 
     def __init__(self, bot):
@@ -17,25 +16,24 @@ class Roster:
     @commands.command(pass_context=True)
     async def role(self, ctx, role="None"):
         """Update the user's role on current server"""
+        user = ctx.message.author
+        manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
+
         # Return if the user is in a private message as events are server specific
         if ctx.message.channel.is_private:
-            return await self.bot.say(ctx.message.author.mention
-                                      + ": That command is not supported in a direct message.")
+            return await manager.say("That command is not supported in a direct message.")
 
         user = str(ctx.message.author)
         role = role.lower().title()
         server_id = ctx.message.server.id
-        msg_res = None
+
         if role == "Titan" or role == "Warlock" or role == "Hunter":
             with DBase() as db:
                 db.update_roster(user, role, server_id)
-            msg_res = await self.bot.say(ctx.message.author.mention + ": Your role has been updated!")
+            await manager.say("Your role has been updated!")
         else:
-            msg_res = await self.bot.say(ctx.message.author.mention
-                                         + ": Oops! Role must be one of: Titan, Hunter, Warlock")
-        await asyncio.sleep(constants.SPAM_DELAY)
-        await self.bot.delete_message(msg_res)
-        await self.bot.delete_message(ctx.message)
+            await manager.say("Role must be one of: Titan, Hunter, Warlock")
+        await manager.clear()
 
     @commands.command(pass_context=True)
     async def roster(self, ctx):
@@ -65,6 +63,5 @@ class Roster:
                 embed_msg.description = message
                 await manager.say(embed_msg, embed=True, delete=False)
             else:
-                await manager.say(user.mention + ": No roles have been assigned yet. Use !role to assign yourself a role.")
-
+                await manager.say("No roles have been assigned yet. Use !role to assign yourself a role.")
             await manager.clear()

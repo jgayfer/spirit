@@ -25,9 +25,9 @@ class MessageManager:
         self.channel = channel
         self.messages = [message]
 
-    async def say_and_wait(self, content):
+    async def say_and_wait(self, content, mention=True):
         """Send a message and wait for user's response"""
-        msg = await self.bot.send_message(self.channel, content)
+        msg = await self.bot.send_message(self.channel, "{}: {}".format(self.user.mention, content))
         self.messages.append(msg)
         res = await self.bot.wait_for_message(author=self.user)
         self.messages.append(res)
@@ -39,13 +39,13 @@ class MessageManager:
         else:
             return res
 
-    async def say(self, content, embed=False, delete=True):
+    async def say(self, content, embed=False, delete=True, mention=True):
         """Send a single message"""
         msg = None
         if embed:
             msg = await self.bot.send_message(self.channel, embed=content)
         else:
-            msg = await self.bot.send_message(self.channel, content)
+            msg = await self.bot.send_message(self.channel, "{}: {}".format(self.user.mention, content))
         if delete:
             self.messages.append(msg)
 

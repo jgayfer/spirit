@@ -19,9 +19,7 @@ class Events:
     async def event(self, ctx):
         """Base event command"""
         if ctx.invoked_subcommand is None:
-            m = await self.bot.say(ctx.message.author.mention
-                                   + ": Invalid event command passed. "
-                                   + "Use '!event help' to view available commands.")
+            await manager.say("Invalid event command. Use '!event help' to view available commands.")
             return await clear_messages(self.bot, [ctx.message, m])
 
     @event.command(pass_context=True)
@@ -30,44 +28,42 @@ class Events:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        if not ctx.message.author.server_permissions.manage_server:
-            await manager.say(user.mention + ": You must have the Manage Server permission to do that.")
+        if not user.server_permissions.manage_server:
+            await manager.say("You must have the Manage Server permission to do that.")
             return await manager.clear()
 
         # Return if the user is in a private message as events are server specific
         if ctx.message.channel.is_private:
-            return await manager.say(user.mention + ": That command is not supported in a direct message.")
+            return await manager.say("That command is not supported in a direct message.")
 
-        res = await manager.say_and_wait(user.mention + ": Enter event title")
+        res = await manager.say_and_wait("Enter event title")
         title = res.content
 
         description = ""
-        res = await manager.say_and_wait(user.mention + ": Enter event description ('none' for no description)")
+        res = await manager.say_and_wait("Enter event description (type 'none' for no description)")
         if res.content.upper() != 'NONE':
             description = res.content
 
         start_time = None
         while not start_time:
-            res = await manager.say_and_wait(user.mention + ": Enter event time (YYYY-MM-DD HH:MM AM/PM)")
+            res = await manager.say_and_wait("Enter event time (YYYY-MM-DD HH:MM AM/PM)")
             start_time_format = '%Y-%m-%d %I:%M %p'
             try:
                 start_time = datetime.strptime(res.content, start_time_format)
             except ValueError:
-                await manager.say(user.mention + ": Invalid event time!")
+                await manager.say("Invalid event time!")
 
         time_zone = None
         while not time_zone:
-            res = await manager.say_and_wait(user.mention + ": Enter the time zone (PST, EST, etc.)")
+            res = await manager.say_and_wait("Enter the time zone (PST, EST, etc.)")
             if len(res.content) > 5:
-                await manager.say(user.mention + ": Time zone must be less than 6 characters!")
+                await manager.say("Time zone must be less than 6 characters!")
             else:
                 time_zone = res.content.upper()
 
         with DBase() as db:
             db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
-        await manager.say(user.mention
-                          + ": Event has been created! "
-                          + "The list of upcoming events will be updated momentarily.")
+        await manager.say("Event has been created! The list of upcoming events will be updated momentarily.")
 
         await manager.clear()
         await self.list_events(ctx.message.server)
@@ -78,13 +74,13 @@ class Events:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        if not ctx.message.author.server_permissions.manage_server:
-            await manager.say(user.mention + ": You must have the Manage Server permission to do that.")
+        if not user.server_permissions.manage_server:
+            await manager.say("You must have the Manage Server permission to do that.")
             return await manager.clear()
 
         # Return if the user is in a private message as events are server specific
         if ctx.message.channel.is_private:
-            return await manager.say(user.mention + ": That command is not supported in a direct message.")
+            return await manager.say("That command is not supported in a direct message.")
 
         deleted = None
         if event_id is not None:
@@ -92,13 +88,15 @@ class Events:
                 affected_count = db.delete_event(event_id)
                 if affected_count > 0:
                     deleted = True
-                    await manager.say(user.mention + ": Event successfuly deleted. "
-                                      + "The list of upcoming events will be updated momentarily.")
+                    await manager.say("Event successfuly deleted. "
+                                    + "The list of upcoming events will be updated momentarily.")
                 else:
-                    m = await self.bot.say(user.mention + ": That event doesn't exist.")
+                    await manager.say("That event doesn't exist.")
         else:
-            await manager.say(user.mention + ": An event ID must be specified! (Eg. '!event delete 117')")
+            await manager.say("An event ID must be specified! (Eg. '!event delete 117')")
         await manager.clear()
+
+        # Event list needs to be updated since we removed one
         if deleted:
             await self.list_events(ctx.message.server)
 
