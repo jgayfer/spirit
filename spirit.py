@@ -5,11 +5,13 @@ from discord.ext import commands
 from utils.admin import load_credentials
 from cogs.events import Events
 from cogs.roster import Roster
+from cogs.help import Help
 
 
 bot = commands.Bot(command_prefix='!')
 bot.add_cog(Events(bot))
 bot.add_cog(Roster(bot))
+bot.add_cog(Help(bot))
 
 
 @bot.event

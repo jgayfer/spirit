@@ -19,7 +19,7 @@ class Events:
     async def event(self, ctx):
         """Base event command"""
         if ctx.invoked_subcommand is None:
-            await manager.say("Invalid event command. Use '!event help' to view available commands.")
+            await manager.say("Invalid command. Use '!help' to view available commands.")
             return await clear_messages(self.bot, [ctx.message, m])
 
     @event.command(pass_context=True)
@@ -156,6 +156,7 @@ class Events:
         """Create and return a Discord Embed object that represents an upcoming event"""
         embed_msg = discord.Embed(color=constants.BLUE)
         embed_msg.set_footer(text="Use '!event delete " + str(id) + "' to remove this event")
+        embed_msg.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
         embed_msg.title = title
 
         if description:

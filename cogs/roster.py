@@ -60,6 +60,7 @@ class Roster:
 
                 embed_msg = discord.Embed(color=constants.BLUE)
                 embed_msg.title="Destiny 2 Pre Launch Roster"
+                embed_msg.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
                 embed_msg.description = message
                 await manager.say(embed_msg, embed=True, delete=False)
             else:
