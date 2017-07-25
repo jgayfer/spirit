@@ -56,8 +56,8 @@ class Events:
         time_zone = None
         while not time_zone:
             res = await manager.say_and_wait("Enter the time zone (PST, EST, etc.)")
-            if len(res.content) > 5:
-                await manager.say("Time zone must be less than 6 characters!")
+            if res.content not in constants.time_zones:
+                await manager.say("Unsupported time zone")
             else:
                 time_zone = res.content.upper()
 
