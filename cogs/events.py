@@ -154,7 +154,6 @@ class Events:
         """Create and return a Discord Embed object that represents an upcoming event"""
         embed_msg = discord.Embed(color=constants.BLUE)
         embed_msg.set_footer(text="Use '!event delete " + str(id) + "' to remove this event")
-        embed_msg.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
         embed_msg.title = title
 
         if description:

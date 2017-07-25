@@ -18,7 +18,6 @@ class Help:
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
         help = discord.Embed(color=constants.BLUE)
-        help.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
         help.add_field(name="Events",
                        value="**!event create** - create a new event\n"
                            + "**!event delete <id>** - delete event with the given ID")
