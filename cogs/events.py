@@ -7,6 +7,7 @@ from db.dbase import DBase
 import discord
 
 from cogs.utils.messages import delete_all, MessageManager
+from cogs.utils.checks import is_event
 from cogs.utils import constants
 
 
@@ -19,7 +20,7 @@ class Events:
     async def event(self, ctx):
         """Base event command"""
         if ctx.invoked_subcommand is None:
-            await manager.say("Invalid command. Use '!help' to view available commands.")
+            await manager.say("Invalid event command. Use '!help' to view available commands.")
             return await clear_messages(self.bot, [ctx.message, m])
 
     @event.command(pass_context=True)
@@ -114,14 +115,11 @@ class Events:
 
     async def on_reaction_add(self, reaction, user):
         """If a reaction represents a user RSVP, update the DB and event message"""
-        channel = reaction.message.channel
         message = reaction.message
-        num_embeds = len(message.embeds)
 
-        if (channel.name == "upcoming-events"
-                and message.author == self.bot.user
-                and num_embeds is not 0
-                and user is not message.author):
+        # We check that the user is not the message author as to not count
+        # the initial reactions added by the bot as being indicative of attendance
+        if is_event(message) and user is not message.author:
 
             attending = None
             if reaction.emoji == "\N{WHITE HEAVY CHECK MARK}":
