@@ -31,13 +31,13 @@ class MessageManager:
         msg = await self.bot.send_message(self.channel, "{}: {}".format(self.user.mention, content))
         self.messages.append(msg)
         res = await self.bot.wait_for_message(author=self.user)
-        self.messages.append(res)
 
+        # If the user responds with a command, we'll need to stop executing and clean up
         if res.content.startswith('!'):
-            err = await self.bot.send_message(self.channel, self.user.mention + ": You cannot do that right now")
-            self.messages.append(err)
-            self.say_and_wait(content)
+            await self.clear()
+            return False
         else:
+            self.messages.append(res)
             return res
 
     async def say(self, content, embed=False, delete=True, mention=True):

@@ -38,16 +38,22 @@ class Events:
             return await manager.say("That command is not supported in a direct message.")
 
         res = await manager.say_and_wait("Enter event title")
+        if not res:
+            return
         title = res.content
 
         description = ""
         res = await manager.say_and_wait("Enter event description (type 'none' for no description)")
+        if not res:
+            return
         if res.content.upper() != 'NONE':
             description = res.content
 
         start_time = None
         while not start_time:
             res = await manager.say_and_wait("Enter event time (YYYY-MM-DD HH:MM AM/PM)")
+            if not res:
+                return
             start_time_format = '%Y-%m-%d %I:%M %p'
             try:
                 start_time = datetime.strptime(res.content, start_time_format)
@@ -57,6 +63,8 @@ class Events:
         time_zone = None
         while not time_zone:
             res = await manager.say_and_wait("Enter the time zone (PST, EST, etc.)")
+            if not res:
+                return
             if res.content.upper() not in constants.time_zones:
                 await manager.say("Unsupported time zone")
             else:
