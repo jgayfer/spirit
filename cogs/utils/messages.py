@@ -30,7 +30,7 @@ class MessageManager:
         """Send a message and wait for user's response"""
         msg = await self.bot.send_message(self.channel, "{}: {}".format(self.user.mention, content))
         self.messages.append(msg)
-        res = await self.bot.wait_for_message(author=self.user)
+        res = await self.bot.wait_for_message(author=self.user, channel=self.channel)
 
         # If the user responds with a command, we'll need to stop executing and clean up
         if res.content.startswith('!'):
