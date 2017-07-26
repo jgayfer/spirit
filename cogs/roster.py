@@ -52,7 +52,7 @@ class Roster:
                 message = "```\n"
                 for row in roster:
                     message += row[0].split("#")[0]
-                    spaces = 17 - len(row[0].split("#")[0])
+                    spaces = 25 - len(row[0].split("#")[0])
                     for _ in range (0, spaces):
                         message += " "
                     message += row[1] + "\n"
