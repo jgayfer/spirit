@@ -29,8 +29,8 @@ class Events:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        if not user.server_permissions.manage_server:
-            await manager.say("You must have the Manage Server permission to do that.")
+        if not user.server_permissions.admin:
+            await manager.say("You must be an admin to do that.")
             return await manager.clear()
 
         # Return if the user is in a private message as events are server specific
@@ -76,8 +76,8 @@ class Events:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        if not user.server_permissions.manage_server:
-            await manager.say("You must have the Manage Server permission to do that.")
+        if not user.server_permissions.admin:
+            await manager.say("You must be an admin to do that.")
             return await manager.clear()
 
         # Return if the user is in a private message as events are server specific
