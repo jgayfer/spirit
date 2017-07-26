@@ -148,7 +148,9 @@ class Events:
         for channel in server.channels:
             if channel.name == "upcoming-events":
                 return channel
-        return await self.bot.create_channel(server, "upcoming-events")
+
+        overwrite = discord.PermissionOverwrite(send_messages=False, add_reactions=True)
+        return await self.bot.create_channel(server, "upcoming-events", (server.default_role, overwrite))
 
     def create_event_embed(self, id, title, description, time, time_zone, accepted=None, declined=None):
         """Create and return a Discord Embed object that represents an upcoming event"""
