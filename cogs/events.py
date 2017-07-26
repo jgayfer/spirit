@@ -64,8 +64,9 @@ class Events:
 
         with DBase() as db:
             db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
-        await manager.say("Event has been created! The list of upcoming events will be updated momentarily.")
 
+        event_channel = await self.get_events_channel(ctx.message.server)
+        await manager.say("Event created! The " + event_channel.mention + " channel will be updated momentarily.")
         await manager.clear()
         await self.list_events(ctx.message.server)
 
@@ -89,8 +90,9 @@ class Events:
                 affected_count = db.delete_event(event_id)
                 if affected_count > 0:
                     deleted = True
-                    await manager.say("Event successfuly deleted. "
-                                    + "The list of upcoming events will be updated momentarily.")
+                    event_channel = await self.get_events_channel(ctx.message.server)
+                    await manager.say("Event deleted! The " + event_channel.mention
+                                    + " channel will be updated momentarily.")
                 else:
                     await manager.say("That event doesn't exist.")
         else:
@@ -149,8 +151,11 @@ class Events:
             if channel.name == "upcoming-events":
                 return channel
 
-        overwrite = discord.PermissionOverwrite(send_messages=False, add_reactions=True)
-        return await self.bot.create_channel(server, "upcoming-events", (server.default_role, overwrite))
+        # Need to make sure the bot can still send messages in the events channel
+        users = discord.PermissionOverwrite(send_messages=False, add_reactions=True)
+        me = discord.PermissionOverwrite(send_messages=True, add_reactions=True)
+        channel = await self.bot.create_channel(server, "upcoming-events", (server.default_role, users), (server.me, me))
+        return channel
 
     def create_event_embed(self, id, title, description, time, time_zone, accepted=None, declined=None):
         """Create and return a Discord Embed object that represents an upcoming event"""
