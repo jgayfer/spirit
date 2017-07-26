@@ -29,7 +29,7 @@ class Events:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        if not user.server_permissions.admin:
+        if not user.server_permissions.administrator:
             await manager.say("You must be an admin to do that.")
             return await manager.clear()
 
@@ -76,7 +76,7 @@ class Events:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        if not user.server_permissions.admin:
+        if not user.server_permissions.administrator:
             await manager.say("You must be an admin to do that.")
             return await manager.clear()
 
