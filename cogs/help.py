@@ -17,7 +17,7 @@ class Help:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        help = discord.Embed(color=constants.BLUE)
+        help = discord.Embed(title="Available Commands", color=constants.BLUE)
         help.add_field(name="Events",
                        value="**!event create** - create a new event\n"
                            + "**!event delete <id>** - delete event with the given ID")
