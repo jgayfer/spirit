@@ -117,11 +117,14 @@ class Events:
         await self.bot.purge_from(events_channel, limit=999, check=delete_all)
         with DBase() as db:
             events = db.get_events(server.id)
-            for row in events:
-                event_embed = self.create_event_embed(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
-                msg = await self.bot.send_message(events_channel, embed=event_embed)
-                await self.bot.add_reaction(msg, "\N{WHITE HEAVY CHECK MARK}")
-                await self.bot.add_reaction(msg, "\N{CROSS MARK}")
+            if len(events) > 0:
+                for row in events:
+                    event_embed = self.create_event_embed(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
+                    msg = await self.bot.send_message(events_channel, embed=event_embed)
+                    await self.bot.add_reaction(msg, "\N{WHITE HEAVY CHECK MARK}")
+                    await self.bot.add_reaction(msg, "\N{CROSS MARK}")
+            else:
+                await self.bot.send_message(events_channel, "There are no upcoming events.")
 
     async def on_reaction_add(self, reaction, user):
         """If a reaction represents a user RSVP, update the DB and event message"""
