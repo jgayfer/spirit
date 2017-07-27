@@ -16,10 +16,10 @@ bot.add_cog(Help(bot))
 @bot.event
 async def on_ready():
     """Display startup information"""
-    print('Logged in as')
-    print(bot.user.name)
-    print(bot.user.id)
+    print('Spirit v0.1.1')
     print('------')
+    print('Username: {}'.format(bot.user.name))
+    print('Servers: {}'.format(len(bot.servers)))
 
 
 if __name__ == '__main__':
