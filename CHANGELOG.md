@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Back end logs
 ### Changed
 - README now has instructions on running the bot
+- User and bot spam messages are now deleted much faster
 
 ## [0.1.1] - 2017-07-26
 ### Added

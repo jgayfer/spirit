@@ -51,5 +51,11 @@ class MessageManager:
             self.messages.append(msg)
 
     async def clear(self):
-        """Delete all messages"""
-        await clear_messages(self.bot, self.messages)
+        """Delete messages marked for deletionr"""
+        def check(message):
+            if (message.author in (self.user, self.bot.user)
+                and message.id in [m.id for m in self.messages]):
+                return True
+
+        await asyncio.sleep(constants.SPAM_DELAY)
+        await self.bot.purge_from(self.channel, limit=999, check=check)
