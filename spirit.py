@@ -7,21 +7,28 @@ from db.dbase import DBase
 from cogs.events import Events
 from cogs.roster import Roster
 from cogs.help import Help
+from cogs.settings import Settings
 
 
-bot = commands.Bot(command_prefix='!')
+def _prefix_callable(bot, message):
+    """Get the server's prefix"""
+    with DBase() as db:
+        return db.get_prefix(message.server.id)
 
+
+bot = commands.Bot(command_prefix=_prefix_callable)
 bot.add_cog(Events(bot))
 bot.add_cog(Roster(bot))
 bot.add_cog(Help(bot))
+bot.add_cog(Settings(bot))
 
 
 @bot.event
 async def on_ready():
     """Display startup information"""
     print('Spirit v0.1.1')
-    print('------')
     print('Username: {}'.format(bot.user.name))
+    print('------')
 
 
 @bot.event

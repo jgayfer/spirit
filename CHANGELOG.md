@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Custom command prefixes
 - Message to indicate when there are no upcoming events
-- Back end logs
 ### Changed
 - README now has instructions on running the bot
 - User and bot spam messages are now deleted much faster

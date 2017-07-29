@@ -134,3 +134,21 @@ class DBase:
               """
         self.cur.execute(sql, (server_id,))
         self.conn.commit()
+
+    def set_prefix(self, server_id, prefix):
+        sql = """
+              UPDATE servers
+              SET prefix = %s
+              WHERE server_id = %s;
+              """
+        self.cur.execute(sql, (prefix, server_id))
+        self.conn.commit()
+
+    def get_prefix(self, server_id):
+        sql = """
+              SELECT prefix
+              FROM servers
+              WHERE server_id = %s;
+              """
+        self.cur.execute(sql, (server_id,))
+        return self.cur.fetchall()[0][0]
