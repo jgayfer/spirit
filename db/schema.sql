@@ -3,6 +3,13 @@ CREATE TABLE users (
 	PRIMARY KEY (username)
 );
 
+CREATE TABLE servers (
+	server_id VARCHAR(40) NOT NULL,
+	prefix VARCHAR(5) NOT NULL DEFAULT '!',
+	clear_spam BOOLEAN NOT NULL DEFAULT 1,
+	PRIMARY KEY(server_id)
+);
+
 CREATE TABLE events (
 	server_id VARCHAR(40) NOT NULL,
 	start_time DATETIME NOT NULL,
@@ -35,11 +42,4 @@ CREATE TABLE roles (
 		ON DELETE CASCADE,
 	FOREIGN KEY (server_id) REFERENCES servers(server_id)
 		ON DELETE CASCADE
-);
-
-CREATE TABLE servers (
-	server_id VARCHAR(40) NOT NULL,
-	prefix VARCHAR(5) NOT NULL DEFAULT '!',
-	clear_spam BOOLEAN NOT NULL DEFAULT 1,
-	PRIMARY KEY(server_id)
 );
