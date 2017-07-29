@@ -49,7 +49,7 @@ class DBase:
     def create_event(self, title, start_time, time_zone, server_id, description):
         sql = """
               INSERT INTO events (title, start_time, time_zone, server_id, description)
-              VALUES (%s, %s, %s, %s, %s)
+              VALUES (%s, %s, %s, %s, %s);
               """
         self.cur.execute(sql, (title, start_time, time_zone, server_id, description))
         self.conn.commit()
@@ -113,8 +113,24 @@ class DBase:
     def delete_event(self, event_id):
         sql = """
               DELETE FROM events
-              WHERE event_id = %s
+              WHERE event_id = %s;
               """
         affected_count = self.cur.execute(sql, (event_id,))
         self.conn.commit()
         return affected_count
+
+    def add_server(self, server_id):
+        sql = """
+              INSERT INTO servers (server_id)
+              VALUES (%s);
+              """
+        self.cur.execute(sql, (server_id,))
+        self.conn.commit()
+
+    def remove_server(self, server_id):
+        sql = """
+              DELETE FROM servers
+              WHERE server_id = %s;
+              """
+        self.cur.execute(sql, (server_id,))
+        self.conn.commit()
