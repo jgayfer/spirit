@@ -19,12 +19,16 @@ class Settings:
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
         if not user.server_permissions.administrator:
-            await manager.say("You must be an admin to do that.")
+            await manager.say("Oops! You must be an admin to do that.")
             return await manager.clear()
 
         # Return if the user is in a private message as prefixes are server specific
         if ctx.message.channel.is_private:
             return await manager.say("That command is not supported in a direct message.")
+
+        if len(new_prefix) > 5:
+            await manager.say("Oops! Prefix must be less than 6 characters")
+            return await manager.clear()
 
         with DBase() as db:
             db.set_prefix(ctx.message.server.id, new_prefix)
