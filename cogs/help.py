@@ -22,13 +22,15 @@ class Help:
         with DBase() as db:
             prefix = db.get_prefix(ctx.message.server.id)
 
-        text = ("**{0}event create** - create a new event\n"
-              + "**{0}event delete <id>** - delete event with the given ID\n"
-              + "**{0}role <class>** - choose which role you intend on playing in D2\n"
-              + "**{0}roster** - display the selected role of all members\n"
-              + "**{0}prefix** - change the command prefix").format(prefix)
         help = discord.Embed(title="Available Commands", color=constants.BLUE)
-        help.description = text
+        help.add_field(name="Events",
+                       value="{}event create - create a new event\n".format(prefix)
+                           + "{}event delete <id> - delete event with the given ID".format(prefix))
+        help.add_field(name="Roster",
+                       value="{}role <class> - choose which role you intend on playing in D2\n".format(prefix)
+                           + "{}roster - display the selected D2 role of all members".format(prefix))
+        help.add_field(name="Settings",
+                       value="{0}change_prefix - change the command prefix".format(prefix))
 
         await manager.say(help, embed=True, delete=False)
         await manager.clear()

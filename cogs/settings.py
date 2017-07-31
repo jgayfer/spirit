@@ -13,7 +13,7 @@ class Settings:
         self.bot = bot
 
     @commands.command(pass_context=True)
-    async def prefix(self, ctx, new_prefix):
+    async def change_prefix(self, ctx, new_prefix):
 
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
