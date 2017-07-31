@@ -13,6 +13,10 @@ class DBase:
     def __init__(self):
         self.conn = MySQLdb.connect(*self.dsn)
         self.cur = self.conn.cursor()
+        self.conn.set_character_set('utf8mb4')
+        self.cur.execute('SET NAMES utf8mb4;')
+        self.cur.execute('SET CHARACTER SET utf8mb4;')
+        self.cur.execute('SET character_set_connection=utf8mb4;')
 
     def __enter__(self):
         return DBase()
