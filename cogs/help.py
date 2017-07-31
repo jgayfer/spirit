@@ -30,7 +30,7 @@ class Help:
                        value="{}role <class> - choose which role you intend on playing in D2\n".format(prefix)
                            + "{}roster - display the selected D2 role of all members".format(prefix))
         help.add_field(name="Settings",
-                       value="{0}change_prefix - change the command prefix".format(prefix))
+                       value="{0}setprefix - change the command prefix".format(prefix))
 
         await manager.say(help, embed=True, delete=False)
         await manager.clear()
