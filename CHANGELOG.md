@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Custom command prefixes
 - Message to indicate when there are no upcoming events
 ### Changed
-- README now has instructions on running the bot
+- Events are now deleted with a reaction instead of a command
 - User and bot spam messages are now deleted much faster
+- README now has instructions on running the bot
 ### Fixed
 - Issue that prevented emojis being included in event title/description
 

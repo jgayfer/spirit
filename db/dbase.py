@@ -49,10 +49,12 @@ class DBase:
     def create_event(self, title, start_time, time_zone, server_id, description):
         sql = """
               INSERT INTO events (title, start_time, time_zone, server_id, description)
-              VALUES (%s, %s, %s, %s, %s);
+              VALUES (%s, %s, %s, %s, %s)
+              ON DUPLICATE KEY UPDATE title = %s;
               """
-        self.cur.execute(sql, (title, start_time, time_zone, server_id, description))
+        rows = self.cur.execute(sql, (title, start_time, time_zone, server_id, description, title))
         self.conn.commit()
+        return rows
 
     def get_events(self, server_id):
         sql = """

@@ -76,9 +76,8 @@ class Events:
                 time_zone = res.content.upper()
 
         with DBase() as db:
-            try:
-                res = db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
-            except:
+            res = db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
+            if res == 0:
                 await manager.say("That event already exists!")
                 return await manager.clear()
 
