@@ -20,8 +20,7 @@ CREATE TABLE events (
 	time_zone VARCHAR(5) NOT NULL,
 	title VARCHAR(256) NOT NULL,
 	description VARCHAR(1000),
-	event_id int NOT NULL AUTO_INCREMENT,
-	PRIMARY KEY (event_id),
+	PRIMARY KEY (server_id, title),
 	FOREIGN KEY (server_id) REFERENCES servers(server_id)
 		ON DELETE CASCADE
 );
@@ -29,11 +28,11 @@ CREATE TABLE events (
 CREATE TABLE user_event (
 	username VARCHAR(50) NOT NULL,
 	server_id VARCHAR(40) NOT NULL,
-	event_id int NOT NULL,
+	title VARCHAR(256) NOT NULL,
 	attending BOOLEAN NOT NULL,
-	PRIMARY KEY (username, server_id, event_id),
-	FOREIGN KEY (username, server_id) REFERENCES users(username, server_id)
+	PRIMARY KEY (username, server_id, title),
+	FOREIGN KEY (server_id, title) REFERENCES events(server_id, title)
 		ON DELETE CASCADE,
-	FOREIGN KEY (event_id) REFERENCES events(event_id)
-		ON DELETE CASCADE
+	FOREIGN KEY (server_id, username) REFERENCES users(server_id, username)
+	  ON DELETE CASCADE
 );

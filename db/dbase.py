@@ -56,62 +56,65 @@ class DBase:
 
     def get_events(self, server_id):
         sql = """
-              SELECT events.event_id as e, title, description, start_time, time_zone, (
+              SELECT title as e, description, start_time, time_zone, (
                 SELECT GROUP_CONCAT(DISTINCT username)
-                FROM user_event, events
-                WHERE user_event.event_id = e
-                AND events.server_id = %s
+                FROM user_event
+                WHERE user_event.server_id = %s
+                AND user_event.title = e
                 AND user_event.attending = 1)
                 AS accepted, (
                 SELECT GROUP_CONCAT(DISTINCT username)
-                FROM user_event, events
-                WHERE user_event.event_id = e
-                AND events.server_id = %s
+                FROM user_event
+                WHERE user_event.server_id = %s
+                AND user_event.title = e
                 AND user_event.attending = 0)
                 AS declined
               FROM events
               WHERE events.server_id = %s
-              GROUP BY event_id, title, description, start_time, time_zone;
+              GROUP BY title, description, start_time, time_zone;
               """
         self.cur.execute(sql, (server_id, server_id, server_id))
         return self.cur.fetchall()
 
-    def update_attendance(self, username, server_id, event_id, attending):
+    def update_attendance(self, username, server_id, attending, title):
         sql = """
-               INSERT INTO user_event (username, server_id, event_id, attending)
-               VALUES (%s, %s, %s, %s)
-               ON DUPLICATE KEY UPDATE attending = %s;
-               """
-        self.cur.execute(sql, (username, server_id, event_id, attending, attending))
+              INSERT INTO user_event (username, server_id, title, attending)
+              VALUES (%s, %s, %s, %s)
+              ON DUPLICATE KEY UPDATE attending = %s;
+              """
+        self.cur.execute(sql, (username, server_id, title, attending, attending))
         self.conn.commit()
 
-    def get_event(self, event_id):
+    def get_event(self, server_id, title):
         sql = """
               SELECT title, description, start_time, time_zone, (
                 SELECT GROUP_CONCAT(DISTINCT username)
                 FROM user_event
-                WHERE event_id = %s
+                WHERE user_event.server_id = %s
+                AND user_event.title = %s
                 AND user_event.attending = 1)
                 AS accepted, (
                 SELECT GROUP_CONCAT(DISTINCT username)
                 FROM user_event
-                WHERE event_id = %s
+                WHERE user_event.server_id = %s
+                AND user_event.title = %s
                 AND user_event.attending = 0)
                 AS declined
               FROM events
-              WHERE event_id = %s;
+              WHERE server_id = %s
+              AND title = %s;
               """
-        self.cur.execute(sql, (event_id, event_id, event_id))
+        self.cur.execute(sql, (server_id, title, server_id, title, server_id, title))
         return self.cur.fetchall()
 
-    def delete_event(self, event_id):
+    def delete_event(self, server_id, title):
         sql = """
               DELETE FROM events
-              WHERE event_id = %s;
+              WHERE server_id = %s
+              AND title = %s;
               """
-        affected_count = self.cur.execute(sql, (event_id,))
+        self.cur.execute(sql, (server_id, title))
         self.conn.commit()
-        return affected_count
 
     def add_server(self, server_id):
         sql = """
