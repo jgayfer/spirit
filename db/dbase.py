@@ -76,19 +76,13 @@ class DBase:
         self.cur.execute(sql, (server_id, server_id, server_id))
         return self.cur.fetchall()
 
-    def update_attendance(self, username, event_id, attending):
-        sql1 = """
-               INSERT INTO users (username)
-               VALUES (%s)
-               ON DUPLICATE KEY UPDATE username = %s;
-               """
-        sql2 = """
-               INSERT INTO user_event (username, event_id, attending)
-               VALUES (%s, %s, %s)
+    def update_attendance(self, username, server_id, event_id, attending):
+        sql = """
+               INSERT INTO user_event (username, server_id, event_id, attending)
+               VALUES (%s, %s, %s, %s)
                ON DUPLICATE KEY UPDATE attending = %s;
                """
-        self.cur.execute(sql1, (username, username))
-        self.cur.execute(sql2, (username, event_id, attending, attending))
+        self.cur.execute(sql, (username, server_id, event_id, attending, attending))
         self.conn.commit()
 
     def get_event(self, event_id):

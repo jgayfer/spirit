@@ -29,13 +29,13 @@ class Events:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        if not user.server_permissions.administrator:
-            await manager.say("You must be an admin to do that.")
-            return await manager.clear()
-
-        # Return if the user is in a private message as events are server specific
         if ctx.message.channel.is_private:
-            return await manager.say("That command is not supported in a direct message.")
+            # To Do - Add check if user is admin
+            return
+        else:
+            if not user.server_permissions.administrator:
+                await manager.say("You must be an admin to do that.")
+                return await manager.clear()
 
         res = await manager.say_and_wait("Enter event title")
         if not res:
@@ -129,6 +129,7 @@ class Events:
     async def on_reaction_add(self, reaction, user):
         """If a reaction represents a user RSVP, update the DB and event message"""
         message = reaction.message
+        server_id = message.server.id
 
         # We check that the user is not the message author as to not count
         # the initial reactions added by the bot as being indicative of attendance
@@ -143,7 +144,7 @@ class Events:
             if attending is not None:
                 with DBase() as db:
                     event_id = re.search('\d+', message.embeds[0]['footer']['text']).group()
-                    db.update_attendance(user.name, event_id, attending)
+                    db.update_attendance(str(user), server_id, event_id, attending)
 
                 # Update event message in place for a more seamless user experience
                 with DBase() as db:
@@ -183,7 +184,7 @@ class Events:
             accepted = accepted.split(',')
             accepted_list = ""
             for member in accepted:
-                accepted_list += "{}\n".format(member)
+                accepted_list += "{}\n".format(member.split("#")[0])
             embed_msg.add_field(name="Accepted", value=accepted_list)
         else:
             embed_msg.add_field(name="Accepted", value="-")
@@ -192,7 +193,7 @@ class Events:
             declined = declined.split(',')
             declined_list = ""
             for member in declined:
-                declined_list += "{}\n".format(member)
+                declined_list += "{}\n".format(member.split("#")[0])
             embed_msg.add_field(name="Declined", value=declined_list)
         else:
             embed_msg.add_field(name="Declined", value="-")
