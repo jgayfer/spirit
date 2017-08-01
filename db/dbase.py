@@ -134,6 +134,15 @@ class DBase:
         self.cur.execute(sql, (server_id,))
         self.conn.commit()
 
+    def get_server(self, username):
+        sql = """
+              SELECT server_id
+              FROM users
+              WHERE username = %s;
+              """
+        self.cur.execute(sql, (username,))
+        return self.cur.fetchall()
+
     def add_user(self, server_id, username):
         sql = """
               INSERT INTO users (server_id, username)

@@ -7,7 +7,7 @@ from db.dbase import DBase
 import discord
 
 from cogs.utils.messages import delete_all, MessageManager
-from cogs.utils.checks import is_event
+from cogs.utils.checks import is_event, is_admin
 from cogs.utils import constants
 
 
@@ -34,11 +34,7 @@ class Events:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        if ctx.message.channel.is_private:
-            # To Do - Add check if user is admin
-            return
-        else:
-            if not user.server_permissions.administrator:
+        if not is_admin(self.bot, ctx):
                 await manager.say("You must be an admin to do that.")
                 return await manager.clear()
 
@@ -140,7 +136,7 @@ class Events:
 
 
     async def delete_event(self, server, title):
-        """Delete an event. Update the events channel on success"""
+        """Delete an event and update the events channel"""
         with DBase() as db:
             db.delete_event(server.id, title)
             await self.list_events(server)
