@@ -1,5 +1,6 @@
 import json
 import logging
+import asyncio
 
 from discord.ext import commands
 
@@ -11,11 +12,17 @@ from cogs.settings import Settings
 from cogs.misc import Misc
 
 
-def _prefix_callable(bot, message):
+async def _prefix_callable(bot, message):
     """Get the server's prefix"""
     with DBase() as db:
-        return db.get_prefix(message.server.id)
+        prefix = db.get_prefix(str(message.author))
+        if prefix:
+            return prefix
+    await bot.send_message(message.channel, "That command won't work in a DM as you are part of multiple "
+                                          + "servers running this bot - I don't know which server you are from!")
 
+    # Return dummy prefix to make sure no commands run, and no errors are thrown
+    return "-()76"
 
 bot = commands.Bot(command_prefix=_prefix_callable)
 bot.add_cog(Events(bot))
@@ -35,9 +42,12 @@ async def on_ready():
 
 @bot.event
 async def on_server_join(server):
-    """Add server to database"""
+    """Add server and it's members to database"""
     with DBase() as db:
         db.add_server(server.id)
+        for user in server.members:
+            if user.id != bot.user.id:
+                db.add_user(server.id, str(user))
 
 
 @bot.event

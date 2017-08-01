@@ -23,6 +23,6 @@ class Misc:
 
         # Send user feedback to Asal, the bot's devloper
         asal = await self.bot.get_user_info("118926942404608003")
-        await self.bot.send_message(asal, "Feedback from {}:\n{}".format(user.mention, feedback))
+        await self.bot.send_message(asal, "Feedback from {}:\n---\n{}".format(user.mention, feedback))
 
         await manager.clear()

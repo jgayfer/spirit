@@ -20,7 +20,7 @@ class Help:
 
         prefix = ""
         with DBase() as db:
-            prefix = db.get_prefix(ctx.message.server.id)
+            prefix = db.get_prefix(str(user))
 
         help = discord.Embed(title="Available Commands", color=constants.BLUE)
         help.add_field(name="Events",

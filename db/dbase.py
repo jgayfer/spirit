@@ -28,26 +28,22 @@ class DBase:
     def get_roster(self, server_id):
         sql = """
               SELECT username, role
-              FROM roles
-              WHERE roles.server_id = %s
+              FROM users
+              WHERE role != ''
+              AND server_id = %s
               ORDER BY role;
               """
         self.cur.execute(sql, (server_id,))
         return self.cur.fetchall()
 
     def update_roster(self, username, role, server_id):
-        sql1 = """
-               INSERT INTO users (username)
-               VALUES (%s)
-               ON DUPLICATE KEY UPDATE username = %s;
+        sql = """
+               UPDATE users
+               SET role = %s
+               WHERE username = %s
+               AND server_id = %s;
                """
-        sql2 = """
-               INSERT INTO roles (username, server_id, role)
-               VALUES (%s, %s, %s)
-               ON DUPLICATE KEY UPDATE role = %s;
-               """
-        self.cur.execute(sql1, (username, username))
-        self.cur.execute(sql2, (username, server_id, role, role))
+        self.cur.execute(sql, (role, username, server_id))
         self.conn.commit()
 
     def create_event(self, title, start_time, time_zone, server_id, description):
@@ -139,6 +135,14 @@ class DBase:
         self.cur.execute(sql, (server_id,))
         self.conn.commit()
 
+    def add_user(self, server_id, username):
+        sql = """
+              INSERT INTO users (server_id, username)
+              VALUES (%s, %s);
+              """
+        self.cur.execute(sql, (server_id, username))
+        self.conn.commit()
+
     def set_prefix(self, server_id, prefix):
         sql = """
               UPDATE servers
@@ -148,11 +152,20 @@ class DBase:
         self.cur.execute(sql, (prefix, server_id))
         self.conn.commit()
 
-    def get_prefix(self, server_id):
+    def get_prefix(self, username):
+        sql = """
+              SELECT server_id
+              FROM users
+              WHERE username = %s;
+              """
+        self.cur.execute(sql, (username,))
+        server_id = self.cur.fetchall()
+        if len(server_id) > 1:
+            return False
         sql = """
               SELECT prefix
               FROM servers
-              WHERE server_id = %s;
+              WHERE server_id = %s
               """
-        self.cur.execute(sql, (server_id,))
+        self.cur.execute(sql, (server_id[0][0],))
         return self.cur.fetchall()[0][0]
