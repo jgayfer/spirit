@@ -8,6 +8,7 @@ from cogs.events import Events
 from cogs.roster import Roster
 from cogs.help import Help
 from cogs.settings import Settings
+from cogs.misc import Misc
 
 
 def _prefix_callable(bot, message):
@@ -21,6 +22,7 @@ bot.add_cog(Events(bot))
 bot.add_cog(Roster(bot))
 bot.add_cog(Help(bot))
 bot.add_cog(Settings(bot))
+bot.add_cog(Misc(bot))
 
 
 @bot.event
