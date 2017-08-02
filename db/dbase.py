@@ -168,7 +168,7 @@ class DBase:
               """
         self.cur.execute(sql, (username,))
         server_id = self.cur.fetchall()
-        if len(server_id) > 1:
+        if len(server_id) != 1:
             return False
         sql = """
               SELECT prefix

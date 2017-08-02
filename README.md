@@ -20,12 +20,14 @@ Install the required Python modules with Pip
 ```
 pip3 install -r requirements.txt
 ```
-Then create a MySQL database and add the schema located at `db/schema.sql`
+Then create a MySQL database with support for UTF8mb4 encoding
 ```
 mysql -u root -p
-> create database Spirit;
-> exit
-mysql -u root -p Spirit < ./db/schema.sql
+> create database <database_name> character set UTF8mb4 collate utf8mb4_bin
+```
+ Add the schema located at `db/schema.sql`
+```
+mysql -u root -p <database_name> < ./db/schema.sql
 ```
 
 Finally, create a `credentials.json` file at the root level of this project.

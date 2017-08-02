@@ -6,7 +6,7 @@ from discord.ext import commands
 from db.dbase import DBase
 import discord
 
-from cogs.utils.messages import delete_all, MessageManager
+from cogs.utils.messages import delete_all, get_server_from_dm, MessageManager
 from cogs.utils.checks import is_event, is_admin
 from cogs.utils import constants
 
@@ -17,26 +17,23 @@ class Events:
         self.bot = bot
 
 
-    @commands.group(pass_context=True)
+    @commands.command(pass_context=True)
     async def event(self, ctx):
-        """Base event command"""
-        user = ctx.message.author
-        manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
-
-        if ctx.invoked_subcommand is None:
-            await manager.say("Invalid event command. Use '!help' to view available commands.")
-            return await manager.clear()
-
-
-    @event.command(pass_context=True)
-    async def create(self, ctx):
         """Create an event. Update the events channel on success"""
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        res = is_admin(self.bot, ctx)
-        if not res:
-            return await manager.say("You must be an admin to do that.")
+        server = None
+        if ctx.message.channel.is_private:
+            server = get_server_from_dm(self.bot, ctx)
+            if not server:
+                return await manager.say("You must be part of only one {} server to do that in a DM".format(self.bot.user.mention))
+        else:
+            server = ctx.message.server
+
+        if not is_admin(user, server):
+            await manager.say("You must be an admin to do that.")
+            return await manager.clear()
 
         res = await manager.say_and_wait("Enter event title")
         if not res:
@@ -72,15 +69,15 @@ class Events:
                 time_zone = res.content.upper()
 
         with DBase() as db:
-            res = db.create_event(title, start_time, time_zone, ctx.message.server.id, description)
+            res = db.create_event(title, start_time, time_zone, server.id, description)
             if res == 0:
-                await manager.say("That event already exists!")
+                await manager.say("An event with that name already exists.")
                 return await manager.clear()
 
-        event_channel = await self.get_events_channel(ctx.message.server)
+        event_channel = await self.get_events_channel(server)
         await manager.say("Event created! The " + event_channel.mention + " channel will be updated momentarily.")
         await manager.clear()
-        await self.list_events(ctx.message.server)
+        await self.list_events(server)
 
 
     async def list_events(self, server):

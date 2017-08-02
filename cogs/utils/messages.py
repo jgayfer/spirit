@@ -2,6 +2,7 @@ import asyncio
 
 import discord
 
+from db.dbase import DBase
 from cogs.utils import constants
 
 
@@ -18,6 +19,17 @@ async def clear_messages(bot, messages):
             await bot.delete_message(message)
 
 
+def get_server_from_dm(bot, ctx):
+    """Determine which server a user belongs to when a command is invoked from a DM
+       If multiple servers are found, return False"""
+    with DBase() as db:
+        user = ctx.message.author
+        rows = db.get_server(str(user))
+        if rows and len(rows) == 1:
+            server_id = rows[0][0]
+            return bot.get_server(server_id)
+
+
 class MessageManager:
 
     def __init__(self, bot, user, channel, message):
@@ -25,6 +37,7 @@ class MessageManager:
         self.user = user
         self.channel = channel
         self.messages = [message]
+
 
     async def say_and_wait(self, content, mention=True):
         """Send a message and wait for user's response"""
@@ -40,6 +53,7 @@ class MessageManager:
             self.messages.append(res)
             return res
 
+
     async def say(self, content, embed=False, delete=True, mention=True):
         """Send a single message"""
         msg = None
@@ -50,12 +64,14 @@ class MessageManager:
         if delete:
             self.messages.append(msg)
 
+
     async def clear(self):
-        """Delete messages marked for deletionr"""
+        """Delete messages marked for deletion"""
         def check(message):
             if (message.author in (self.user, self.bot.user)
                 and message.id in [m.id for m in self.messages]):
                 return True
-
-        await asyncio.sleep(constants.SPAM_DELAY)
-        await self.bot.purge_from(self.channel, limit=999, check=check)
+                
+        if not self.channel.is_private:
+            await asyncio.sleep(constants.SPAM_DELAY)
+            await self.bot.purge_from(self.channel, limit=999, check=check)

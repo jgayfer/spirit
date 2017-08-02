@@ -18,8 +18,7 @@ async def _prefix_callable(bot, message):
         prefix = db.get_prefix(str(message.author))
         if prefix:
             return prefix
-    await bot.send_message(message.channel, "That command won't work in a DM as you are part of multiple "
-                                          + "servers running this bot - I don't know which server you are from!")
+    await bot.send_message(message.channel, "You must be part of only one {} server to do that in a DM".format(bot.user.mention))
 
     # Return dummy prefix to make sure no commands run, and no errors are thrown
     return "-()76"
