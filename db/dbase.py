@@ -167,13 +167,17 @@ class DBase:
               WHERE username = %s;
               """
         self.cur.execute(sql, (username,))
-        server_id = self.cur.fetchall()
-        if len(server_id) != 1:
+        res = self.cur.fetchall()
+        if len(res) != 1:
             return False
-        sql = """
-              SELECT prefix
-              FROM servers
-              WHERE server_id = %s
-              """
-        self.cur.execute(sql, (server_id[0][0],))
-        return self.cur.fetchall()[0][0]
+        else:
+            server_id = res[0][0]
+            sql = """
+                  SELECT prefix
+                  FROM servers
+                  WHERE server_id = %s
+                  """
+            self.cur.execute(sql, (server_id,))
+            res = self.cur.fetchall()
+            if len(res) == 1:
+                return res[0][0]

@@ -24,8 +24,7 @@ class Help:
 
         help = discord.Embed(title="Available Commands", color=constants.BLUE)
         help.add_field(name="Events",
-                       value="{}event create - create a new event\n".format(prefix)
-                           + "{}event delete <id> - delete event with the given ID".format(prefix))
+                       value="{}event - create a new event\n".format(prefix))
         help.add_field(name="Roster",
                        value="{}role <class> - choose which role you intend on playing in D2\n".format(prefix)
                            + "{}roster - display the selected D2 role of all members".format(prefix))
