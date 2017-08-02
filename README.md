@@ -35,8 +35,8 @@ It will contain your bot's token as well as your database user, password, host, 
   "token": "token",
   "dbname": "name",
   "dbhost": "host",
-  "dbuser: "username",
-  "dbpass": "password
+  "dbuser": "username",
+  "dbpass": "password"
 }
 
 ```

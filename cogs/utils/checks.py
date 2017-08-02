@@ -13,13 +13,18 @@ def is_event(message):
                 and embed['fields'][1].get("name") == "Accepted"
                 and embed['fields'][2].get("name") == "Declined")
 
-def is_admin(bot, ctx):
-    """Check if the user had admin privileges"""
+async def is_admin(bot, ctx):
+    """Check if the user has admin privileges"""
     if ctx.message.channel.is_private:
+        print("private")
         with DBase() as db:
-            rows = db.get_server(str(ctx.message.author))
+            user = ctx.message.author
+            rows = db.get_server(str(user))
             if rows and len(rows) == 1:
-                pass #check perms
+                print(rows)
+                server_id = rows[0][0]
+                server = await bot.get_server(server_id)
+                permissions = server.default_channel.permissions_for(user)
     else:
         if ctx.message.author.server_permissions.administrator:
             return True

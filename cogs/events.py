@@ -34,9 +34,9 @@ class Events:
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
 
-        if not is_admin(self.bot, ctx):
-                await manager.say("You must be an admin to do that.")
-                return await manager.clear()
+        res = is_admin(self.bot, ctx)
+        if not res:
+            return await manager.say("You must be an admin to do that.")
 
         res = await manager.say_and_wait("Enter event title")
         if not res:
