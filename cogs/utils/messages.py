@@ -32,11 +32,14 @@ def get_server_from_dm(bot, ctx):
 
 class MessageManager:
 
-    def __init__(self, bot, user, channel, message):
+    def __init__(self, bot, user, channel, messages=None):
         self.bot = bot
         self.user = user
         self.channel = channel
-        self.messages = [message]
+        if messages:
+            self.messages = messages
+        else:
+            self.messages = []
 
 
     async def say_and_wait(self, content, mention=True):
@@ -71,7 +74,7 @@ class MessageManager:
             if (message.author in (self.user, self.bot.user)
                 and message.id in [m.id for m in self.messages]):
                 return True
-                
+
         if not self.channel.is_private:
             await asyncio.sleep(constants.SPAM_DELAY)
             await self.bot.purge_from(self.channel, limit=999, check=check)

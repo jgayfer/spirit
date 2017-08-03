@@ -21,18 +21,15 @@ class Events:
     async def event(self, ctx):
         """Create an event. Update the events channel on success"""
         user = ctx.message.author
-        manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
+        server = ctx.message.server
+        channel = ctx.message.channel
+        manager = MessageManager(self.bot, user, channel, [ctx.message])
 
-        server = None
-        if ctx.message.channel.is_private:
-            server = get_server_from_dm(self.bot, ctx)
-            if not server:
-                return await manager.say("You must be part of only one {} server to do that in a DM".format(self.bot.user.mention))
-        else:
-            server = ctx.message.server
+        if channel.is_private:
+            return await manager.say("That command is not supported in a direct message.")
 
-        if not is_admin(user, server):
-            await manager.say("You must be an admin to do that.")
+        if not is_admin(user, channel):
+            await manager.say("You must be an administrator to do that.")
             return await manager.clear()
 
         res = await manager.say_and_wait("Enter event title")
@@ -100,43 +97,50 @@ class Events:
         """If a reaction represents a user RSVP, update the DB and event message"""
         message = reaction.message
         server = message.server
+        channel = message.channel
+        manager = MessageManager(self.bot, user, channel)
 
         # We check that the user is not the message author as to not count
         # the initial reactions added by the bot as being indicative of attendance
         if is_event(message) and user is not message.author:
 
             title = message.embeds[0]['title']
-
             if reaction.emoji == "\N{WHITE HEAVY CHECK MARK}":
-                await self.set_attendance(str(user), server.id, 1, title)
+                await self.set_attendance(str(user), server.id, 1, title, message)
             elif reaction.emoji == "\N{CROSS MARK}":
-                await self.set_attendance(str(user), server.id, 0, title)
+                await self.set_attendance(str(user), server.id, 0, title, message)
             elif reaction.emoji == "\N{SKULL}":
-                return await self.delete_event(server, title)
-
-            # Update event message in place for a more seamless user experience
-            with DBase() as db:
-                event = db.get_event(server.id, title)
-                event_embed = self.create_event_embed(event[0][0], event[0][1], event[0][2],
-                                                      event[0][3], event[0][4], event[0][5])
-                await self.bot.edit_message(message, embed=event_embed)
+                if is_admin(user, channel):
+                    return await self.delete_event(server, title)
+                else:
+                    await manager.say("You must be an administrator to do that.")
 
             # Remove the reaction to keep the event message looking clean
             await asyncio.sleep(constants.REACTION_DELAY)
             await self.bot.remove_reaction(message, reaction.emoji, user)
+            await manager.clear()
 
 
-    async def set_attendance(self, username, server_id, attending, title):
-        """Send updated event attendance info to db"""
+    async def set_attendance(self, username, server_id, attending, title, message):
+        """Send updated event attendance info to db and update the event"""
         with DBase() as db:
+            db.add_user(server_id, username)
             db.update_attendance(username, server_id, attending, title)
+
+        # Update event message in place for a more seamless user experience
+        with DBase() as db:
+            event = db.get_event(server_id, title)
+            event_embed = self.create_event_embed(event[0][0], event[0][1], event[0][2],
+                                                  event[0][3], event[0][4], event[0][5])
+            await self.bot.edit_message(message, embed=event_embed)
 
 
     async def delete_event(self, server, title):
-        """Delete an event and update the events channel"""
+        """Delete an event and update the events channel on success"""
         with DBase() as db:
-            db.delete_event(server.id, title)
-            await self.list_events(server)
+            res = db.delete_event(server.id, title)
+            if res:
+                await self.list_events(server)
 
 
     async def get_events_channel(self, server):
@@ -185,6 +189,6 @@ class Events:
 
     async def on_server_available(self, server):
         """Refresh upcoming events when the bot starts so that the event messages
-           are in the bot's cache so that wait_for_reaction will work properly
+           are in the bot's cache so that wait_for_reaction() will work properly
            """
         await self.list_events(server)

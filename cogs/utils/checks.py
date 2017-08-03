@@ -12,7 +12,7 @@ def is_event(message):
                 and embed['fields'][2].get("name") == "Declined")
 
 
-def is_admin(user, server):
+def is_admin(user, channel):
     """Check if the user has admin privileges"""
-    if server.default_channel.permissions_for(user).administrator:
+    if channel.permissions_for(user).administrator:
         return True

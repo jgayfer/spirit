@@ -12,15 +12,14 @@ class Help:
         self.bot = bot
         self.bot.remove_command("help")
 
+
     @commands.command(pass_context=True)
     async def help(self, ctx):
         """Display command information"""
         user = ctx.message.author
-        manager = MessageManager(self.bot, user, ctx.message.channel, ctx.message)
-
-        prefix = ""
-        with DBase() as db:
-            prefix = db.get_prefix(str(user))
+        channel = ctx.message.channel
+        prefix = ctx.prefix
+        manager = MessageManager(self.bot, user, channel, [ctx.message])
 
         help = discord.Embed(title="Available Commands", color=constants.BLUE)
         help.add_field(name="Events",
@@ -28,8 +27,9 @@ class Help:
         help.add_field(name="Roster",
                        value="{}role <class> - choose which role you intend on playing in D2\n".format(prefix)
                            + "{}roster - display the selected D2 role of all members".format(prefix))
-        help.add_field(name="Settings",
-                       value="{0}setprefix - change the command prefix".format(prefix))
+        help.add_field(name="Other",
+                       value="{}setprefix - change the server's command prefix".format(prefix)
+                           + "{}feedback - send feedback to the bot's developer".format(prefix))
 
         await manager.say(help, embed=True, delete=False)
         await manager.clear()

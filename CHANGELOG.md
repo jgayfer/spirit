@@ -7,12 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Custom command prefixes
+- Command to send feedback to the developer
 - Message to indicate when there are no upcoming events
 ### Changed
 - Events are now deleted with a reaction instead of a command
-- Server specific commands can now be invoked from a DM if the user belongs to only one server running Spirit
 - User and bot spam messages are now deleted much faster
-- README now has instructions on running the bot
 ### Fixed
 - Issue that prevented emojis being included in event title/description
 

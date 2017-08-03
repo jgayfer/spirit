@@ -115,8 +115,10 @@ class DBase:
               WHERE server_id = %s
               AND title = %s;
               """
-        self.cur.execute(sql, (server_id, title))
+        affected_count = self.cur.execute(sql, (server_id, title))
         self.conn.commit()
+        if affected_count == 1:
+            return True
 
     def add_server(self, server_id):
         sql = """
@@ -146,9 +148,10 @@ class DBase:
     def add_user(self, server_id, username):
         sql = """
               INSERT INTO users (server_id, username)
-              VALUES (%s, %s);
+              VALUES (%s, %s)
+              ON DUPLICATE KEY UPDATE username = %s;
               """
-        self.cur.execute(sql, (server_id, username))
+        self.cur.execute(sql, (server_id, username, username))
         self.conn.commit()
 
     def set_prefix(self, server_id, prefix):
@@ -160,24 +163,11 @@ class DBase:
         self.cur.execute(sql, (prefix, server_id))
         self.conn.commit()
 
-    def get_prefix(self, username):
+    def get_prefix(self, server_id):
         sql = """
-              SELECT server_id
-              FROM users
-              WHERE username = %s;
+              SELECT prefix
+              FROM servers
+              WHERE server_id = %s
               """
-        self.cur.execute(sql, (username,))
-        res = self.cur.fetchall()
-        if len(res) != 1:
-            return False
-        else:
-            server_id = res[0][0]
-            sql = """
-                  SELECT prefix
-                  FROM servers
-                  WHERE server_id = %s
-                  """
-            self.cur.execute(sql, (server_id,))
-            res = self.cur.fetchall()
-            if len(res) == 1:
-                return res[0][0]
+        self.cur.execute(sql, (server_id,))
+        return self.cur.fetchall()[0][0]

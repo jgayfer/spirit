@@ -14,14 +14,14 @@ from cogs.misc import Misc
 
 async def _prefix_callable(bot, message):
     """Get the server's prefix"""
-    with DBase() as db:
-        prefix = db.get_prefix(str(message.author))
-        if prefix:
-            return prefix
-    await bot.send_message(message.channel, "You must be part of only one {} server to do that in a DM".format(bot.user.mention))
+    if message.channel.is_private:
+        if not message.content.startswith('!'):
+            await bot.send_message(message.channel, message.author.mention + ": The ! prefix must be used in a direct message.")
+        return '!'
+    else:
+        with DBase() as db:
+            return db.get_prefix(message.server.id)
 
-    # Return dummy prefix to make sure no commands run, and no errors are thrown
-    return "-()76"
 
 bot = commands.Bot(command_prefix=_prefix_callable)
 bot.add_cog(Events(bot))
@@ -34,7 +34,7 @@ bot.add_cog(Misc(bot))
 @bot.event
 async def on_ready():
     """Display startup information"""
-    print('Spirit v0.1.1')
+    print('Spirit v0.2.0')
     print('Username: {}'.format(bot.user.name))
     print('------')
 
@@ -44,9 +44,6 @@ async def on_server_join(server):
     """Add server and it's members to database"""
     with DBase() as db:
         db.add_server(server.id)
-        for user in server.members:
-            if user.id != bot.user.id:
-                db.add_user(server.id, str(user))
 
 
 @bot.event
