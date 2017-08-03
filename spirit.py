@@ -34,7 +34,7 @@ bot.add_cog(Misc(bot))
 @bot.event
 async def on_ready():
     """Display startup information"""
-    print('Spirit v0.2.0\n')
+    print('Spirit v0.2.0')
     print('Username: {}'.format(bot.user.name))
     print('------')
 
