@@ -28,7 +28,7 @@ class Help:
                        value="{}role <class> - choose which role you intend on playing in D2\n".format(prefix)
                            + "{}roster - display the selected D2 role of all members".format(prefix))
         help.add_field(name="Other",
-                       value="{}setprefix - change the server's command prefix".format(prefix)
+                       value="{}setprefix - change the server's command prefix\n".format(prefix)
                            + "{}feedback - send feedback to the bot's developer".format(prefix))
 
         await manager.say(help, embed=True, delete=False)
