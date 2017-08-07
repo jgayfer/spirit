@@ -73,7 +73,8 @@ class DBase:
                 AS declined
               FROM events
               WHERE events.server_id = %s
-              GROUP BY title, description, start_time, time_zone;
+              GROUP BY title, description, start_time, time_zone
+              ORDER BY start_time DESC;
               """
         self.cur.execute(sql, (server_id, server_id, server_id))
         return self.cur.fetchall()
