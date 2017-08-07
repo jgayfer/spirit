@@ -20,6 +20,7 @@ CREATE TABLE events (
 	time_zone VARCHAR(5) NOT NULL,
 	title VARCHAR(256) NOT NULL,
 	description VARCHAR(1000),
+	max_members INT NOT NULL DEFAULT 0,
 	PRIMARY KEY (server_id, title),
 	FOREIGN KEY (server_id) REFERENCES servers(server_id)
 		ON DELETE CASCADE

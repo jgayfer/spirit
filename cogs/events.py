@@ -7,7 +7,7 @@ from db.dbase import DBase
 import discord
 
 from cogs.utils.messages import delete_all, get_server_from_dm, MessageManager
-from cogs.utils.checks import is_event, is_admin
+from cogs.utils.checks import is_event, is_admin, is_int
 from cogs.utils import constants
 
 
@@ -44,6 +44,19 @@ class Events:
         if res.content.upper() != 'NONE':
             description = res.content
 
+        max_members = 0
+        while not max_members:
+            res = await manager.say_and_wait("Enter the maximum numbers of attendees (type 'none' for no maximum)")
+            if not res:
+                return
+            if res.content.upper() == 'NONE':
+                break
+            elif is_int(res.content) and int(res.content) > 0:
+                print(int(res.content))
+                max_members = int(res.content)
+            else:
+                await manager.say("That is not a a valid entry.")
+
         start_time = None
         while not start_time:
             res = await manager.say_and_wait("Enter event time (YYYY-MM-DD HH:MM AM/PM)")
@@ -66,7 +79,7 @@ class Events:
                 time_zone = res.content.upper()
 
         with DBase() as db:
-            res = db.create_event(title, start_time, time_zone, server.id, description)
+            res = db.create_event(title, start_time, time_zone, server.id, description, max_members)
             if res == 0:
                 await manager.say("An event with that name already exists.")
                 return await manager.clear()
@@ -85,7 +98,7 @@ class Events:
             events = db.get_events(server.id)
             if len(events) > 0:
                 for row in events:
-                    event_embed = self.create_event_embed(row[0], row[1], row[2], row[3], row[4], row[5])
+                    event_embed = self.create_event_embed(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
                     msg = await self.bot.send_message(events_channel, embed=event_embed)
                     await self.bot.add_reaction(msg, "\N{WHITE HEAVY CHECK MARK}")
                     await self.bot.add_reaction(msg, "\N{CROSS MARK}")
@@ -131,7 +144,7 @@ class Events:
         with DBase() as db:
             event = db.get_event(server_id, title)
             event_embed = self.create_event_embed(event[0][0], event[0][1], event[0][2],
-                                                  event[0][3], event[0][4], event[0][5])
+                                                  event[0][3], event[0][4], event[0][5], event[0][6])
             await self.bot.edit_message(message, embed=event_embed)
 
 
@@ -156,7 +169,7 @@ class Events:
         return channel
 
 
-    def create_event_embed(self, title, description, time, time_zone, accepted=None, declined=None):
+    def create_event_embed(self, title, description, time, time_zone, accepted=None, declined=None, max_members=None):
         """Create and return a Discord Embed object that represents an upcoming event"""
         embed_msg = discord.Embed(color=constants.BLUE)
         embed_msg.set_footer(text="React with {} to remove this event".format('\U0001f480'))
@@ -168,22 +181,41 @@ class Events:
         embed_msg.add_field(name="Time", value=time_str + " " + time_zone, inline=False)
 
         if accepted:
-            accepted = accepted.split(',')
-            accepted_list = ""
-            for member in accepted:
-                accepted_list += "{}\n".format(member.split("#")[0])
-            embed_msg.add_field(name="Accepted", value=accepted_list)
+            accepted_list = None
+            if max_members:
+                accepted_list = accepted.split(',')[:max_members]
+            else:
+                accepted_list = accepted.split(',')
+            text = ""
+            for member in accepted_list:
+                text += "{}\n".format(member.split("#")[0])
+            if max_members:
+                embed_msg.add_field(name="Accepted ({}/{})".format(len(accepted_list), max_members), value=text)
+            else:
+                embed_msg.add_field(name="Accepted", value=text)
         else:
-            embed_msg.add_field(name="Accepted", value="-")
+            if max_members:
+                embed_msg.add_field(name="Accepted (0/{})".format(max_members), value="-")
+            else:
+                embed_msg.add_field(name="Accepted", value="-")
 
         if declined:
-            declined = declined.split(',')
-            declined_list = ""
-            for member in declined:
-                declined_list += "{}\n".format(member.split("#")[0])
-            embed_msg.add_field(name="Declined", value=declined_list)
+            declined_list = declined.split(',')
+            text = ""
+            for member in declined_list:
+                text += "{}\n".format(member.split("#")[0])
+            embed_msg.add_field(name="Declined", value=text)
         else:
             embed_msg.add_field(name="Declined", value="-")
+
+        if accepted and max_members:
+            standby_list = accepted.split(',')[max_members:]
+            if standby_list:
+                text = ""
+                for member in standby_list:
+                    text += "{}\n".format(member.split("#")[0])
+                embed_msg.add_field(name="Standby", value=text, inline=False)
+
         return embed_msg
 
 

@@ -46,13 +46,13 @@ class DBase:
         self.cur.execute(sql, (role, username, server_id))
         self.conn.commit()
 
-    def create_event(self, title, start_time, time_zone, server_id, description):
+    def create_event(self, title, start_time, time_zone, server_id, description, max_members):
         sql = """
-              INSERT INTO events (title, start_time, time_zone, server_id, description)
-              VALUES (%s, %s, %s, %s, %s)
+              INSERT INTO events (title, start_time, time_zone, server_id, description, max_members)
+              VALUES (%s, %s, %s, %s, %s, %s)
               ON DUPLICATE KEY UPDATE title = %s;
               """
-        rows = self.cur.execute(sql, (title, start_time, time_zone, server_id, description, title))
+        rows = self.cur.execute(sql, (title, start_time, time_zone, server_id, description, max_members, title))
         self.conn.commit()
         return rows
 
@@ -70,7 +70,8 @@ class DBase:
                 WHERE user_event.server_id = %s
                 AND user_event.title = e
                 AND user_event.attending = 0)
-                AS declined
+                AS declined,
+                max_members
               FROM events
               WHERE events.server_id = %s
               GROUP BY title, description, start_time, time_zone
@@ -102,7 +103,8 @@ class DBase:
                 WHERE user_event.server_id = %s
                 AND user_event.title = %s
                 AND user_event.attending = 0)
-                AS declined
+                AS declined,
+                max_members
               FROM events
               WHERE server_id = %s
               AND title = %s;

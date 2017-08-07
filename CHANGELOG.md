@@ -4,10 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.3.0] - 2017-08-07
+### Added
+- A maximum number of attendees can be specified for an event
+- A 'standby' section has been added to events that have more attendees than the event permits
 ### Changed
 - Events are now sorted in the events channel by their start time
-- Event attendees are now sorted by when they RSVP'd
+- Event attendees are now sorted by when they accepted the invitation
 
 ## [0.2.0] - 2017-08-02
 ### Added

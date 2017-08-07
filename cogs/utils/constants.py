@@ -1,6 +1,6 @@
 import discord
 
-
+VERSION = "0.3.0"
 BLUE = discord.Colour(3381759)
 SPAM_DELAY = 4
 REACTION_DELAY = 0.5

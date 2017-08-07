@@ -5,6 +5,7 @@ import asyncio
 from discord.ext import commands
 
 from db.dbase import DBase
+from cogs.utils import constants
 from cogs.events import Events
 from cogs.roster import Roster
 from cogs.help import Help
@@ -34,7 +35,7 @@ bot.add_cog(Misc(bot))
 @bot.event
 async def on_ready():
     """Display startup information"""
-    print('Spirit v0.2.0')
+    print('Spirit v{}'.format(constants.VERSION))
     print('Username: {}'.format(bot.user.name))
     print('------')
 
