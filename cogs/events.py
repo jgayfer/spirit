@@ -125,7 +125,7 @@ class Events:
         """Send updated event attendance info to db and update the event"""
         with DBase() as db:
             db.add_user(server_id, username)
-            db.update_attendance(username, server_id, attending, title)
+            db.update_attendance(username, server_id, attending, title, datetime.now())
 
         # Update event message in place for a more seamless user experience
         with DBase() as db:

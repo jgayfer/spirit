@@ -59,13 +59,13 @@ class DBase:
     def get_events(self, server_id):
         sql = """
               SELECT title as e, description, start_time, time_zone, (
-                SELECT GROUP_CONCAT(DISTINCT username)
+                SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
                 WHERE user_event.server_id = %s
                 AND user_event.title = e
                 AND user_event.attending = 1)
                 AS accepted, (
-                SELECT GROUP_CONCAT(DISTINCT username)
+                SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
                 WHERE user_event.server_id = %s
                 AND user_event.title = e
@@ -79,25 +79,25 @@ class DBase:
         self.cur.execute(sql, (server_id, server_id, server_id))
         return self.cur.fetchall()
 
-    def update_attendance(self, username, server_id, attending, title):
+    def update_attendance(self, username, server_id, attending, title, last_updated):
         sql = """
-              INSERT INTO user_event (username, server_id, title, attending)
-              VALUES (%s, %s, %s, %s)
-              ON DUPLICATE KEY UPDATE attending = %s;
+              INSERT INTO user_event (username, server_id, title, attending, last_updated)
+              VALUES (%s, %s, %s, %s, %s)
+              ON DUPLICATE KEY UPDATE attending = %s, last_updated = %s;
               """
-        self.cur.execute(sql, (username, server_id, title, attending, attending))
+        self.cur.execute(sql, (username, server_id, title, attending, last_updated, attending, last_updated))
         self.conn.commit()
 
     def get_event(self, server_id, title):
         sql = """
               SELECT title, description, start_time, time_zone, (
-                SELECT GROUP_CONCAT(DISTINCT username)
+                SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
                 WHERE user_event.server_id = %s
                 AND user_event.title = %s
                 AND user_event.attending = 1)
                 AS accepted, (
-                SELECT GROUP_CONCAT(DISTINCT username)
+                SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
                 WHERE user_event.server_id = %s
                 AND user_event.title = %s

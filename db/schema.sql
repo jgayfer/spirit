@@ -30,6 +30,7 @@ CREATE TABLE user_event (
 	server_id VARCHAR(40) NOT NULL,
 	title VARCHAR(256) NOT NULL,
 	attending BOOLEAN NOT NULL,
+	last_updated DATETIME NOT NULL,
 	PRIMARY KEY (username, server_id, title),
 	FOREIGN KEY (server_id, title) REFERENCES events(server_id, title)
 		ON DELETE CASCADE,

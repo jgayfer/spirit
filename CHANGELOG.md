@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 ### Changed
-- Events are now sorted by their start time
+- Events are now sorted in the events channel by their start time
+- Event attendees are now sorted by when they RSVP'd
 
 ## [0.2.0] - 2017-08-02
 ### Added
