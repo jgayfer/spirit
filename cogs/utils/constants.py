@@ -1,11 +1,11 @@
 import discord
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 BLUE = discord.Colour(3381759)
 SPAM_DELAY = 4
 REACTION_DELAY = 0.5
 
-time_zones = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
+TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
               'AEST', 'AKDT', 'AKST', 'AMT', 'AMST', 'AST', 'AWST',
               'BOT', 'BRT', 'BRST', 'BST', 'CDT', 'CEST', 'CET',
               'CHST', 'CLT', 'CLST', 'COT', 'CST', 'CXT', 'CWST',

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2017-08-08
+### Added
+- Users can now add their timezone to the roster with the new 'timezone' command
+- The roster now displays the server name in its title
+### Changed
+- Changed the name of the 'setprefix' command to 'prefix'
+
 ## [0.3.0] - 2017-08-07
 ### Added
 - A maximum number of attendees can be specified for an event

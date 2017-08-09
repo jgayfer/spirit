@@ -22,13 +22,14 @@ class Help:
         manager = MessageManager(self.bot, user, channel, [ctx.message])
 
         help = discord.Embed(title="Available Commands", color=constants.BLUE)
-        help.add_field(name="Events",
+        help.add_field(name="Events", inline=False,
                        value="{}event - create a new event\n".format(prefix))
-        help.add_field(name="Roster",
-                       value="{}role <class> - choose which role you intend on playing in D2\n".format(prefix)
-                           + "{}roster - display the selected D2 role of all members".format(prefix))
-        help.add_field(name="Other",
-                       value="{}setprefix - change the server's command prefix\n".format(prefix)
+        help.add_field(name="Roster", inline=False,
+                       value="{}role <class> - update the roster with your D2 role\n".format(prefix)
+                           + "{}timezone <timezone> - update the roster with your timezone\n".format(prefix)
+                           + "{}roster - display the current roster".format(prefix))
+        help.add_field(name="Other", inline=False,
+                       value="{}prefix - change the server's command prefix\n".format(prefix)
                            + "{}feedback - send feedback to the bot's developer".format(prefix))
 
         await manager.say(help, embed=True, delete=False)

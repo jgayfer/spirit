@@ -9,6 +9,7 @@ CREATE TABLE users (
 	username VARCHAR(50) NOT NULL,
 	server_id VARCHAR(40) NOT NULL,
 	role VARCHAR(10),
+	time_zone VARCHAR(5),
 	PRIMARY KEY (username, server_id),
 	FOREIGN KEY (server_id) REFERENCES servers(server_id)
 	  ON DELETE CASCADE

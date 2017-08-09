@@ -30,10 +30,33 @@ class Roster:
         if role == "Titan" or role == "Warlock" or role == "Hunter":
             with DBase() as db:
                 db.add_user(server.id, str(user))
-                db.update_roster(str(user), role, server.id)
+                db.update_role(str(user), role, server.id)
             await manager.say("Your role has been updated!")
         else:
             await manager.say("Role must be one of: Titan, Hunter, Warlock")
+        await manager.clear()
+
+
+    @commands.command(pass_context=True)
+    async def timezone(self, ctx, time_zone="None"):
+        """Update the user's timezone"""
+        user = ctx.message.author
+        channel = ctx.message.channel
+        server = ctx.message.server
+        manager = MessageManager(self.bot, user, channel, [ctx.message])
+
+        # Return if the user is in a private message as the roster is server specific
+        if channel.is_private:
+            return await manager.say("That command is not supported in a direct message.")
+
+        time_zone = time_zone.upper()
+        if time_zone in constants.TIME_ZONES:
+            with DBase() as db:
+                db.add_user(server.id, str(user))
+                db.update_time_zone(str(user), time_zone, server.id)
+            await manager.say("Your time zone has been updated!")
+        else:
+            await manager.say("Unsupported time zone")
         await manager.clear()
 
 
@@ -55,17 +78,17 @@ class Roster:
 
                 text = "```\n"
                 for row in roster:
-                    text += row[0].split("#")[0]
-                    spaces = 25 - len(row[0].split("#")[0])
-                    for _ in range (0, spaces):
-                        text += " "
-                    text += row[1] + "\n"
+                    name = row[0].split("#")[0]
+                    name = (name[:18] + '..') if len(name) > 18 else name
+                    role = row[1] if row[1] else "---"
+                    time_zone = row[2] if row[2] else "---"
+                    text += '{:20} {:5} {:7}\n'.format(name, time_zone, role)
                 text += "```"
 
                 embed_msg = discord.Embed(color=constants.BLUE)
-                embed_msg.title="Destiny 2 Pre Launch Roster"
+                embed_msg.title="{} Roster".format(server.name)
                 embed_msg.description = text
                 await manager.say(embed_msg, embed=True, delete=False)
             else:
-                await manager.say("No roles have been assigned yet. Use the 'role' command to assign yourself a role.")
+                await manager.say("No roster exists yet. Use 'role' or 'timezone' to add the first entry!")
             await manager.clear()

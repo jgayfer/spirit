@@ -27,16 +27,16 @@ class DBase:
 
     def get_roster(self, server_id):
         sql = """
-              SELECT username, role
+              SELECT username, role, time_zone
               FROM users
-              WHERE role != ''
+              WHERE (role != '' OR time_zone != '')
               AND server_id = %s
               ORDER BY role;
               """
         self.cur.execute(sql, (server_id,))
         return self.cur.fetchall()
 
-    def update_roster(self, username, role, server_id):
+    def update_role(self, username, role, server_id):
         sql = """
                UPDATE users
                SET role = %s
@@ -44,6 +44,16 @@ class DBase:
                AND server_id = %s;
                """
         self.cur.execute(sql, (role, username, server_id))
+        self.conn.commit()
+
+    def update_time_zone(self, username, time_zone, server_id):
+        sql = """
+               UPDATE users
+               SET time_zone = %s
+               WHERE username = %s
+               AND server_id = %s;
+               """
+        self.cur.execute(sql, (time_zone, username, server_id))
         self.conn.commit()
 
     def create_event(self, title, start_time, time_zone, server_id, description, max_members):
