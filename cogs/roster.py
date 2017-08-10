@@ -37,8 +37,8 @@ class Roster:
         await manager.clear()
 
 
-    @commands.command(pass_context=True)
-    async def timezone(self, ctx, time_zone="None"):
+    @commands.command(pass_context=True, description='timezone <your timezone>')
+    async def timezone(self, ctx, time_zone):
         """Update the user's timezone"""
         user = ctx.message.author
         channel = ctx.message.channel
