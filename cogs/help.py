@@ -13,7 +13,7 @@ class Help:
         self.bot.remove_command("help")
 
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, hidden=True)
     async def help(self, ctx, command=None):
         """Display command information"""
         user = ctx.message.author
@@ -40,8 +40,11 @@ class Help:
             help = discord.Embed(title="Available Commands", color=constants.BLUE)
             help.description = ("Items in <angled_brackets> are *required*"
                               + "\nItems in [square_brackets] are *optional*")
+            help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
             for key in commands:
                 command = self.bot.commands.get(key)
+                if command.hidden:
+                    continue
                 signature = self.get_command_signature(prefix, command)
                 help.add_field(name="{}".format(signature), value="{}".format(command.help), inline=False)
             return help
