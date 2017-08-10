@@ -12,7 +12,11 @@ class Misc:
 
     @commands.command(pass_context=True)
     async def feedback(self, ctx, *message):
-        """Send a message to the bot's developer"""
+        """
+        Send a message to the bot's developer
+
+        Ex. '!feedback Your bot is awesome!'
+        """
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, [ctx.message])
 

@@ -46,7 +46,7 @@ class Help:
                 if command.hidden:
                     continue
                 signature = self.get_command_signature(prefix, command)
-                help.add_field(name="{}".format(signature), value="{}".format(command.help), inline=False)
+                help.add_field(name="{}".format(signature), value="{}".format(command.help.split('\n')[0].replace('\n', ' ')), inline=False)
             return help
         else:
             command = commands

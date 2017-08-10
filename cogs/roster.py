@@ -16,7 +16,11 @@ class Roster:
 
     @commands.command(pass_context=True)
     async def role(self, ctx, role):
-        """Add your Destiny 2 role to the roster"""
+        """
+        Add your Destiny 2 role to the roster
+
+        Ex. '!role Warlock'
+        """
         user = ctx.message.author
         channel = ctx.message.channel
         server = ctx.message.server
@@ -43,7 +47,11 @@ class Roster:
 
     @commands.command(pass_context=True)
     async def timezone(self, ctx, time_zone):
-        """Add your timezone to the roster"""
+        """
+        Add your timezone to the roster
+
+        Ex. '!timezone PST'
+        """
         user = ctx.message.author
         channel = ctx.message.channel
         server = ctx.message.server
@@ -70,7 +78,14 @@ class Roster:
 
     @commands.command(pass_context=True)
     async def roster(self, ctx):
-        """List the server's current roster"""
+        """
+        Display the roster
+
+        The roster includes the name, Destiny 2 class,
+        and timezone of server members. Note that only
+        users who have set a role or timezone will be
+        displayed on the roster.
+        """
         user = ctx.message.author
         channel = ctx.message.channel
         server = ctx.message.server
