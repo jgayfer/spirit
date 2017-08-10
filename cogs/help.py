@@ -37,6 +37,8 @@ class Help:
     def help_embed(self, prefix, commands):
         """Create an embed message that displays command help"""
         if isinstance(commands, dict):
+
+            # Create embed for all commands
             help = discord.Embed(title="Available Commands", color=constants.BLUE)
             help.description = ("Items in <angled_brackets> are *required*"
                               + "\nItems in [square_brackets] are *optional*")
@@ -46,13 +48,15 @@ class Help:
                 if command.hidden:
                     continue
                 signature = self.get_command_signature(prefix, command)
-                help.add_field(name="{}".format(signature), value="{}".format(command.help.split('\n')[0].replace('\n', ' ')), inline=False)
+                help.add_field(name="{}".format(signature), value="{}".format(command.help.split('\n')[0]), inline=False)
             return help
+
         else:
+            # Create embed for a single command
             command = commands
             signature = self.get_command_signature(prefix, command)
             help = discord.Embed(title="{}".format(signature), color=constants.BLUE)
-            help.description = "{}".format(command.help)
+            help.description = "{}".format(self.format_long_help(command.help))
             return help
 
 
@@ -76,3 +80,15 @@ class Help:
                 else:
                     result.append('<{}>'.format(name))
         return(' '.join(result))
+
+
+    def format_long_help(self, help_msg):
+        """
+        Remove single new lines, but keep double new lines.
+        This ensures that text will fit to the size of the discord chat window
+        as help messages are docstrings, which have newline characters after every line
+        """
+        placeholder = '_*$*_'
+        help_msg = help_msg.replace('\n\n', placeholder)
+        help_msg = help_msg.replace('\n', ' ')
+        return help_msg.replace(placeholder, '\n\n')
