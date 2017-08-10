@@ -11,17 +11,17 @@ class Misc:
 
 
     @commands.command(pass_context=True)
-    async def feedback(self, ctx, *args):
-        """Allow user to send feedback to the bot's developer"""
+    async def feedback(self, ctx, *message):
+        """Send a message to the bot's developer"""
         user = ctx.message.author
         manager = MessageManager(self.bot, user, ctx.message.channel, [ctx.message])
 
-        if len(args) == 0:
+        if len(message) == 0:
             await manager.say("You forgot to include your feedback!")
             return await manager.clear()
 
         feedback = ""
-        for word in args:
+        for word in message:
             feedback += "{} ".format(word)
 
         # Send user feedback to Asal, the bot's devloper

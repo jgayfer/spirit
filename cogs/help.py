@@ -22,7 +22,6 @@ class Help:
         manager = MessageManager(self.bot, user, channel, [ctx.message])
 
         if command:
-            print(command)
             command = self.bot.commands.get(command)
             if command is None:
                 await manager.say("There are no commands called '{}'".format(command))
@@ -36,20 +35,41 @@ class Help:
 
 
     def help_embed(self, prefix, commands):
+        """Create an embed message that displays command help"""
         if isinstance(commands, dict):
             help = discord.Embed(title="Available Commands", color=constants.BLUE)
+            help.description = ("Items in <angled_brackets> are *required*"
+                              + "\nItems in [square_brackets] are *optional*")
             for key in commands:
                 command = self.bot.commands.get(key)
-                help.add_field(name="{}{}".format(prefix, command.name), value="{}".format(command.help), inline=False)
+                signature = self.get_command_signature(prefix, command)
+                help.add_field(name="{}".format(signature), value="{}".format(command.help), inline=False)
             return help
         else:
             command = commands
-            params = self.strip_params(command.clean_params)
-            help = discord.Embed(title="{}{} {}".format(prefix, command.name, params), color=constants.BLUE)
+            signature = self.get_command_signature(prefix, command)
+            help = discord.Embed(title="{}".format(signature), color=constants.BLUE)
             help.description = "{}".format(command.help)
             return help
 
 
-    def strip_params(self, params):
-        print(type(params))
-        return ""
+    def get_command_signature(self, prefix, command):
+        """Create a user friendly command signature"""
+        result = []
+        params = command.clean_params
+        parent = command.full_parent_name
+
+        # Add command's parent if it exists
+        name = prefix + command.name if not parent else prefix + parent + ' ' + command.name
+        result.append(name)
+
+        # Format arguments to display which are required and which are optional
+        if len(params) > 0:
+            for name, param in params.items():
+                if param.default is not param.empty:
+                    result.append('[{}]'.format(name))
+                elif param.kind == param.VAR_POSITIONAL:
+                    result.append('[{}...]'.format(name))
+                else:
+                    result.append('<{}>'.format(name))
+        return(' '.join(result))

@@ -15,8 +15,8 @@ class Roster:
 
 
     @commands.command(pass_context=True)
-    async def role(self, ctx, role="None"):
-        """Update the user's role on current server"""
+    async def role(self, ctx, role):
+        """Add your Destiny 2 role to the roster"""
         user = ctx.message.author
         channel = ctx.message.channel
         server = ctx.message.server
@@ -25,6 +25,10 @@ class Roster:
         # Return if the user is in a private message as the roster is server specific
         if channel.is_private:
             return await manager.say("That command is not supported in a direct message.")
+
+        if not role:
+            await manager.say("You must specify a role.")
+            return await manager.clear()
 
         role = role.lower().title()
         if role == "Titan" or role == "Warlock" or role == "Hunter":
@@ -37,9 +41,9 @@ class Roster:
         await manager.clear()
 
 
-    @commands.command(pass_context=True, description='timezone <your timezone>')
+    @commands.command(pass_context=True)
     async def timezone(self, ctx, time_zone):
-        """Update the user's timezone"""
+        """Add your timezone to the roster"""
         user = ctx.message.author
         channel = ctx.message.channel
         server = ctx.message.server
@@ -48,6 +52,10 @@ class Roster:
         # Return if the user is in a private message as the roster is server specific
         if channel.is_private:
             return await manager.say("That command is not supported in a direct message.")
+
+        if not time_zone:
+            await manager.say("You must specify a timezone.")
+            return manager.clear()
 
         time_zone = time_zone.upper()
         if time_zone in constants.TIME_ZONES:

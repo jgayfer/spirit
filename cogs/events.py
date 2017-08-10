@@ -19,7 +19,7 @@ class Events:
 
     @commands.command(pass_context=True)
     async def event(self, ctx):
-        """Create an event. Update the events channel on success"""
+        """Create an event in the #upcoming-events channel"""
         user = ctx.message.author
         server = ctx.message.server
         channel = ctx.message.channel

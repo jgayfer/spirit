@@ -15,8 +15,8 @@ class Settings:
 
 
     @commands.command(pass_context=True)
-    async def prefix(self, ctx, new_prefix=None):
-        """Set a custom server prefix"""
+    async def prefix(self, ctx, new_prefix):
+        """Change the server's command prefix"""
         user = ctx.message.author
         channel = ctx.message.channel
         manager = MessageManager(self.bot, user, channel, [ctx.message])
