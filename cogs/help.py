@@ -14,28 +14,46 @@ class Help:
 
 
     @commands.command(pass_context=True, hidden=True)
-    async def help(self, ctx, str_command=None):
+    async def help(self, ctx, str_cmd=None, str_subcmd=None):
         """Display command information"""
         user = ctx.message.author
         channel = ctx.message.channel
         prefix = ctx.prefix
         manager = MessageManager(self.bot, user, channel, [ctx.message])
 
-        if str_command:
-            command = self.bot.commands.get(str_command)
+        # User passed a command and a subcommand
+        if str_cmd and str_subcmd:
 
-            if command is None:
-                await manager.say("There are no commands called '{}'".format(str_command))
+            cmd = self.bot.commands.get(str_cmd)
+            if cmd is None:
+                await manager.say("There are no commands called '{}'".format(str_cmd))
                 return await manager.clear()
 
-            # Check for subcommands
-            if command.commands:
-                for subcommand in command.commands.values():
-                    help = self.help_embed(ctx.prefix, subcommand)
+            # Check for subcommand
+            if hasattr(cmd, 'commands'):
+                if str_subcmd in cmd.commands.keys():
+                    subcmd = cmd.commands[str_subcmd]
+                    help = self.help_embed_single(ctx.prefix, subcmd)
                     await manager.say(help, embed=True, delete=False)
+                else:
+                    await manager.say("'{}' doesn't have a subcommand called '{}'".format(str_cmd, str_subcmd))
+                    return await manager.clear()
             else:
-                help = self.help_embed(ctx.prefix, command)
-                await manager.say(help, embed=True, delete=False)
+                await manager.say("'{}' does not have any subcommands".format(str_cmd))
+                return await manager.clear()
+
+        # User passed in a single command
+        elif str_cmd:
+
+            cmd = self.bot.commands.get(str_cmd)
+            if cmd is None:
+                await manager.say("There are no commands called '{}'".format(str_cmd))
+                return await manager.clear()
+
+            help = self.help_embed_single(ctx.prefix, cmd)
+            await manager.say(help, embed=True, delete=False)
+
+        # No commands passed, print help for all commands
         else:
             help = self.help_embed(ctx.prefix, self.bot.commands)
             await manager.say(help, embed=True, delete=False)
