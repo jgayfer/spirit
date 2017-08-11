@@ -14,17 +14,17 @@ class Help:
 
 
     @commands.command(pass_context=True, hidden=True)
-    async def help(self, ctx, command=None):
+    async def help(self, ctx, str_command=None):
         """Display command information"""
         user = ctx.message.author
         channel = ctx.message.channel
         prefix = ctx.prefix
         manager = MessageManager(self.bot, user, channel, [ctx.message])
 
-        if command:
-            command = self.bot.commands.get(command)
+        if str_command:
+            command = self.bot.commands.get(str_command)
             if command is None:
-                await manager.say("There are no commands called '{}'".format(command))
+                await manager.say("There are no commands called '{}'".format(str_command))
                 return await manager.clear()
             help = self.help_embed(ctx.prefix, command)
             await manager.say(help, embed=True, delete=False)
