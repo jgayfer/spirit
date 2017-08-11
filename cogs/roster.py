@@ -15,11 +15,11 @@ class Roster:
 
 
     @commands.command(pass_context=True)
-    async def role(self, ctx, role):
+    async def setrole(self, ctx, role):
         """
         Add your Destiny 2 role to the roster
 
-        Ex. '!role Warlock'
+        Ex. '!setrole Warlock'
         """
         user = ctx.message.author
         channel = ctx.message.channel
@@ -46,11 +46,11 @@ class Roster:
 
 
     @commands.command(pass_context=True)
-    async def timezone(self, ctx, time_zone):
+    async def settimezone(self, ctx, time_zone):
         """
         Add your timezone to the roster
 
-        Ex. '!timezone PST'
+        Ex. '!settimezone PST'
         """
         user = ctx.message.author
         channel = ctx.message.channel

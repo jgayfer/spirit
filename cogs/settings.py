@@ -15,7 +15,7 @@ class Settings:
 
 
     @commands.command(pass_context=True)
-    async def prefix(self, ctx, new_prefix):
+    async def setprefix(self, ctx, new_prefix):
         """
         Change the server's command prefix
 

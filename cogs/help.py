@@ -23,11 +23,19 @@ class Help:
 
         if str_command:
             command = self.bot.commands.get(str_command)
+
             if command is None:
                 await manager.say("There are no commands called '{}'".format(str_command))
                 return await manager.clear()
-            help = self.help_embed(ctx.prefix, command)
-            await manager.say(help, embed=True, delete=False)
+
+            # Check for subcommands
+            if command.commands:
+                for subcommand in command.commands.values():
+                    help = self.help_embed(ctx.prefix, subcommand)
+                    await manager.say(help, embed=True, delete=False)
+            else:
+                help = self.help_embed(ctx.prefix, command)
+                await manager.say(help, embed=True, delete=False)
         else:
             help = self.help_embed(ctx.prefix, self.bot.commands)
             await manager.say(help, embed=True, delete=False)
@@ -43,6 +51,7 @@ class Help:
             help.description = ("Items in <angled_brackets> are *required*"
                               + "\nItems in [square_brackets] are *optional*")
             help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
+
             for key in commands:
                 command = self.bot.commands.get(key)
                 if command.hidden:
@@ -50,8 +59,8 @@ class Help:
                 signature = self.get_command_signature(prefix, command)
                 help.add_field(name="{}".format(signature), value="{}".format(command.help.split('\n')[0]), inline=False)
             return help
-
         else:
+
             # Create embed for a single command
             command = commands
             signature = self.get_command_signature(prefix, command)
@@ -59,15 +68,19 @@ class Help:
             help.description = "{}".format(self.format_long_help(command.help))
             return help
 
+    def help_embed_single(self, prefix, command):
+        signature = self.get_command_signature(prefix, command)
+        help = discord.Embed(title="{}".format(signature), color=constants.BLUE)
+        help.description = "{}".format(self.format_long_help(command.help))
+        return help
 
-    def get_command_signature(self, prefix, command):
+
+    def get_command_signature(self, prefix, cmd):
         """Create a user friendly command signature"""
         result = []
-        params = command.clean_params
-        parent = command.full_parent_name
-
-        # Add command's parent if it exists
-        name = prefix + command.name if not parent else prefix + parent + ' ' + command.name
+        params = cmd.clean_params
+        parent = cmd.full_parent_name
+        name = prefix + cmd.name if not parent else prefix + parent + ' ' + cmd.name
         result.append(name)
 
         # Format arguments to display which are required and which are optional
@@ -88,7 +101,7 @@ class Help:
         This ensures that text will fit to the size of the discord chat window
         as help messages are docstrings, which have newline characters after every line
         """
-        placeholder = '_*$*_'
+        placeholder = '*)4_8^'
         help_msg = help_msg.replace('\n\n', placeholder)
         help_msg = help_msg.replace('\n', ' ')
         return help_msg.replace(placeholder, '\n\n')
