@@ -1,9 +1,11 @@
+from datetime import datetime
+
 import discord
 
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 BLUE = discord.Colour(3381759)
-SPAM_DELAY = 4
-REACTION_DELAY = 0.5
+SPAM_DELAY = 4.5
+REACTION_DELAY = 1
 
 TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
               'AEST', 'AKDT', 'AKST', 'AMT', 'AMST', 'AST', 'AWST',
@@ -15,3 +17,7 @@ TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
               'NFT', 'NST', 'PDT', 'PST', 'PET', 'PYT', 'PYST',
               'SAMT', 'SDT', 'SRT', 'SST', 'UYST', 'UYT', 'VET',
               'WDT', 'WEST', 'WET', 'WST', 'YST', 'YDT' ]
+
+RELEASE_DATES = [("PC Beta", datetime(2017,8,28)),
+                 ("Console Release", datetime(2017,9,6)),
+                 ("PC Release", datetime(2017,10,24))]

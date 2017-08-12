@@ -27,9 +27,9 @@ class DBase:
 
     def get_roster(self, server_id):
         sql = """
-              SELECT username, role, time_zone
-              FROM users
-              WHERE (role != '' OR time_zone != '')
+              SELECT username, role, timezone
+              FROM roster
+              WHERE (role != '' OR timezone != '')
               AND server_id = %s
               ORDER BY role;
               """
@@ -38,37 +38,36 @@ class DBase:
 
     def update_role(self, username, role, server_id):
         sql = """
-               UPDATE users
-               SET role = %s
+               INSERT INTO roster (username, role, server_id)
+               VALUES (%s, %s, %s)
+               ON DUPLICATE KEY UPDATE role = %s;
+               """
+        self.cur.execute(sql, (username, role, server_id, role))
+        self.conn.commit()
+
+    def update_timezone(self, username, timezone, server_id):
+        sql = """
+               UPDATE roster
+               SET timezone = %s
                WHERE username = %s
                AND server_id = %s;
                """
-        self.cur.execute(sql, (role, username, server_id))
+        self.cur.execute(sql, (timezone, username, server_id))
         self.conn.commit()
 
-    def update_time_zone(self, username, time_zone, server_id):
+    def create_event(self, title, start_time, timezone, server_id, description, max_members):
         sql = """
-               UPDATE users
-               SET time_zone = %s
-               WHERE username = %s
-               AND server_id = %s;
-               """
-        self.cur.execute(sql, (time_zone, username, server_id))
-        self.conn.commit()
-
-    def create_event(self, title, start_time, time_zone, server_id, description, max_members):
-        sql = """
-              INSERT INTO events (title, start_time, time_zone, server_id, description, max_members)
+              INSERT INTO events (title, start_time, timezone, server_id, description, max_members)
               VALUES (%s, %s, %s, %s, %s, %s)
               ON DUPLICATE KEY UPDATE title = %s;
               """
-        rows = self.cur.execute(sql, (title, start_time, time_zone, server_id, description, max_members, title))
+        rows = self.cur.execute(sql, (title, start_time, timezone, server_id, description, max_members, title))
         self.conn.commit()
         return rows
 
     def get_events(self, server_id):
         sql = """
-              SELECT title as e, description, start_time, time_zone, (
+              SELECT title as e, description, start_time, timezone, (
                 SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
                 WHERE user_event.server_id = %s
@@ -84,7 +83,7 @@ class DBase:
                 max_members
               FROM events
               WHERE events.server_id = %s
-              GROUP BY title, description, start_time, time_zone
+              GROUP BY title, description, start_time, timezone
               ORDER BY start_time DESC;
               """
         self.cur.execute(sql, (server_id, server_id, server_id))
@@ -101,7 +100,7 @@ class DBase:
 
     def get_event(self, server_id, title):
         sql = """
-              SELECT title, description, start_time, time_zone, (
+              SELECT title, description, start_time, timezone, (
                 SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
                 WHERE user_event.server_id = %s
@@ -149,22 +148,21 @@ class DBase:
         self.cur.execute(sql, (server_id,))
         self.conn.commit()
 
-    def get_server(self, username):
+    def add_user(self, username):
         sql = """
-              SELECT server_id
-              FROM users
+              INSERT INTO users (username)
+              VALUES (%s)
+              ON DUPLICATE KEY UPDATE username = %s;
+              """
+        self.cur.execute(sql, (username, username))
+        self.conn.commit()
+
+    def remove_user(self, username):
+        sql = """
+              DELETE FROM users
               WHERE username = %s;
               """
         self.cur.execute(sql, (username,))
-        return self.cur.fetchall()
-
-    def add_user(self, server_id, username):
-        sql = """
-              INSERT INTO users (server_id, username)
-              VALUES (%s, %s)
-              ON DUPLICATE KEY UPDATE username = %s;
-              """
-        self.cur.execute(sql, (server_id, username, username))
         self.conn.commit()
 
     def set_prefix(self, server_id, prefix):

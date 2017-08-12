@@ -15,8 +15,12 @@ class Roster:
 
 
     @commands.command(pass_context=True)
-    async def role(self, ctx, role="None"):
-        """Update the user's role on current server"""
+    async def setrole(self, ctx, role):
+        """
+        Add your Destiny 2 role to the roster
+
+        Ex. '!setrole Warlock'
+        """
         user = ctx.message.author
         channel = ctx.message.channel
         server = ctx.message.server
@@ -26,10 +30,14 @@ class Roster:
         if channel.is_private:
             return await manager.say("That command is not supported in a direct message.")
 
+        if not role:
+            await manager.say("You must specify a role.")
+            return await manager.clear()
+
         role = role.lower().title()
         if role == "Titan" or role == "Warlock" or role == "Hunter":
             with DBase() as db:
-                db.add_user(server.id, str(user))
+                db.add_user(str(user))
                 db.update_role(str(user), role, server.id)
             await manager.say("Your role has been updated!")
         else:
@@ -37,9 +45,24 @@ class Roster:
         await manager.clear()
 
 
-    @commands.command(pass_context=True, description='timezone <your timezone>')
-    async def timezone(self, ctx, time_zone):
-        """Update the user's timezone"""
+    @setrole.error
+    async def setrole_error(self, error, ctx):
+        if isinstance(error, commands.MissingRequiredArgument):
+            user = ctx.message.author
+            channel = ctx.message.channel
+            server = ctx.message.server
+            manager = MessageManager(self.bot, user, channel, [ctx.message])
+            await manager.say('Oops! You must include your Destiny 2 role.')
+            await manager.clear()
+
+
+    @commands.command(pass_context=True)
+    async def settimezone(self, ctx, time_zone):
+        """
+        Add your timezone to the roster
+
+        Ex. '!settimezone PST'
+        """
         user = ctx.message.author
         channel = ctx.message.channel
         server = ctx.message.server
@@ -49,20 +72,42 @@ class Roster:
         if channel.is_private:
             return await manager.say("That command is not supported in a direct message.")
 
+        if not time_zone:
+            await manager.say("You must specify a timezone.")
+            return manager.clear()
+
         time_zone = time_zone.upper()
         if time_zone in constants.TIME_ZONES:
             with DBase() as db:
-                db.add_user(server.id, str(user))
-                db.update_time_zone(str(user), time_zone, server.id)
+                db.add_user(str(user))
+                db.update_timezone(str(user), time_zone, server.id)
             await manager.say("Your time zone has been updated!")
         else:
             await manager.say("Unsupported time zone")
         await manager.clear()
 
 
+    @settimezone.error
+    async def settimezone_error(self, error, ctx):
+        if isinstance(error, commands.MissingRequiredArgument):
+            user = ctx.message.author
+            channel = ctx.message.channel
+            server = ctx.message.server
+            manager = MessageManager(self.bot, user, channel, [ctx.message])
+            await manager.say('Oops! You must provide your timezone.')
+            await manager.clear()
+
+
     @commands.command(pass_context=True)
     async def roster(self, ctx):
-        """List the server's current roster"""
+        """
+        Display the roster
+
+        The roster includes the name, Destiny 2 class,
+        and timezone of server members. Note that only
+        users who have set a role or timezone will be
+        displayed on the roster.
+        """
         user = ctx.message.author
         channel = ctx.message.channel
         server = ctx.message.server

@@ -1,6 +1,6 @@
 def is_event(message):
     """Check if a message contains event data"""
-    if message.embeds[0]:
+    if len(message.embeds) > 0:
         embed = message.embeds[0]
         return (message.channel.name == 'upcoming-events'
                 and 'fields' in embed

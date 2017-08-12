@@ -3,10 +3,10 @@ import asyncio
 import re
 
 from discord.ext import commands
-from db.dbase import DBase
 import discord
 
-from cogs.utils.messages import delete_all, get_server_from_dm, MessageManager
+from db.dbase import DBase
+from cogs.utils.messages import delete_all, MessageManager
 from cogs.utils.checks import is_event, is_admin, is_int
 from cogs.utils import constants
 
@@ -19,7 +19,23 @@ class Events:
 
     @commands.command(pass_context=True)
     async def event(self, ctx):
-        """Create an event. Update the events channel on success"""
+        """
+        Create an event in the #upcoming-events channel
+
+        After invoking the command, the bot will ask
+        you to enter the event details.
+
+        Users will be able to accept and decline the
+        event by adding reactions. If a maximum number
+        of attendees is set and the event is full,
+        additional attendees will be placed in a standy
+        section. If a spot opens up, the user at the
+        top of the standy section will be automatically
+        moved into the event.
+
+        Administrators can delete events by reacting to
+        the event message with \U0001f480
+        """
         user = ctx.message.author
         server = ctx.message.server
         channel = ctx.message.channel
@@ -52,7 +68,6 @@ class Events:
             if res.content.upper() == 'NONE':
                 break
             elif is_int(res.content) and int(res.content) > 0:
-                print(int(res.content))
                 max_members = int(res.content)
             else:
                 await manager.say("That is not a a valid entry.")
@@ -137,7 +152,7 @@ class Events:
     async def set_attendance(self, username, server_id, attending, title, message):
         """Send updated event attendance info to db and update the event"""
         with DBase() as db:
-            db.add_user(server_id, username)
+            db.add_user(username)
             db.update_attendance(username, server_id, attending, title, datetime.now())
 
         # Update event message in place for a more seamless user experience
