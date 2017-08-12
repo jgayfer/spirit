@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Help command now displays command arguments (both required and optional)
 - Changed the name of certain commands to be more descriptive
+### Fixed
+- Internal exception that occurred when users added a reaction to a non embed message
 
 ## [0.4.0] - 2017-08-08
 ### Added
