@@ -2,7 +2,7 @@ import discord
 
 VERSION = "0.4.0"
 BLUE = discord.Colour(3381759)
-SPAM_DELAY = 5
+SPAM_DELAY = 4.5
 REACTION_DELAY = 1
 
 TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',

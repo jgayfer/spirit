@@ -11,6 +11,7 @@ from cogs.roster import Roster
 from cogs.help import Help
 from cogs.settings import Settings
 from cogs.misc import Misc
+from cogs.core import Core
 
 
 async def _prefix_callable(bot, message):
@@ -30,34 +31,8 @@ bot.add_cog(Roster(bot))
 bot.add_cog(Help(bot))
 bot.add_cog(Settings(bot))
 bot.add_cog(Misc(bot))
+bot.add_cog(Core(bot))
 
-
-@bot.event
-async def on_ready():
-    """Display startup information"""
-    print('Spirit v{}'.format(constants.VERSION))
-    print('Username: {}'.format(bot.user.name))
-    print('------')
-
-
-@bot.event
-async def on_server_join(server):
-    """Add server and it's members to database"""
-    with DBase() as db:
-        db.add_server(server.id)
-
-
-@bot.event
-async def on_server_remove(server):
-    """Remove server from database"""
-    with DBase() as db:
-        db.remove_server(server.id)
-
-@bot.event
-async def on_member_remove(user):
-    """Remove user from database when they leave the server"""
-    with DBase() as db:
-        db.remove_user(str(user))
 
 def setup_logging():
     """Enable logging to a file"""

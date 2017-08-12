@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Help command now supports individual commands and subcommands (Eg. '!help event')
 - Command help messages are now much more descriptive
+- Error message now displays when an invalid command is invoked, or an argument is missing
 ### Changed
 - Help command now displays command arguments (both required and optional)
 - Changed the name of certain commands to be more descriptive
