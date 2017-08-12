@@ -167,6 +167,15 @@ class DBase:
         self.cur.execute(sql, (server_id, username, username))
         self.conn.commit()
 
+    def remove_user(self, server_id, username):
+        sql = """
+              DELETE FROM users
+              WHERE server_id = %s
+              AND username = %s;
+              """
+        self.cur.execute(sql, (server_id, username))
+        self.conn.commit()
+
     def set_prefix(self, server_id, prefix):
         sql = """
               UPDATE servers

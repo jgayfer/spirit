@@ -53,6 +53,11 @@ async def on_server_remove(server):
     with DBase() as db:
         db.remove_server(server.id)
 
+@bot.event
+async def on_member_remove(user):
+    """Remove user from database when they leave the server"""
+    with DBase() as db:
+        db.remove_user(user.server.id, str(user))
 
 def setup_logging():
     """Enable logging to a file"""
