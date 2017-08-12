@@ -67,7 +67,8 @@ class Help:
             # Create embed for all commands
             help = discord.Embed(title="Available Commands", color=constants.BLUE)
             help.description = ("Items in <angled_brackets> are *required*"
-                              + "\nItems in [square_brackets] are *optional*")
+                              + "\nItems in [square_brackets] are *optional*"
+                              + "\nThe [] and <> characters are to be omitted")
             help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
 
             for key in commands:
