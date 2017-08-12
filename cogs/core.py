@@ -46,3 +46,5 @@ class Core:
             manager = MessageManager(self.bot, user, channel, [ctx.message])
             await manager.say("Command '{}' not found.".format(ctx.message.content.replace(ctx.prefix, '')))
             await manager.clear()
+        else:
+            print(error)

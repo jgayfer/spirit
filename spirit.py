@@ -10,7 +10,7 @@ from cogs.events import Events
 from cogs.roster import Roster
 from cogs.help import Help
 from cogs.settings import Settings
-from cogs.misc import Misc
+from cogs.general import General
 from cogs.core import Core
 
 
@@ -30,7 +30,7 @@ bot.add_cog(Events(bot))
 bot.add_cog(Roster(bot))
 bot.add_cog(Help(bot))
 bot.add_cog(Settings(bot))
-bot.add_cog(Misc(bot))
+bot.add_cog(General(bot))
 bot.add_cog(Core(bot))
 
 
