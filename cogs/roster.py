@@ -45,6 +45,17 @@ class Roster:
         await manager.clear()
 
 
+    @setrole.error
+    async def setrole_error(self, error, ctx):
+        if isinstance(error, commands.MissingRequiredArgument):
+            user = ctx.message.author
+            channel = ctx.message.channel
+            server = ctx.message.server
+            manager = MessageManager(self.bot, user, channel, [ctx.message])
+            await manager.say('Oops! You must include your Destiny 2 role.')
+            await manager.clear()
+
+
     @commands.command(pass_context=True)
     async def settimezone(self, ctx, time_zone):
         """
@@ -74,6 +85,17 @@ class Roster:
         else:
             await manager.say("Unsupported time zone")
         await manager.clear()
+
+
+    @settimezone.error
+    async def settimezone_error(self, error, ctx):
+        if isinstance(error, commands.MissingRequiredArgument):
+            user = ctx.message.author
+            channel = ctx.message.channel
+            server = ctx.message.server
+            manager = MessageManager(self.bot, user, channel, [ctx.message])
+            await manager.say('Oops! You must provide your timezone.')
+            await manager.clear()
 
 
     @commands.command(pass_context=True)
