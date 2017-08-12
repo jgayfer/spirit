@@ -19,17 +19,6 @@ async def clear_messages(bot, messages):
             await bot.delete_message(message)
 
 
-def get_server_from_dm(bot, ctx):
-    """Determine which server a user belongs to when a command is invoked from a DM
-       If multiple servers are found, return False"""
-    with DBase() as db:
-        user = ctx.message.author
-        rows = db.get_server(str(user))
-        if rows and len(rows) == 1:
-            server_id = rows[0][0]
-            return bot.get_server(server_id)
-
-
 class MessageManager:
 
     def __init__(self, bot, user, channel, messages=None):

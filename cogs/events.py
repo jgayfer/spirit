@@ -6,7 +6,7 @@ from discord.ext import commands
 from db.dbase import DBase
 import discord
 
-from cogs.utils.messages import delete_all, get_server_from_dm, MessageManager
+from cogs.utils.messages import delete_all, MessageManager
 from cogs.utils.checks import is_event, is_admin, is_int
 from cogs.utils import constants
 
@@ -68,7 +68,6 @@ class Events:
             if res.content.upper() == 'NONE':
                 break
             elif is_int(res.content) and int(res.content) > 0:
-                print(int(res.content))
                 max_members = int(res.content)
             else:
                 await manager.say("That is not a a valid entry.")
@@ -153,7 +152,7 @@ class Events:
     async def set_attendance(self, username, server_id, attending, title, message):
         """Send updated event attendance info to db and update the event"""
         with DBase() as db:
-            db.add_user(server_id, username)
+            db.add_user(username)
             db.update_attendance(username, server_id, attending, title, datetime.now())
 
         # Update event message in place for a more seamless user experience

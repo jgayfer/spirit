@@ -37,7 +37,7 @@ class Roster:
         role = role.lower().title()
         if role == "Titan" or role == "Warlock" or role == "Hunter":
             with DBase() as db:
-                db.add_user(server.id, str(user))
+                db.add_user(str(user))
                 db.update_role(str(user), role, server.id)
             await manager.say("Your role has been updated!")
         else:
@@ -68,8 +68,8 @@ class Roster:
         time_zone = time_zone.upper()
         if time_zone in constants.TIME_ZONES:
             with DBase() as db:
-                db.add_user(server.id, str(user))
-                db.update_time_zone(str(user), time_zone, server.id)
+                db.add_user(str(user))
+                db.update_timezone(str(user), time_zone, server.id)
             await manager.say("Your time zone has been updated!")
         else:
             await manager.say("Unsupported time zone")
