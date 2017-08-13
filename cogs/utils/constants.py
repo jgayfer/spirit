@@ -1,8 +1,9 @@
 from datetime import datetime
 
 import discord
+import pytz
 
-VERSION = "0.5.0"
+VERSION = "0.5.1"
 BLUE = discord.Colour(3381759)
 SPAM_DELAY = 4.5
 REACTION_DELAY = 1
@@ -18,6 +19,6 @@ TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
               'SAMT', 'SDT', 'SRT', 'SST', 'UYST', 'UYT', 'VET',
               'WDT', 'WEST', 'WET', 'WST', 'YST', 'YDT' ]
 
-RELEASE_DATES = [("PC Beta", datetime(2017,8,28)),
-                 ("Console Release", datetime(2017,9,6)),
-                 ("PC Release", datetime(2017,10,24))]
+RELEASE_DATES = [("PC Beta", datetime(2017, 8, 28, tzinfo=pytz.timezone('US/Pacific'))),
+                 ("Console Release", datetime(2017, 9, 6, tzinfo=pytz.timezone('US/Pacific'))),
+                 ("PC Release", datetime(2017, 10, 24, tzinfo=pytz.timezone('US/Pacific')))]
