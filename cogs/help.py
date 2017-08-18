@@ -128,9 +128,15 @@ class Help:
     def format_long_help(self, help_msg):
         """
         Remove single new lines, but keep double new lines.
-        This ensures that text will fit to the size of the discord chat window
-        as help messages are docstrings, which have newline characters after every line
+        This ensures that text will properly wrap as help messages
+        are docstrings, which have newline characters after every line
+
+        Also add italics to the first line in the help message
         """
+        first_line = help_msg.split('\n')[0]
+        new_first_line = '*' + first_line + '*\n\n'
+        help_msg = new_first_line + help_msg.split('\n')[2]
+
         placeholder = '*)4_8^'
         help_msg = help_msg.replace('\n\n', placeholder)
         help_msg = help_msg.replace('\n', ' ')
