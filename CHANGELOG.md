@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Commands can now be invoked by mentioning the bot
+### Fixed
+- Fix typos
 
 ## [0.5.1] - 2017-08-12
 ### Fixed
