@@ -20,6 +20,18 @@ class Help:
         channel = ctx.message.channel
         manager = MessageManager(self.bot, user, channel, [ctx.message])
 
+        # Determine which prefix to display in the help message
+        prefix = ""
+        if channel.is_private:
+            prefix = '!'
+        else:
+            if ctx.prefix != '<@{}> '.format(self.bot.user.id):
+                prefix = ctx.prefix
+            else:
+                with DBase() as db:
+                    prefix = db.get_prefix(ctx.message.server.id)
+
+
         # User passed a command and a subcommand
         if str_cmd and str_subcmd:
 
@@ -32,7 +44,7 @@ class Help:
             if hasattr(cmd, 'commands'):
                 if str_subcmd in cmd.commands.keys():
                     subcmd = cmd.commands[str_subcmd]
-                    help = self.help_embed_single(subcmd)
+                    help = self.help_embed_single(prefix, subcmd)
                     await manager.say(help, embed=True, delete=False)
                 else:
                     await manager.say("'{}' doesn't have a subcommand called '{}'".format(str_cmd, str_subcmd))
@@ -49,17 +61,17 @@ class Help:
                 await manager.say("There are no commands called '{}'".format(str_cmd))
                 return await manager.clear()
 
-            help = self.help_embed_single(cmd)
+            help = self.help_embed_single(prefix, cmd)
             await manager.say(help, embed=True, delete=False)
 
         # No commands passed, print help for all commands
         else:
-            help = self.help_embed(self.bot.commands)
+            help = self.help_embed(prefix, self.bot.commands)
             await manager.say(help, embed=True, delete=False)
         await manager.clear()
 
 
-    def help_embed(self, commands):
+    def help_embed(self, prefix, commands):
         """Create an embed message that displays command help"""
         if isinstance(commands, dict):
 
@@ -68,37 +80,37 @@ class Help:
             help.description = ("Items in <angled_brackets> are *required*"
                               + "\nItems in [square_brackets] are *optional*"
                               + "\nNote - don't include the [] and <> characters")
-            help.set_footer(text="Use 'help [command]' for more info on a command")
+            help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
 
             for key in commands:
                 command = self.bot.commands.get(key)
                 if command.hidden:
                     continue
-                signature = self.get_command_signature(command)
+                signature = self.get_command_signature(prefix, command)
                 help.add_field(name="{}".format(signature), value="{}".format(command.help.split('\n')[0]), inline=False)
             return help
         else:
 
             # Create embed for a single command
             command = commands
-            signature = self.get_command_signature(command)
+            signature = self.get_command_signature(prefix, command)
             help = discord.Embed(title="{}".format(signature), color=constants.BLUE)
             help.description = "{}".format(self.format_long_help(command.help))
             return help
 
-    def help_embed_single(self, command):
-        signature = self.get_command_signature(command)
+    def help_embed_single(self, prefix, command):
+        signature = self.get_command_signature(prefix, command)
         help = discord.Embed(title="{}".format(signature), color=constants.BLUE)
         help.description = "{}".format(self.format_long_help(command.help))
         return help
 
 
-    def get_command_signature(self, cmd):
+    def get_command_signature(self, prefix, cmd):
         """Create a user friendly command signature"""
         result = []
         params = cmd.clean_params
         parent = cmd.full_parent_name
-        name = cmd.name if not parent else parent + ' ' + cmd.name
+        name = prefix + cmd.name if not parent else prefix + parent + ' ' + cmd.name
         result.append(name)
 
         # Format arguments to display which are required and which are optional
