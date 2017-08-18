@@ -15,14 +15,14 @@ from cogs.core import Core
 
 
 async def _prefix_callable(bot, message):
-    """Get the server's prefix"""
+    """Get current command prefix"""
+    base = ['<@{}> '.format(bot.user.id)]
     if message.channel.is_private:
-        if not message.content.startswith('!'):
-            await bot.send_message(message.channel, message.author.mention + ": The ! prefix must be used in a direct message.")
-        return '!'
+        base.append('!')
     else:
         with DBase() as db:
-            return db.get_prefix(message.server.id)
+            base.append(db.get_prefix(message.server.id))
+    return base
 
 
 bot = commands.Bot(command_prefix=_prefix_callable)

@@ -28,9 +28,9 @@ class Events:
         Users will be able to accept and decline the
         event by adding reactions. If a maximum number
         of attendees is set and the event is full,
-        additional attendees will be placed in a standy
+        additional attendees will be placed in a standby
         section. If a spot opens up, the user at the
-        top of the standy section will be automatically
+        top of the standby section will be automatically
         moved into the event.
 
         Administrators can delete events by reacting to
