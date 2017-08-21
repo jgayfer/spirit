@@ -20,10 +20,12 @@ class Events:
     @commands.command(pass_context=True)
     async def event(self, ctx):
         """
-        Create an event in the #upcoming-events channel
+        Create an event (admin only)
 
         After invoking the command, the bot will ask
-        you to enter the event details.
+        you to enter the event details. Once the event
+        is created, it will appear in the upcoming-events
+        channel.
 
         Users will be able to accept and decline the
         event by adding reactions. If a maximum number

@@ -1,4 +1,5 @@
 from datetime import datetime
+import textwrap
 
 import discord
 from discord.ext import commands
@@ -60,3 +61,22 @@ class General:
 
         await manager.say("Your feedback has been sent to the devloper. Thank you for your input!")
         await manager.clear()
+
+
+    async def on_server_join(self, server):
+        """Send welcome message to the server owner"""
+        message = ("Greetings! My name is **{}**, and my sole responsibility is to help you and "
+                   "your group kick ass in Destiny 2! You're receiving this message because you "
+                   "or one of your trusted associates has added me to **{}**.\n\n"
+                   "**Command Prefix**\n\n"
+                   "My default prefix is `!`, but you can also just mention me with `@{}`. "
+                   "If another bot is already using the `!` prefix, you can choose a different prefix "
+                   "for your server with `!setprefix <new_prefix>` (don't include the brackets). "
+                   "If you forget your custom prefix, you can always change it back to default with "
+                   "`@{} setprefix !`.\n\n"
+                   "For a list of all available commands, use the `!help` command. If you want more "
+                   "information on a command, use `!help <command_name>`.\n\n"
+                   "If you have any questions or feedback, you can use my `!feedback` command to send "
+                   "a message to my developer!"
+                   ).format(self.bot.user.name, server.name, self.bot.user.name, self.bot.user.name)
+        await self.bot.send_message(server.owner, message)

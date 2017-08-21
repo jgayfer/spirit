@@ -17,7 +17,7 @@ class Settings:
     @commands.command(pass_context=True)
     async def setprefix(self, ctx, new_prefix):
         """
-        Change the server's command prefix
+        Change the server's command prefix (admin only)
 
         Ex. '!prefix $'
         """

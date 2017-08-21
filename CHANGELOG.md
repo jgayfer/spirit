@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Commands can now be invoked by mentioning the bot
+- Welcome message is now sent to server owner when bot joins a server
 ### Fixed
 - Fix typos
 
