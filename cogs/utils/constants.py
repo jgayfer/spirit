@@ -3,7 +3,7 @@ from datetime import datetime
 import discord
 import pytz
 
-VERSION = "0.5.2"
+VERSION = "0.6.0"
 BLUE = discord.Colour(3381759)
 SPAM_DELAY = 4.5
 REACTION_DELAY = 1
