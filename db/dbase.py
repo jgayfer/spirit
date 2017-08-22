@@ -47,12 +47,11 @@ class DBase:
 
     def update_timezone(self, username, timezone, server_id):
         sql = """
-               UPDATE roster
-               SET timezone = %s
-               WHERE username = %s
-               AND server_id = %s;
+               INSERT INTO roster (username, timezone, server_id)
+               VALUES (%s, %s, %s)
+               ON DUPLICATE KEY UPDATE timezone = %s;
                """
-        self.cur.execute(sql, (timezone, username, server_id))
+        self.cur.execute(sql, (username, timezone, server_id, timezone))
         self.conn.commit()
 
     def create_event(self, title, start_time, timezone, server_id, description, max_members):

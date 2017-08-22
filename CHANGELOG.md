@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Fix typos
 
+## [0.5.2] - 2017-08-18
+### Fixed
+- Bug where setting your timezone before assigning a role wouldn't work
+
 ## [0.5.1] - 2017-08-12
 ### Fixed
 - Countdown command was displaying incorrect values
