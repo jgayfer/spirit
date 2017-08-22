@@ -31,10 +31,8 @@ class Help:
                 with DBase() as db:
                     prefix = db.get_prefix(ctx.message.server.id)
 
-
         # User passed a command and a subcommand
         if str_cmd and str_subcmd:
-
             cmd = self.bot.commands.get(str_cmd)
             if cmd is None:
                 await manager.say("There are no commands called '{}'".format(str_cmd))
@@ -55,53 +53,61 @@ class Help:
 
         # User passed in a single command
         elif str_cmd:
-
+            help = None
             cmd = self.bot.commands.get(str_cmd)
             if cmd is None:
                 await manager.say("There are no commands called '{}'".format(str_cmd))
                 return await manager.clear()
 
-            help = self.help_embed_single(prefix, cmd)
+            # Check if command has subcommands
+            if hasattr(cmd, 'commands'):
+                sub_cmds = []
+                for str_sub_cmd in cmd.commands.keys():
+                    sub_cmds.append(cmd.commands[str_sub_cmd])
+                help = self.help_embed_group(prefix, cmd, sub_cmds)
+            else:
+                help = self.help_embed_single(prefix, cmd)
             await manager.say(help, embed=True, delete=False)
 
-        # No commands passed, print help for all commands
+        # No command passed, print help for all commands
         else:
-            help = self.help_embed(prefix, self.bot.commands)
+            help = self.help_embed_all(prefix, self.bot.commands)
             await manager.say(help, embed=True, delete=False)
         await manager.clear()
 
 
-    def help_embed(self, prefix, commands):
+    def help_embed_all(self, prefix, commands):
         """Create an embed message that displays command help"""
-        if isinstance(commands, dict):
+        help = discord.Embed(title="Available Commands", color=constants.BLUE)
+        help.description = ("Items in <angled_brackets> are *required*"
+                          + "\nItems in [square_brackets] are *optional*"
+                          + "\nNote - don't include the [] and <> characters")
+        help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
 
-            # Create embed for all commands
-            help = discord.Embed(title="Available Commands", color=constants.BLUE)
-            help.description = ("Items in <angled_brackets> are *required*"
-                              + "\nItems in [square_brackets] are *optional*"
-                              + "\nNote - don't include the [] and <> characters")
-            help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
-
-            for key in commands:
-                command = self.bot.commands.get(key)
-                if command.hidden:
-                    continue
-                signature = self.get_command_signature(prefix, command)
-                help.add_field(name="{}".format(signature), value="{}".format(command.help.split('\n')[0]), inline=False)
-            return help
-        else:
-
-            # Create embed for a single command
-            command = commands
+        for key in commands:
+            command = self.bot.commands.get(key)
+            if command.hidden:
+                continue
             signature = self.get_command_signature(prefix, command)
-            help = discord.Embed(title="{}".format(signature), color=constants.BLUE)
-            help.description = "{}".format(self.format_long_help(command.help))
-            return help
+            help.add_field(name="{}".format(signature), value="{}".format(command.help.split('\n')[0]), inline=False)
+        return help
+
 
     def help_embed_single(self, prefix, command):
+        """Create a help embed message for a single command"""
         signature = self.get_command_signature(prefix, command)
         help = discord.Embed(title="{}".format(signature), color=constants.BLUE)
         help.description = "{}".format(self.format_long_help(command.help))
+        return help
+
+
+    def help_embed_group(self, prefix, cmd, sub_cmds):
+        """Create a help embed message for a command and its subcommands"""
+        help = discord.Embed(title="{}".format(cmd.name.title()), color=constants.BLUE)
+        help.description = "*{}*".format(cmd.help.split('\n')[0])
+        for sub_cmd in sub_cmds:
+            signature = self.get_command_signature(prefix, sub_cmd)
+            help.add_field(name="{}".format(signature), value="{}".format(sub_cmd.help.split('\n')[0]), inline=False)
         return help
 
 
@@ -133,11 +139,15 @@ class Help:
 
         Also add italics to the first line in the help message
         """
-        first_line = help_msg.split('\n')[0]
-        new_first_line = '*' + first_line + '*\n\n'
-        help_msg = new_first_line + help_msg.split('\n')[2]
-
         placeholder = '*)4_8^'
         help_msg = help_msg.replace('\n\n', placeholder)
         help_msg = help_msg.replace('\n', ' ')
-        return help_msg.replace(placeholder, '\n\n')
+        help_msg = help_msg.replace(placeholder, '\n\n')
+
+        first_line = help_msg.split('\n\n')[0]
+        new_first_line = '*' + first_line + '*\n\n'
+        if len(help_msg.split('\n\n')) > 1:
+            help_msg = new_first_line + '\n\n'.join(help_msg.split('\n\n')[1:])
+        else:
+            help_msg = new_first_line
+        return help_msg
