@@ -13,48 +13,47 @@ class Help:
         self.bot.remove_command("help")
 
 
-    @commands.command(pass_context=True, hidden=True)
+    @commands.command(hidden=True)
     async def help(self, ctx, str_cmd=None, str_subcmd=None):
         """Display command information"""
-        user = ctx.message.author
-        channel = ctx.message.channel
-        manager = MessageManager(self.bot, user, channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
         # Determine which prefix to display in the help message
         prefix = ""
-        if channel.is_private:
+        if isinstance(ctx.channel, discord.abc.PrivateChannel):
             prefix = '!'
         else:
+            # Don't want to display @botname as the prefix in the help message
+            # It's way too long!
             if ctx.prefix != '<@{}> '.format(self.bot.user.id):
                 prefix = ctx.prefix
             else:
                 with DBase() as db:
-                    prefix = db.get_prefix(ctx.message.server.id)
+                    prefix = db.get_prefix(ctx.guild.id)
 
         # User passed a command and a subcommand
         if str_cmd and str_subcmd:
-            cmd = self.bot.commands.get(str_cmd)
+            cmd = self.bot.get_command(str_cmd)
             if cmd is None:
                 await manager.say("There are no commands called '{}'".format(str_cmd))
                 return await manager.clear()
 
             # Check for subcommand
             if hasattr(cmd, 'commands'):
-                if str_subcmd in cmd.commands.keys():
-                    subcmd = cmd.commands[str_subcmd]
-                    help = self.help_embed_single(prefix, subcmd)
-                    await manager.say(help, embed=True, delete=False)
+                for sub_cmd in cmd.commands:
+                    if sub_cmd.name == str_subcmd:
+                        help = self.help_embed_single(prefix, sub_cmd)
+                        await manager.say(help, embed=True, delete=False)
+                        break
                 else:
                     await manager.say("'{}' doesn't have a subcommand called '{}'".format(str_cmd, str_subcmd))
-                    return await manager.clear()
             else:
                 await manager.say("'{}' does not have any subcommands".format(str_cmd))
-                return await manager.clear()
 
         # User passed in a single command
         elif str_cmd:
             help = None
-            cmd = self.bot.commands.get(str_cmd)
+            cmd = self.bot.get_command(str_cmd)
             if cmd is None:
                 await manager.say("There are no commands called '{}'".format(str_cmd))
                 return await manager.clear()
@@ -62,8 +61,8 @@ class Help:
             # Check if command has subcommands
             if hasattr(cmd, 'commands'):
                 sub_cmds = []
-                for str_sub_cmd in cmd.commands.keys():
-                    sub_cmds.append(cmd.commands[str_sub_cmd])
+                for sub_cmd in cmd.commands:
+                    sub_cmds.append(sub_cmd)
                 help = self.help_embed_group(prefix, cmd, sub_cmds)
             else:
                 help = self.help_embed_single(prefix, cmd)
@@ -73,6 +72,7 @@ class Help:
         else:
             help = self.help_embed_all(prefix, self.bot.commands)
             await manager.say(help, embed=True, delete=False)
+
         await manager.clear()
 
 
@@ -84,8 +84,7 @@ class Help:
                           + "\nNote - don't include the [] and <> characters")
         help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
 
-        for key in commands:
-            command = self.bot.commands.get(key)
+        for command in commands:
             if command.hidden:
                 continue
             signature = self.get_command_signature(prefix, command)
