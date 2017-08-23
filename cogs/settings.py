@@ -14,21 +14,19 @@ class Settings:
         self.bot = bot
 
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def setprefix(self, ctx, new_prefix):
         """
         Change the server's command prefix (admin only)
 
-        Ex. '!prefix $'
+        Ex. '!setprefix $'
         """
-        user = ctx.message.author
-        channel = ctx.message.channel
-        manager = MessageManager(self.bot, user, channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
-        if ctx.message.channel.is_private:
+        if isinstance(ctx.channel, discord.abc.PrivateChannel):
             return await manager.say("That command is not supported in a direct message.")
 
-        if not is_admin(user, channel):
+        if not is_admin(ctx.author, ctx.channel):
             await manager.say("You must be an admin to do that.")
             return await manager.clear()
 
@@ -37,17 +35,14 @@ class Settings:
             return await manager.clear()
 
         with DBase() as db:
-            db.set_prefix(ctx.message.server.id, new_prefix)
+            db.set_prefix(ctx.guild.id, new_prefix)
             await manager.say("Command prefix has been changed to " + new_prefix)
             return await manager.clear()
 
 
     @setprefix.error
-    async def settimezone_error(self, error, ctx):
+    async def setprefix_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            user = ctx.message.author
-            channel = ctx.message.channel
-            server = ctx.message.server
-            manager = MessageManager(self.bot, user, channel, [ctx.message])
-            await manager.say('Oops! You must provide a new prefix.')
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            await manager.say("Oops! You didn't provide a new prefix.")
             await manager.clear()
