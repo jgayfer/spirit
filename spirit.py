@@ -2,6 +2,7 @@ import json
 import logging
 import asyncio
 
+import discord
 from discord.ext import commands
 
 from db.dbase import DBase
@@ -17,11 +18,11 @@ from cogs.core import Core
 async def _prefix_callable(bot, message):
     """Get current command prefix"""
     base = ['<@{}> '.format(bot.user.id)]
-    if message.channel.is_private:
+    if isinstance(message.channel, discord.abc.PrivateChannel):
         base.append('!')
     else:
         with DBase() as db:
-            base.append(db.get_prefix(message.server.id))
+            base.append(db.get_prefix(message.guild.id))
     return base
 
 

@@ -25,126 +25,126 @@ class DBase:
         if self.conn:
             self.conn.close()
 
-    def get_roster(self, server_id):
+    def get_roster(self, guild_id):
         sql = """
               SELECT username, role, timezone
               FROM roster
               WHERE (role != '' OR timezone != '')
-              AND server_id = %s
+              AND guild_id = %s
               ORDER BY role;
               """
-        self.cur.execute(sql, (server_id,))
+        self.cur.execute(sql, (guild_id,))
         return self.cur.fetchall()
 
-    def update_role(self, username, role, server_id):
+    def update_role(self, username, role, guild_id):
         sql = """
-               INSERT INTO roster (username, role, server_id)
+               INSERT INTO roster (username, role, guild_id)
                VALUES (%s, %s, %s)
                ON DUPLICATE KEY UPDATE role = %s;
                """
-        self.cur.execute(sql, (username, role, server_id, role))
+        self.cur.execute(sql, (username, role, guild_id, role))
         self.conn.commit()
 
-    def update_timezone(self, username, timezone, server_id):
+    def update_timezone(self, username, timezone, guild_id):
         sql = """
-               INSERT INTO roster (username, timezone, server_id)
+               INSERT INTO roster (username, timezone, guild_id)
                VALUES (%s, %s, %s)
                ON DUPLICATE KEY UPDATE timezone = %s;
                """
-        self.cur.execute(sql, (username, timezone, server_id, timezone))
+        self.cur.execute(sql, (username, timezone, guild_id, timezone))
         self.conn.commit()
 
-    def create_event(self, title, start_time, timezone, server_id, description, max_members):
+    def create_event(self, title, start_time, timezone, guild_id, description, max_members):
         sql = """
-              INSERT INTO events (title, start_time, timezone, server_id, description, max_members)
+              INSERT INTO events (title, start_time, timezone, guild_id, description, max_members)
               VALUES (%s, %s, %s, %s, %s, %s)
               ON DUPLICATE KEY UPDATE title = %s;
               """
-        rows = self.cur.execute(sql, (title, start_time, timezone, server_id, description, max_members, title))
+        rows = self.cur.execute(sql, (title, start_time, timezone, guild_id, description, max_members, title))
         self.conn.commit()
         return rows
 
-    def get_events(self, server_id):
+    def get_events(self, guild_id):
         sql = """
               SELECT title as e, description, start_time, timezone, (
                 SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
-                WHERE user_event.server_id = %s
+                WHERE user_event.guild_id = %s
                 AND user_event.title = e
                 AND user_event.attending = 1)
                 AS accepted, (
                 SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
-                WHERE user_event.server_id = %s
+                WHERE user_event.guild_id = %s
                 AND user_event.title = e
                 AND user_event.attending = 0)
                 AS declined,
                 max_members
               FROM events
-              WHERE events.server_id = %s
+              WHERE events.guild_id = %s
               GROUP BY title, description, start_time, timezone
               ORDER BY start_time DESC;
               """
-        self.cur.execute(sql, (server_id, server_id, server_id))
+        self.cur.execute(sql, (guild_id, guild_id, guild_id))
         return self.cur.fetchall()
 
-    def update_attendance(self, username, server_id, attending, title, last_updated):
+    def update_attendance(self, username, guild_id, attending, title, last_updated):
         sql = """
-              INSERT INTO user_event (username, server_id, title, attending, last_updated)
+              INSERT INTO user_event (username, guild_id, title, attending, last_updated)
               VALUES (%s, %s, %s, %s, %s)
               ON DUPLICATE KEY UPDATE attending = %s, last_updated = %s;
               """
-        self.cur.execute(sql, (username, server_id, title, attending, last_updated, attending, last_updated))
+        self.cur.execute(sql, (username, guild_id, title, attending, last_updated, attending, last_updated))
         self.conn.commit()
 
-    def get_event(self, server_id, title):
+    def get_event(self, guild_id, title):
         sql = """
               SELECT title, description, start_time, timezone, (
                 SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
-                WHERE user_event.server_id = %s
+                WHERE user_event.guild_id = %s
                 AND user_event.title = %s
                 AND user_event.attending = 1)
                 AS accepted, (
                 SELECT GROUP_CONCAT(DISTINCT username ORDER BY last_updated)
                 FROM user_event
-                WHERE user_event.server_id = %s
+                WHERE user_event.guild_id = %s
                 AND user_event.title = %s
                 AND user_event.attending = 0)
                 AS declined,
                 max_members
               FROM events
-              WHERE server_id = %s
+              WHERE guild_id = %s
               AND title = %s;
               """
-        self.cur.execute(sql, (server_id, title, server_id, title, server_id, title))
+        self.cur.execute(sql, (guild_id, title, guild_id, title, guild_id, title))
         return self.cur.fetchall()
 
-    def delete_event(self, server_id, title):
+    def delete_event(self, guild_id, title):
         sql = """
               DELETE FROM events
-              WHERE server_id = %s
+              WHERE guild_id = %s
               AND title = %s;
               """
-        affected_count = self.cur.execute(sql, (server_id, title))
+        affected_count = self.cur.execute(sql, (guild_id, title))
         self.conn.commit()
         if affected_count == 1:
             return True
 
-    def add_server(self, server_id):
+    def add_guild(self, guild_id):
         sql = """
-              INSERT INTO servers (server_id)
+              INSERT INTO guilds (guild_id)
               VALUES (%s);
               """
-        self.cur.execute(sql, (server_id,))
+        self.cur.execute(sql, (guild_id,))
         self.conn.commit()
 
-    def remove_server(self, server_id):
+    def remove_guild(self, guild_id):
         sql = """
-              DELETE FROM servers
-              WHERE server_id = %s;
+              DELETE FROM guilds
+              WHERE guild_id = %s;
               """
-        self.cur.execute(sql, (server_id,))
+        self.cur.execute(sql, (guild_id,))
         self.conn.commit()
 
     def add_user(self, username):
@@ -164,20 +164,20 @@ class DBase:
         self.cur.execute(sql, (username,))
         self.conn.commit()
 
-    def set_prefix(self, server_id, prefix):
+    def set_prefix(self, guild_id, prefix):
         sql = """
-              UPDATE servers
+              UPDATE guilds
               SET prefix = %s
-              WHERE server_id = %s;
+              WHERE guild_id = %s;
               """
-        self.cur.execute(sql, (prefix, server_id))
+        self.cur.execute(sql, (prefix, guild_id))
         self.conn.commit()
 
-    def get_prefix(self, server_id):
+    def get_prefix(self, guild_id):
         sql = """
               SELECT prefix
-              FROM servers
-              WHERE server_id = %s
+              FROM guilds
+              WHERE guild_id = %s
               """
-        self.cur.execute(sql, (server_id,))
+        self.cur.execute(sql, (guild_id,))
         return self.cur.fetchall()[0][0]

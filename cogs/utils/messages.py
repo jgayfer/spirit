@@ -11,14 +11,6 @@ def delete_all(message):
     return True;
 
 
-async def clear_messages(bot, messages):
-    """Delete messages after a delay"""
-    await asyncio.sleep(constants.SPAM_DELAY)
-    for message in messages:
-        if not message.channel.is_private:
-            await bot.delete_message(message)
-
-
 class MessageManager:
 
     def __init__(self, bot, user, channel, messages=None):
@@ -33,9 +25,12 @@ class MessageManager:
 
     async def say_and_wait(self, content, mention=True):
         """Send a message and wait for user's response"""
-        msg = await self.bot.send_message(self.channel, "{}: {}".format(self.user.mention, content))
+        def check_res(m):
+            return m.author == self.user and m.channel == self.channel
+
+        msg = await self.channel.send("{}: {}".format(self.user.mention, content))
         self.messages.append(msg)
-        res = await self.bot.wait_for_message(author=self.user, channel=self.channel)
+        res = await self.bot.wait_for('message', check=check_res)
 
         # If the user responds with a command, we'll need to stop executing and clean up
         if res.content.startswith('!'):
@@ -50,9 +45,9 @@ class MessageManager:
         """Send a single message"""
         msg = None
         if embed:
-            msg = await self.bot.send_message(self.channel, embed=content)
+            msg = await self.channel.send(embed=content)
         else:
-            msg = await self.bot.send_message(self.channel, "{}: {}".format(self.user.mention, content))
+            msg = await self.channel.send("{}: {}".format(self.user.mention, content))
         if delete:
             self.messages.append(msg)
 
@@ -64,6 +59,6 @@ class MessageManager:
                 and message.id in [m.id for m in self.messages]):
                 return True
 
-        if not self.channel.is_private:
+        if not isinstance(self.channel, discord.abc.PrivateChannel):
             await asyncio.sleep(constants.SPAM_DELAY)
-            await self.bot.purge_from(self.channel, limit=999, check=check)
+            await self.channel.purge(limit=999, check=check)
