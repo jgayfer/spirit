@@ -17,7 +17,7 @@ class Events:
         self.bot = bot
 
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def event(self, ctx):
         """
         Create an event (admin only)
