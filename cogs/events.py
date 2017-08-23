@@ -38,15 +38,12 @@ class Events:
         Administrators can delete events by reacting to
         the event message with \U0001f480
         """
-        user = ctx.message.author
-        server = ctx.message.server
-        channel = ctx.message.channel
-        manager = MessageManager(self.bot, user, channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
-        if channel.is_private:
+        if isinstance(ctx.channel, discord.abc.PrivateChannel):
             return await manager.say("That command is not supported in a direct message.")
 
-        if not is_admin(user, channel):
+        if not is_admin(ctx.author, ctx.channel):
             await manager.say("You must be an administrator to do that.")
             return await manager.clear()
 
@@ -96,37 +93,37 @@ class Events:
                 time_zone = res.content.upper()
 
         with DBase() as db:
-            res = db.create_event(title, start_time, time_zone, server.id, description, max_members)
+            res = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members)
             if res == 0:
                 await manager.say("An event with that name already exists.")
                 return await manager.clear()
 
-        event_channel = await self.get_events_channel(server)
+        event_channel = await self.get_events_channel(ctx.guild)
         await manager.say("Event created! The " + event_channel.mention + " channel will be updated momentarily.")
         await manager.clear()
-        await self.list_events(server)
+        await self.list_events(ctx.guild)
 
 
-    async def list_events(self, server):
+    async def list_events(self, guild):
         """Clear the event channel and display all upcoming events"""
-        events_channel = await self.get_events_channel(server)
-        await self.bot.purge_from(events_channel, limit=999, check=delete_all)
+        events_channel = await self.get_events_channel(guild)
+        await events_channel.purge(limit=999, check=delete_all)
         with DBase() as db:
-            events = db.get_events(server.id)
+            events = db.get_events(guild.id)
             if len(events) > 0:
                 for row in events:
                     event_embed = self.create_event_embed(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
-                    msg = await self.bot.send_message(events_channel, embed=event_embed)
-                    await self.bot.add_reaction(msg, "\N{WHITE HEAVY CHECK MARK}")
-                    await self.bot.add_reaction(msg, "\N{CROSS MARK}")
+                    msg = await events_channel.send(embed=event_embed)
+                    await msg.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+                    await msg.add_reaction("\N{CROSS MARK}")
             else:
-                await self.bot.send_message(events_channel, "There are no upcoming events.")
+                await events_channel.send("There are no upcoming events.")
 
 
     async def on_reaction_add(self, reaction, user):
         """If a reaction represents a user RSVP, update the DB and event message"""
         message = reaction.message
-        server = message.server
+        guild = message.guild
         channel = message.channel
         manager = MessageManager(self.bot, user, channel)
 
@@ -134,20 +131,20 @@ class Events:
         # the initial reactions added by the bot as being indicative of attendance
         if is_event(message) and user is not message.author:
 
-            title = message.embeds[0]['title']
+            title = message.embeds[0].title
             if reaction.emoji == "\N{WHITE HEAVY CHECK MARK}":
-                await self.set_attendance(str(user), server.id, 1, title, message)
+                await self.set_attendance(str(user), guild.id, 1, title, message)
             elif reaction.emoji == "\N{CROSS MARK}":
-                await self.set_attendance(str(user), server.id, 0, title, message)
+                await self.set_attendance(str(user), guild.id, 0, title, message)
             elif reaction.emoji == "\N{SKULL}":
                 if is_admin(user, channel):
-                    return await self.delete_event(server, title)
+                    return await self.delete_event(guild, title)
                 else:
                     await manager.say("You must be an administrator to do that.")
 
             # Remove the reaction to keep the event message looking clean
             await asyncio.sleep(constants.REACTION_DELAY)
-            await self.bot.remove_reaction(message, reaction.emoji, user)
+            await message.remove_reaction(reaction.emoji, user)
             await manager.clear()
 
 
@@ -162,7 +159,7 @@ class Events:
             event = db.get_event(server_id, title)
             event_embed = self.create_event_embed(event[0][0], event[0][1], event[0][2],
                                                   event[0][3], event[0][4], event[0][5], event[0][6])
-            await self.bot.edit_message(message, embed=event_embed)
+            await message.edit(embed=event_embed)
 
 
     async def delete_event(self, server, title):
@@ -173,17 +170,18 @@ class Events:
                 await self.list_events(server)
 
 
-    async def get_events_channel(self, server):
+    async def get_events_channel(self, guild):
         """Return the events channel if it exists, otherwise create one and return it"""
-        for channel in server.channels:
+        for channel in guild.channels:
             if channel.name == "upcoming-events":
                 return channel
 
         # Need to make sure the bot can still send messages in the events channel
-        users = discord.PermissionOverwrite(send_messages=False, add_reactions=True)
-        me = discord.PermissionOverwrite(send_messages=True, add_reactions=True)
-        channel = await self.bot.create_channel(server, "upcoming-events", (server.default_role, users), (server.me, me))
-        return channel
+        overwrites = {
+            guild.default_role: discord.PermissionOverwrite(send_messages=False, add_reactions=True),
+            guild.me: discord.PermissionOverwrite(send_messages=True, add_reactions=True)
+        }
+        return await guild.create_text_channel("upcoming-events", overwrites=overwrites)
 
 
     def create_event_embed(self, title, description, time, time_zone, accepted=None, declined=None, max_members=None):
@@ -236,8 +234,8 @@ class Events:
         return embed_msg
 
 
-    async def on_server_available(self, server):
+    async def on_guild_available(self, guild):
         """Refresh upcoming events when the bot starts so that the event messages
            are in the bot's cache so that wait_for_reaction() will work properly
            """
-        await self.list_events(server)
+        await self.list_events(guild)

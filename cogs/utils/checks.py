@@ -3,13 +3,13 @@ def is_event(message):
     if len(message.embeds) > 0:
         embed = message.embeds[0]
         return (message.channel.name == 'upcoming-events'
-                and 'fields' in embed
-                and 'name' in embed['fields'][0]
-                and 'name' in embed['fields'][1]
-                and 'name' in embed['fields'][2]
-                and embed['fields'][0].get("name") == "Time"
-                and embed['fields'][1].get("name").startswith("Accepted")
-                and embed['fields'][2].get("name").startswith("Declined"))
+                and embed.fields
+                and embed.fields[0]
+                and embed.fields[1]
+                and embed.fields[2]
+                and embed.fields[0].name == "Time"
+                and embed.fields[1].name.startswith("Accepted")
+                and embed.fields[2].name.startswith("Declined"))
 
 
 def is_admin(user, channel):
