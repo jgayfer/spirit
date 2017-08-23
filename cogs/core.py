@@ -40,11 +40,11 @@ class Core:
     async def on_command_error(self, ctx, error):
         """Let user know if a command is invalid"""
         if isinstance(error, commands.CommandNotFound):
-            user = ctx.message.author
-            channel = ctx.message.channel
-            server = ctx.message.guild
-            manager = MessageManager(self.bot, user, channel, [ctx.message])
-            await manager.say("Command '{}' not found.".format(ctx.message.content.replace(ctx.prefix, '')))
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            command_name = ctx.message.content.split(' ')[0].replace(ctx.prefix, '')
+            await manager.say("Command '{}' not found.".format(command_name))
             await manager.clear()
+        elif isinstance(error, commands.MissingRequiredArgument):
+            pass
         else:
             raise error

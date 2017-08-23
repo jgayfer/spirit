@@ -14,73 +14,56 @@ class Roster:
         self.bot = bot
 
 
-    @commands.command(pass_context=True)
-    async def setrole(self, ctx, role):
+    @commands.command()
+    async def setclass(self, ctx, role):
         """
-        Add your Destiny 2 role to the roster
+        Add your Destiny 2 class to the roster
 
-        Ex. '!setrole Warlock'
+        Ex. '!setclass Warlock'
         """
-        user = ctx.message.author
-        channel = ctx.message.channel
-        server = ctx.message.server
-        manager = MessageManager(self.bot, user, channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
         # Return if the user is in a private message as the roster is server specific
-        if channel.is_private:
+        if isinstance(ctx.channel, discord.abc.PrivateChannel):
             return await manager.say("That command is not supported in a direct message.")
-
-        if not role:
-            await manager.say("You must specify a role.")
-            return await manager.clear()
 
         role = role.lower().title()
         if role == "Titan" or role == "Warlock" or role == "Hunter":
             with DBase() as db:
-                db.add_user(str(user))
-                db.update_role(str(user), role, server.id)
-            await manager.say("Your role has been updated!")
+                db.add_user(str(ctx.author))
+                db.update_role(str(ctx.author), role, ctx.guild.id)
+            await manager.say("Your class has been updated!")
         else:
-            await manager.say("Role must be one of: Titan, Hunter, Warlock")
+            await manager.say("Class must be one of: Titan, Hunter, Warlock")
         await manager.clear()
 
 
-    @setrole.error
-    async def setrole_error(self, error, ctx):
+    @setclass.error
+    async def setclass_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            user = ctx.message.author
-            channel = ctx.message.channel
-            server = ctx.message.server
-            manager = MessageManager(self.bot, user, channel, [ctx.message])
-            await manager.say('Oops! You must include your Destiny 2 role.')
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            await manager.say("Oops! You didn't include your Destiny 2 class.")
             await manager.clear()
 
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def settimezone(self, ctx, time_zone):
         """
         Add your timezone to the roster
 
         Ex. '!settimezone PST'
         """
-        user = ctx.message.author
-        channel = ctx.message.channel
-        server = ctx.message.server
-        manager = MessageManager(self.bot, user, channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
         # Return if the user is in a private message as the roster is server specific
-        if channel.is_private:
+        if isinstance(ctx.channel, discord.abc.PrivateChannel):
             return await manager.say("That command is not supported in a direct message.")
-
-        if not time_zone:
-            await manager.say("You must specify a timezone.")
-            return manager.clear()
 
         time_zone = time_zone.upper()
         if time_zone in constants.TIME_ZONES:
             with DBase() as db:
-                db.add_user(str(user))
-                db.update_timezone(str(user), time_zone, server.id)
+                db.add_user(str(ctx.author))
+                db.update_timezone(str(ctx.author), time_zone, ctx.guild.id)
             await manager.say("Your time zone has been updated!")
         else:
             await manager.say("Unsupported time zone")
@@ -88,17 +71,15 @@ class Roster:
 
 
     @settimezone.error
-    async def settimezone_error(self, error, ctx):
+    async def settimezone_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            user = ctx.message.author
-            channel = ctx.message.channel
-            server = ctx.message.server
-            manager = MessageManager(self.bot, user, channel, [ctx.message])
-            await manager.say('Oops! You must provide your timezone.')
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            await manager.say("Oops! You didn't include your timezone.")
             await manager.clear()
+            return True
 
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def roster(self, ctx):
         """
         Display the roster
@@ -108,17 +89,14 @@ class Roster:
         users who have set a role or timezone will be
         displayed on the roster.
         """
-        user = ctx.message.author
-        channel = ctx.message.channel
-        server = ctx.message.server
-        manager = MessageManager(self.bot, user, channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
         # Return if the user is in a private message as roles are server specific
-        if channel.is_private:
+        if isinstance(ctx.channel, discord.abc.PrivateChannel):
             return await manager.say("That command is not supported in a direct message.")
 
         with DBase() as db:
-            roster = db.get_roster(server.id)
+            roster = db.get_roster(ctx.guild.id)
             if len(roster) != 0:
 
                 text = "```\n"
@@ -131,7 +109,7 @@ class Roster:
                 text += "```"
 
                 embed_msg = discord.Embed(color=constants.BLUE)
-                embed_msg.title="{} Roster".format(server.name)
+                embed_msg.title="{} Roster".format(ctx.guild.name)
                 embed_msg.description = text
                 await manager.say(embed_msg, embed=True, delete=False)
             else:
