@@ -4,6 +4,8 @@ Spirit is a discord bot designed to assist Destiny 2 players with everything fro
 
 To add Spirit to your server, click [here](https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344)!
 
+If you require assistance, be sure to join the [Spirit Support](https://discord.gg/GXCFpkr) Discord server. I'd love to chat!
+
 ## Getting Started
 Below are the steps to run the bot. Ideally you would be doing this for development/testing purposes,
 as I would prefer it if you didn't run an instance of the bot; I'd much prefer you just add mine to
