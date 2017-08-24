@@ -7,7 +7,7 @@ import discord
 
 from db.dbase import DBase
 from cogs.utils.messages import delete_all, MessageManager
-from cogs.utils.checks import is_event, is_admin, is_int
+from cogs.utils.checks import is_event, is_int
 from cogs.utils import constants
 
 
@@ -18,6 +18,8 @@ class Events:
 
 
     @commands.command()
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
     async def event(self, ctx):
         """
         Create an event (admin only)
@@ -39,13 +41,6 @@ class Events:
         the event message with \U0001f480
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
-
-        if isinstance(ctx.channel, discord.abc.PrivateChannel):
-            return await manager.say("That command is not supported in a direct message.")
-
-        if not is_admin(ctx.author, ctx.channel):
-            await manager.say("You must be an administrator to do that.")
-            return await manager.clear()
 
         res = await manager.say_and_wait("Enter event title")
         if not res:

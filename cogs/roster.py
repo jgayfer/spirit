@@ -15,6 +15,7 @@ class Roster:
 
 
     @commands.command()
+    @commands.guild_only()
     async def setclass(self, ctx, role):
         """
         Add your Destiny 2 class to the roster
@@ -22,10 +23,6 @@ class Roster:
         Ex. '!setclass Warlock'
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
-
-        # Return if the user is in a private message as the roster is server specific
-        if isinstance(ctx.channel, discord.abc.PrivateChannel):
-            return await manager.say("That command is not supported in a direct message.")
 
         role = role.lower().title()
         if role == "Titan" or role == "Warlock" or role == "Hunter":
@@ -47,6 +44,7 @@ class Roster:
 
 
     @commands.command()
+    @commands.guild_only()
     async def settimezone(self, ctx, time_zone):
         """
         Add your timezone to the roster
@@ -54,10 +52,6 @@ class Roster:
         Ex. '!settimezone PST'
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
-
-        # Return if the user is in a private message as the roster is server specific
-        if isinstance(ctx.channel, discord.abc.PrivateChannel):
-            return await manager.say("That command is not supported in a direct message.")
 
         time_zone = time_zone.upper()
         if time_zone in constants.TIME_ZONES:
@@ -76,10 +70,10 @@ class Roster:
             manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
             await manager.say("Oops! You didn't include your timezone.")
             await manager.clear()
-            return True
 
 
     @commands.command()
+    @commands.guild_only()
     async def roster(self, ctx):
         """
         Display the roster
@@ -90,10 +84,6 @@ class Roster:
         displayed on the roster.
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
-
-        # Return if the user is in a private message as roles are server specific
-        if isinstance(ctx.channel, discord.abc.PrivateChannel):
-            return await manager.say("That command is not supported in a direct message.")
 
         with DBase() as db:
             roster = db.get_roster(ctx.guild.id)
@@ -113,5 +103,5 @@ class Roster:
                 embed_msg.description = text
                 await manager.say(embed_msg, embed=True, delete=False)
             else:
-                await manager.say("No roster exists yet. Use 'role' or 'timezone' to add the first entry!")
+                await manager.say("No roster exists yet. Use 'settimezone' or 'setclass' to add the first entry!")
             await manager.clear()

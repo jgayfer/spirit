@@ -1,3 +1,6 @@
+import discord
+
+
 def is_event(message):
     """Check if a message contains event data"""
     if len(message.embeds) > 0:
@@ -11,11 +14,6 @@ def is_event(message):
                 and embed.fields[1].name.startswith("Accepted")
                 and embed.fields[2].name.startswith("Declined"))
 
-
-def is_admin(user, channel):
-    """Check if the user has admin privileges"""
-    if channel.permissions_for(user).administrator:
-        return True
 
 def is_int(x):
     try:

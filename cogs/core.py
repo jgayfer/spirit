@@ -39,12 +39,19 @@ class Core:
 
     async def on_command_error(self, ctx, error):
         """Let user know if a command is invalid"""
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+
         if isinstance(error, commands.CommandNotFound):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
             command_name = ctx.message.content.split(' ')[0].replace(ctx.prefix, '')
             await manager.say("Command '{}' not found.".format(command_name))
-            await manager.clear()
+
         elif isinstance(error, commands.MissingRequiredArgument):
             pass
+
+        elif isinstance(error, commands.NoPrivateMessage):
+            await manager.say("You can't' use that command in a private message", mention=False)
+
         else:
             raise error
+
+        await manager.clear()
