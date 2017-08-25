@@ -113,7 +113,7 @@ class General:
                    "If you have any feedback, you can use my **!feedback** command to send "
                    "a message to my developer! If you want to request a feature, report a bug, "
                    "stay up to date with new features, or just want some extra help, check out the official "
-                   "{} Supportserver! (https://discord.gg/GXCFpkr)"
+                   "{} Support server! (https://discord.gg/GXCFpkr)"
                    ).format(self.bot.user.name, guild.name, self.bot.user.name,
                             self.bot.user.name, self.bot.user.name)
         await guild.owner.send(message)
