@@ -59,6 +59,9 @@ class MessageManager:
                 and message.id in [m.id for m in self.messages]):
                 return True
 
-        if not isinstance(self.channel, discord.abc.PrivateChannel):
+        with DBase() as db:
+            cleanup = db.get_cleanup(self.channel.guild.id)
+
+        if not isinstance(self.channel, discord.abc.PrivateChannel) and cleanup:
             await asyncio.sleep(constants.SPAM_DELAY)
             await self.channel.purge(limit=999, check=check)

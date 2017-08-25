@@ -48,6 +48,9 @@ class Core:
         elif isinstance(error, commands.MissingRequiredArgument):
             pass
 
+        elif isinstance(error, commands.NotOwner):
+            pass
+
         elif isinstance(error, commands.NoPrivateMessage):
             await manager.say("You can't' use that command in a private message", mention=False)
 

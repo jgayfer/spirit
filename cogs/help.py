@@ -81,10 +81,7 @@ class Help:
         help = discord.Embed(title="Available Commands", color=constants.BLUE)
         help.description = ("Items in <angled_brackets> are *required*"
                           + "\nItems in [square_brackets] are *optional*"
-                          + "\nNote - don't include the [] and <> characters"
-                          + "\n\nIf you want to request a feature or report a bug, "
-                          + "check out the official [{} Support](https://discord.gg/GXCFpkr) server"
-                          ).format(self.bot.user.name)
+                          + "\nNote - don't include the [] and <> characters")
         help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
 
         for command in commands:

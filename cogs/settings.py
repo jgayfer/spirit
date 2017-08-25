@@ -39,3 +39,26 @@ class Settings:
             manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
             await manager.say("Oops! You didn't provide a new prefix.")
             await manager.clear()
+
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def togglecleanup(self, ctx):
+        """
+        Toggle command message cleanup on/off (admin only)
+
+        When enabled, command message spam will be deleted a few seconds
+        after a command has been invoked. This feature is designed to
+        keep bot related spam to a minimum. Only non important messages will
+        be deleted if this is enabled; messages like the help message or the
+        roster, for example, will not be removed.
+        """
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+
+        with DBase() as db:
+            db.toggle_cleanup(ctx.guild.id)
+            cleanup = db.get_cleanup(ctx.guild.id)
+            status = 'enabled' if cleanup else 'disabled'
+
+            await manager.say("Command message cleanup is now *{}*".format(status))
+            return await manager.clear()

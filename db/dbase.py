@@ -181,3 +181,21 @@ class DBase:
               """
         self.cur.execute(sql, (guild_id,))
         return self.cur.fetchall()[0][0]
+
+    def get_cleanup(self, guild_id):
+        sql = """
+              SELECT clear_spam
+              FROM guilds
+              WHERE guild_id = %s
+              """
+        self.cur.execute(sql, (guild_id,))
+        return self.cur.fetchall()[0][0]
+
+    def toggle_cleanup(self, guild_id):
+        sql = """
+              UPDATE guilds
+              SET clear_spam = !clear_spam
+              WHERE guild_id = %s
+              """
+        self.cur.execute(sql, (guild_id,))
+        self.conn.commit()

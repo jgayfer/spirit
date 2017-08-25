@@ -71,7 +71,7 @@ class General:
         await manager.clear()
 
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def pm(self, ctx, user_id: int, *message):
 
@@ -103,14 +103,17 @@ class General:
                    "your group kick ass in Destiny 2! You're receiving this message because you "
                    "or one of your trusted associates has added me to **{}**.\n\n"
                    "**Command Prefix**\n\n"
-                   "My default prefix is `!`, but you can also just mention me with `@{}`. "
-                   "If another bot is already using the `!` prefix, you can choose a different prefix "
-                   "for your server with `!setprefix <new_prefix>` (don't include the brackets). "
+                   "My default prefix is **!**, but you can also just mention me with **@{}**. "
+                   "If another bot is already using the **!** prefix, you can choose a different prefix "
+                   "for your server with **!setprefix <new_prefix>** (don't include the brackets). "
                    "If you forget your custom prefix, you can always change it back to default with "
-                   "`@{} setprefix !`.\n\n"
-                   "For a list of all available commands, use the `!help` command. If you want more "
-                   "information on a command, use `!help <command_name>`.\n\n"
-                   "If you have any questions or feedback, you can use my `!feedback` command to send "
-                   "a message to my developer!"
-                   ).format(self.bot.user.name, guild.name, self.bot.user.name, self.bot.user.name)
+                   "**@{} setprefix !**.\n\n"
+                   "For a list of all available commands, use the **!help** command. If you want more "
+                   "information on a command, use **!help <command_name>**.\n\n"
+                   "If you have any feedback, you can use my **!feedback** command to send "
+                   "a message to my developer! If you want to request a feature, report a bug, "
+                   "stay up to date with new features, or just want some extra help, check out the official "
+                   "{} Supportserver! (https://discord.gg/GXCFpkr)"
+                   ).format(self.bot.user.name, guild.name, self.bot.user.name,
+                            self.bot.user.name, self.bot.user.name)
         await guild.owner.send(message)
