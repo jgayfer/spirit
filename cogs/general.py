@@ -54,11 +54,47 @@ class General:
         for word in message:
             feedback += "{} ".format(word)
 
-        # Send user feedback to Asal, the bot's devloper
+        e = discord.Embed(title='Feedback', colour=constants.BLUE)
+        e.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
+        e.description = feedback
+        e.timestamp = ctx.message.created_at
+
+        if ctx.guild is not None:
+            e.add_field(name='Server', value='{} (ID: {})'.format(ctx.guild.name, ctx.guild.id), inline=False)
+
+        e.add_field(name='Channel', value='{} (ID: {})'.format(ctx.channel, ctx.channel.id), inline=False)
+        e.set_footer(text='Author ID: {}'.format(ctx.author.id))
+
         asal = await self.bot.get_user_info("118926942404608003")
-        await asal.send("Feedback from {} ({}):\n---\n{}".format(ctx.author.name, ctx.author.id, feedback))
-        await manager.say("Your feedback has been sent to the devloper. Thank you for your input!")
+        await asal.send(embed=e)
+        await manager.say("Your feedback has been sent to the developer!")
         await manager.clear()
+
+
+    @commands.command()
+    @commands.is_owner()
+    async def pm(self, ctx, user_id: int, *message):
+
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        user = self.bot.get_user(user_id)
+
+        if len(message) == 0:
+            await manager.say("You forgot to include your message!")
+            return await manager.clear()
+
+        response = "You have received a message from my developer!\n\n**"
+        for word in message:
+            response += "{} ".format(word)
+        response += ("**\n\nYour response will not be tracked here. If you wish "
+                   + "to speak with him further, join the official **{} Support** "
+                   + "server - https://discord.gg/GXCFpkr").format(self.bot.user.name)
+
+        try:
+            await user.send(response)
+        except:
+            await ctx.send('Could not PM user with ID {}'.format(user_id))
+        else:
+            await ctx.send('PM successfully sent.')
 
 
     async def on_guild_join(self, guild):
