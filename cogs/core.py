@@ -38,7 +38,7 @@ class Core:
 
 
     async def on_command_error(self, ctx, error):
-        """Let user know if a command is invalid"""
+        """Command error handler"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
         if isinstance(error, commands.CommandNotFound):
@@ -52,7 +52,7 @@ class Core:
             pass
 
         elif isinstance(error, commands.NoPrivateMessage):
-            await manager.say("You can't' use that command in a private message", mention=False)
+            await manager.say("You can't use that command in a private message", mention=False)
 
         else:
             raise error

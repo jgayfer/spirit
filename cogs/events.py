@@ -41,14 +41,15 @@ class Events:
         the event message with \U0001f480
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        await manager.say('Event creation instructions have been messaged to you')
 
-        res = await manager.say_and_wait("Enter event title")
+        res = await manager.say_and_wait("Enter event title:", dm=True)
         if not res:
             return
         title = res.content
 
         description = ""
-        res = await manager.say_and_wait("Enter event description (type 'none' for no description)")
+        res = await manager.say_and_wait("Enter event description (type 'none' for no description):", dm=True)
         if not res:
             return
         if res.content.upper() != 'NONE':
@@ -56,7 +57,7 @@ class Events:
 
         max_members = 0
         while not max_members:
-            res = await manager.say_and_wait("Enter the maximum numbers of attendees (type 'none' for no maximum)")
+            res = await manager.say_and_wait("Enter the maximum numbers of attendees (type 'none' for no maximum):", dm=True)
             if not res:
                 return
             if res.content.upper() == 'NONE':
@@ -64,39 +65,39 @@ class Events:
             elif is_int(res.content) and int(res.content) > 0:
                 max_members = int(res.content)
             else:
-                await manager.say("That is not a a valid entry.")
+                await manager.say("That is not a a valid entry.", dm=True)
 
         start_time = None
         while not start_time:
-            res = await manager.say_and_wait("Enter event time (YYYY-MM-DD HH:MM AM/PM)")
+            res = await manager.say_and_wait("Enter event time (YYYY-MM-DD HH:MM AM/PM):", dm=True)
             if not res:
                 return
             start_time_format = '%Y-%m-%d %I:%M %p'
             try:
                 start_time = datetime.strptime(res.content, start_time_format)
             except ValueError:
-                await manager.say("Invalid event time!")
+                await manager.say("Invalid event time!", dm=True)
 
         time_zone = None
         while not time_zone:
-            res = await manager.say_and_wait("Enter the time zone (PST, EST, etc.)")
+            res = await manager.say_and_wait("Enter the time zone (PST, EST, etc):", dm=True)
             if not res:
                 return
             if res.content.upper() not in constants.TIME_ZONES:
-                await manager.say("Unsupported time zone")
+                await manager.say("Unsupported time zone", dm=True)
             else:
                 time_zone = res.content.upper()
 
         with DBase() as db:
             res = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members)
             if res == 0:
-                await manager.say("An event with that name already exists.")
+                await manager.say("An event with that name already exists!", dm=True)
                 return await manager.clear()
 
         event_channel = await self.get_events_channel(ctx.guild)
-        await manager.say("Event created! The " + event_channel.mention + " channel will be updated momentarily.")
-        await manager.clear()
+        await manager.say("Event created! The " + event_channel.mention + " channel will be updated momentarily.", dm=True)
         await self.list_events(ctx.guild)
+        await manager.clear()
 
 
     async def list_events(self, guild):
@@ -132,7 +133,7 @@ class Events:
             elif reaction.emoji == "\N{CROSS MARK}":
                 await self.set_attendance(str(user), guild.id, 0, title, message)
             elif reaction.emoji == "\N{SKULL}":
-                if is_admin(user, channel):
+                if user.permissions_in(channel).administrator:
                     return await self.delete_event(guild, title)
                 else:
                     await manager.say("You must be an administrator to do that.")

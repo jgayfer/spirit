@@ -23,12 +23,22 @@ class MessageManager:
             self.messages = []
 
 
-    async def say_and_wait(self, content, mention=True):
+    async def say_and_wait(self, content, dm=False, mention=True):
         """Send a message and wait for user's response"""
-        def check_res(m):
-            return m.author == self.user and m.channel == self.channel
+        channel = self.channel
+        if dm:
+            channel =  self.user.dm_channel
+            if not channel:
+                channel = await self.user.create_dm()
 
-        msg = await self.channel.send("{}: {}".format(self.user.mention, content))
+        def check_res(m):
+            return m.author == self.user and m.channel == channel
+
+        if mention and not isinstance(channel, discord.abc.PrivateChannel):
+            msg = await channel.send("{}: {}".format(self.user.mention, content))
+        else:
+            msg = await channel.send("{}".format(content))
+
         self.messages.append(msg)
         res = await self.bot.wait_for('message', check=check_res)
 
@@ -41,13 +51,23 @@ class MessageManager:
             return res
 
 
-    async def say(self, content, embed=False, delete=True, mention=True):
-        """Send a single message"""
+    async def say(self, content, embed=False, dm=False, delete=True, mention=True):
+        """Send a message"""
+        channel = self.channel
+        if dm:
+            channel =  self.user.dm_channel
+            if not channel:
+                channel = await self.user.create_dm()
+
         msg = None
         if embed:
-            msg = await self.channel.send(embed=content)
+            msg = await channel.send(embed=content)
         else:
-            msg = await self.channel.send("{}: {}".format(self.user.mention, content))
+            if mention and not isinstance(channel, discord.abc.PrivateChannel):
+                msg = await channel.send("{}: {}".format(self.user.mention, content))
+            else:
+                msg = await channel.send("{}".format(content))
+
         if delete:
             self.messages.append(msg)
 
@@ -59,9 +79,9 @@ class MessageManager:
                 and message.id in [m.id for m in self.messages]):
                 return True
 
-        with DBase() as db:
-            cleanup = db.get_cleanup(self.channel.guild.id)
-
-        if not isinstance(self.channel, discord.abc.PrivateChannel) and cleanup:
-            await asyncio.sleep(constants.SPAM_DELAY)
-            await self.channel.purge(limit=999, check=check)
+        if not isinstance(self.channel, discord.abc.PrivateChannel):
+            with DBase() as db:
+                cleanup = db.get_cleanup(self.channel.guild.id)
+                if cleanup:
+                    await asyncio.sleep(constants.SPAM_DELAY)
+                    await self.channel.purge(limit=999, check=check)

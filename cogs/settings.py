@@ -14,6 +14,7 @@ class Settings:
 
 
     @commands.command()
+    @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def setprefix(self, ctx, new_prefix):
         """
@@ -42,6 +43,7 @@ class Settings:
 
 
     @commands.command()
+    @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def togglecleanup(self, ctx):
         """

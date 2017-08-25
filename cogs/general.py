@@ -82,7 +82,7 @@ class General:
             await manager.say("You forgot to include your message!")
             return await manager.clear()
 
-        response = "You have received a message from my developer!\n\n**"
+        response = "You have received a message from my developer:\n\n**"
         for word in message:
             response += "{} ".format(word)
         response += ("**\n\nYour response will not be tracked here. If you wish "
@@ -105,9 +105,7 @@ class General:
                    "**Command Prefix**\n\n"
                    "My default prefix is **!**, but you can also just mention me with **@{}**. "
                    "If another bot is already using the **!** prefix, you can choose a different prefix "
-                   "for your server with **!setprefix <new_prefix>** (don't include the brackets). "
-                   "If you forget your custom prefix, you can always change it back to default with "
-                   "**@{} setprefix !**.\n\n"
+                   "for your server with **!setprefix <new_prefix>** (don't include the brackets).\n\n"
                    "For a list of all available commands, use the **!help** command. If you want more "
                    "information on a command, use **!help <command_name>**.\n\n"
                    "If you have any feedback, you can use my **!feedback** command to send "

@@ -5,8 +5,8 @@ import pytz
 
 VERSION = "0.6.0"
 BLUE = discord.Colour(3381759)
-SPAM_DELAY = 4.5
-REACTION_DELAY = 1
+SPAM_DELAY = 4
+REACTION_DELAY = 4
 
 TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
               'AEST', 'AKDT', 'AKST', 'AMT', 'AMST', 'AST', 'AWST',
