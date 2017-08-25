@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.0]
 ### Added
 - Command spam cleanup is now optional. It can be turned on/off with the 'togglecleanup' command
+- Bot owner can now respond to feedback messages via a command
 ### Changed
 - Moved to version 1.0.0a of Discord.py (essentially a full rewrite of the bot)
 - Event creation now happens in a DM to reduce spam
+- Updated feedback message to provide bot owner with more context
 ### Fixed
 - Fix typos
 
