@@ -52,8 +52,8 @@ class Roster:
         Ex. '!settimezone PST'
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
-
         time_zone = time_zone.upper()
+
         if time_zone in constants.TIME_ZONES:
             with DBase() as db:
                 db.add_user(str(ctx.author))
@@ -87,21 +87,22 @@ class Roster:
 
         with DBase() as db:
             roster = db.get_roster(ctx.guild.id)
-            if len(roster) != 0:
 
-                text = "```\n"
-                for row in roster:
-                    name = row[0].split("#")[0]
-                    name = (name[:18] + '..') if len(name) > 18 else name
-                    role = row[1] if row[1] else "---"
-                    time_zone = row[2] if row[2] else "---"
-                    text += '{:20} {:5} {:7}\n'.format(name, time_zone, role)
-                text += "```"
+        if len(roster) != 0:
 
-                embed_msg = discord.Embed(color=constants.BLUE)
-                embed_msg.title="{} Roster".format(ctx.guild.name)
-                embed_msg.description = text
-                await manager.say(embed_msg, embed=True, delete=False)
-            else:
-                await manager.say("No roster exists yet. Use 'settimezone' or 'setclass' to add the first entry!")
-            await manager.clear()
+            text = "```\n"
+            for row in roster:
+                name = row[0].split("#")[0]
+                name = (name[:18] + '..') if len(name) > 18 else name
+                role = row[1] if row[1] else "---"
+                time_zone = row[2] if row[2] else "---"
+                text += '{:20} {:5} {:7}\n'.format(name, time_zone, role)
+            text += "```"
+
+            embed_msg = discord.Embed(color=constants.BLUE)
+            embed_msg.title="{} Roster".format(ctx.guild.name)
+            embed_msg.description = text
+            await manager.say(embed_msg, embed=True, delete=False)
+        else:
+            await manager.say("No roster exists yet. Use 'settimezone' or 'setclass' to add the first entry!")
+        await manager.clear()

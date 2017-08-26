@@ -48,7 +48,6 @@ class Events:
             return
         title = res.content
 
-        description = ""
         res = await manager.say_and_wait("Enter event description (type 'none' for no description):", dm=True)
         if not res:
             return
@@ -90,9 +89,9 @@ class Events:
 
         with DBase() as db:
             res = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members)
-            if res == 0:
-                await manager.say("An event with that name already exists!", dm=True)
-                return await manager.clear()
+        if res == 0:
+            await manager.say("An event with that name already exists!", dm=True)
+            return await manager.clear()
 
         event_channel = await self.get_events_channel(ctx.guild)
         await manager.say("Event created! The " + event_channel.mention + " channel will be updated momentarily.", dm=True)
@@ -106,14 +105,14 @@ class Events:
         await events_channel.purge(limit=999, check=delete_all)
         with DBase() as db:
             events = db.get_events(guild.id)
-            if len(events) > 0:
-                for row in events:
-                    event_embed = self.create_event_embed(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
-                    msg = await events_channel.send(embed=event_embed)
-                    await msg.add_reaction("\N{WHITE HEAVY CHECK MARK}")
-                    await msg.add_reaction("\N{CROSS MARK}")
-            else:
-                await events_channel.send("There are no upcoming events.")
+        if len(events) > 0:
+            for row in events:
+                event_embed = self.create_event_embed(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
+                msg = await events_channel.send(embed=event_embed)
+                await msg.add_reaction("\N{WHITE HEAVY CHECK MARK}")
+                await msg.add_reaction("\N{CROSS MARK}")
+        else:
+            await events_channel.send("There are no upcoming events.")
 
 
     async def on_reaction_add(self, reaction, user):
@@ -162,8 +161,8 @@ class Events:
         """Delete an event and update the events channel on success"""
         with DBase() as db:
             res = db.delete_event(server.id, title)
-            if res:
-                await self.list_events(server)
+        if res:
+            await self.list_events(server)
 
 
     async def get_events_channel(self, guild):

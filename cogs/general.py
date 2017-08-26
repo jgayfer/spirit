@@ -24,12 +24,13 @@ class General:
 
         for name, date in constants.RELEASE_DATES:
             diff = date - pst_now
-            if diff.days == -1:
+            days = diff.days + 1
+            if days == 0:
                 text += "{}: Today!\n".format(name)
-            elif diff.days == 0:
+            elif days == 1:
                 text += "{}: Tomorrow!\n".format(name)
-            elif diff.days > 1:
-                text += "{}: {} days\n".format(name, diff.days + 1)
+            elif days > 1:
+                text += "{}: {} days\n".format(name, days)
 
         countdown = discord.Embed(title="Destiny 2 Countdown", color=constants.BLUE)
         countdown.description = text

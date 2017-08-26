@@ -30,8 +30,8 @@ class Settings:
 
         with DBase() as db:
             db.set_prefix(ctx.guild.id, new_prefix)
-            await manager.say("Command prefix has been changed to " + new_prefix)
-            return await manager.clear()
+        await manager.say("Command prefix has been changed to " + new_prefix)
+        return await manager.clear()
 
 
     @setprefix.error
@@ -60,7 +60,7 @@ class Settings:
         with DBase() as db:
             db.toggle_cleanup(ctx.guild.id)
             cleanup = db.get_cleanup(ctx.guild.id)
-            status = 'enabled' if cleanup else 'disabled'
 
-            await manager.say("Command message cleanup is now *{}*".format(status))
-            return await manager.clear()
+        status = 'enabled' if cleanup else 'disabled'
+        await manager.say("Command message cleanup is now *{}*".format(status))
+        return await manager.clear()

@@ -19,7 +19,6 @@ class Help:
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
         # Determine which prefix to display in the help message
-        prefix = ""
         if isinstance(ctx.channel, discord.abc.PrivateChannel):
             prefix = '!'
         else:
@@ -52,7 +51,6 @@ class Help:
 
         # User passed in a single command
         elif str_cmd:
-            help = None
             cmd = self.bot.get_command(str_cmd)
             if cmd is None:
                 await manager.say("There are no commands called '{}'".format(str_cmd))
