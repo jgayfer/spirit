@@ -199,3 +199,12 @@ class DBase:
               """
         self.cur.execute(sql, (guild_id,))
         self.conn.commit()
+
+    def update_registration(self, platform, membership_id, username):
+        sql = """
+              INSERT into users (platform, membership_id, username)
+              VALUES (%s, %s, %s)
+              ON DUPLICATE KEY UPDATE platform = %s, membership_id = %s
+              """
+        self.cur.execute(sql, (platform, membership_id, username, platform, membership_id))
+        self.conn.commit()

@@ -7,6 +7,8 @@ CREATE TABLE guilds (
 
 CREATE TABLE users (
 	username VARCHAR(50) NOT NULL,
+	platform INT,
+	membership_id DECIMAL(20),
 	PRIMARY KEY (username)
 );
 

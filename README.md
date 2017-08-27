@@ -40,7 +40,8 @@ It will contain your bot's token as well as your database user, password, host, 
   "dbname": "name",
   "dbhost": "host",
   "dbuser": "username",
-  "dbpass": "password"
+  "dbpass": "password",
+  "d2-api-key": "your-key"
 }
 
 ```
