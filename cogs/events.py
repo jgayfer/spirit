@@ -48,6 +48,7 @@ class Events:
             return
         title = res.content
 
+        description = ""
         res = await manager.say_and_wait("Enter event description (type 'none' for no description):", dm=True)
         if not res:
             return
