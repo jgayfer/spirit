@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Countdown command was displaying incorrect values
 
-## [1.0.0] - 2017-05-25
+## [1.0.0] - 2017-08-25
 ### Added
 - Command spam cleanup is now optional. It can be turned on/off with the 'togglecleanup' command
 - Bot owner can now respond to feedback messages via a command
