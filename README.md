@@ -45,7 +45,7 @@ It will contain your bot's token as well as your database user, password, host, 
 }
 
 ```
-That's it! The bot can now be run with with
+That's it! The bot can now be run with
 ```
 python3 spirit.py
 ```
