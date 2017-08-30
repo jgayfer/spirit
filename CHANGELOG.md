@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Add 'register' command. Allows users to register their Destiny 2 account with the bot
 - Add error message when invoking a command that a user doesn't have permissions to invoke
+### Changed
+- Reactions are no longer removed from events. This is to cut down on the number of API calls
+the bot has to make
+- When the bot restarts, event messages are no longer resent. This means you won't get a notficiation
+every time the bot is restarted.
 
 ## [1.0.3] - 2017-08-30
 ### Fixed

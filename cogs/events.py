@@ -116,31 +116,28 @@ class Events:
             await events_channel.send("There are no upcoming events.")
 
 
-    async def on_reaction_add(self, reaction, user):
+    async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
         """If a reaction represents a user RSVP, update the DB and event message"""
-        message = reaction.message
-        guild = message.guild
-        channel = message.channel
+        channel = self.bot.get_channel(channel_id)
+        message = await discord.abc.Messageable.get_message(channel, message_id)
+        user = self.bot.get_user(user_id)
+        guild = channel.guild
         manager = MessageManager(self.bot, user, channel)
 
         # We check that the user is not the message author as to not count
         # the initial reactions added by the bot as being indicative of attendance
-        if is_event(message) and user is not message.author:
-
+        if is_event(message) and user != message.author:
             title = message.embeds[0].title
-            if reaction.emoji == "\N{WHITE HEAVY CHECK MARK}":
+            if emoji.name == "\N{WHITE HEAVY CHECK MARK}":
                 await self.set_attendance(str(user), guild.id, 1, title, message)
-            elif reaction.emoji == "\N{CROSS MARK}":
+            elif emoji.name == "\N{CROSS MARK}":
                 await self.set_attendance(str(user), guild.id, 0, title, message)
-            elif reaction.emoji == "\N{SKULL}":
+            elif emoji.name == "\N{SKULL}":
                 if user.permissions_in(channel).administrator:
                     return await self.delete_event(guild, title)
                 else:
                     await manager.say("You must be an administrator to do that.")
 
-            # Remove the reaction to keep the event message looking clean
-            await asyncio.sleep(constants.REACTION_DELAY)
-            await message.remove_reaction(reaction.emoji, user)
             await manager.clear()
 
 
@@ -234,4 +231,4 @@ class Events:
         """Refresh upcoming events when the bot starts so that the event messages
            are in the bot's cache so that wait_for_reaction() will work properly
            """
-        await self.list_events(guild)
+        #await self.list_events(guild)
