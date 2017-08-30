@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Add 'register' command. Allows users to register their Destiny 2 account with the bot.
 
+## [1.0.3] - 2017-08-30
+### Fixed
+- Users could not invoke commands if they added the bot to their server while the bot was offline, and then it came back online
+
 ## [1.0.2] - 2017-08-27
 ### Fixed
 - Event creation would fail if no description was given

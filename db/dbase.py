@@ -134,9 +134,10 @@ class DBase:
     def add_guild(self, guild_id):
         sql = """
               INSERT INTO guilds (guild_id)
-              VALUES (%s);
+              VALUES (%s)
+              ON DUPLICATE KEY UPDATE guild_id = %s;
               """
-        self.cur.execute(sql, (guild_id,))
+        self.cur.execute(sql, (guild_id, guild_id))
         self.conn.commit()
 
     def remove_guild(self, guild_id):
@@ -146,6 +147,13 @@ class DBase:
               """
         self.cur.execute(sql, (guild_id,))
         self.conn.commit()
+
+    def get_guilds(self):
+        sql = """
+              SELECT * FROM guilds;
+              """
+        self.cur.execute(sql)
+        return self.cur.fetchall()
 
     def add_user(self, username):
         sql = """

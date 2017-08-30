@@ -18,6 +18,29 @@ class Core:
         print('Username: {}'.format(self.bot.user.name))
         print('------')
 
+        # Get guilds in database
+        with DBase() as db:
+            db = db.get_guilds()
+        db_guilds = []
+        to_delete = []
+        for row in db:
+            guild = self.bot.get_guild(row[0])
+            if guild:
+                db_guilds.append(guild)
+            else:
+                to_delete.append(row[0])
+
+        # Add guilds
+        for guild in self.bot.guilds:
+            if guild not in db_guilds:
+                with DBase() as db:
+                    db.add_guild(guild.id)
+
+        # Remove guilds
+        for guild_id in to_delete:
+            with DBase() as db:
+                db.remove_guild(guild_id)
+
 
     async def on_guild_join(self, guild):
         """Add guild and it's members to database"""
