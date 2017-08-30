@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2017-08-30
+### Fixed
+- Users could not invoke commands if they added the bot to their server while the bot was offline, and then it came back online
+
 ## [1.0.2] - 2017-08-27
 ### Fixed
 - Event creation would fail if no description was given
