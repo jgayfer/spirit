@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Add 'register' command. Allows users to register their Destiny 2 account with the bot.
+- Add 'register' command. Allows users to register their Destiny 2 account with the bot
+- Add error message when invoking a command that a user doesn't have permissions to invoke
 
 ## [1.0.3] - 2017-08-30
 ### Fixed

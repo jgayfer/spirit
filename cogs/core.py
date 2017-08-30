@@ -65,8 +65,7 @@ class Core:
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
         if isinstance(error, commands.CommandNotFound):
-            command_name = ctx.message.content.split(' ')[0].replace(ctx.prefix, '')
-            await manager.say("Command '{}' not found.".format(command_name))
+            pass
 
         elif isinstance(error, commands.MissingRequiredArgument):
             pass
@@ -76,6 +75,10 @@ class Core:
 
         elif isinstance(error, commands.NoPrivateMessage):
             await manager.say("You can't use that command in a private message", mention=False)
+
+        elif isinstance(error, commands.CheckFailure):
+            await manager.say("You don't have the required permissions to do that")
+            pass
 
         else:
             raise error
