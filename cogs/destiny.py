@@ -14,7 +14,8 @@ class Destiny:
     def __init__(self, bot):
         self.bot = bot
         with open('credentials.json') as f:
-            self.api_key = json.load(f)['d2-api-key']
+            api_key = json.load(f)['d2-api-key']
+        self.destiny = pydest.Pydest(api_key)
 
 
     @commands.command()
@@ -34,14 +35,13 @@ class Destiny:
                 await manager.say("Invalid platform.", dm=True)
 
         act = await manager.say_and_wait("Enter your exact account name:", dm=True)
+        res = await self.destiny.api.search_destiny_player(platform, act.content)
 
-        with pydest.API(self.api_key) as destiny:
-            res = await destiny.search_destiny_player(platform, act.content)
-
-        act_exists = False
         if res['ErrorCode'] == 1:
             act_exists = True
             membership_id = res['Response'][0]['membershipId']
+        else:
+            act_exists = False
 
         if not act_exists:
             await manager.say("An account with that name doesn't seem to exist.", dm=True)
