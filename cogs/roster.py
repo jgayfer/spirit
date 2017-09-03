@@ -92,11 +92,20 @@ class Roster:
 
             text = "```\n"
             for row in roster:
-                name = row[0].split("#")[0]
-                name = (name[:18] + '..') if len(name) > 18 else name
+
+                # If the user has a server nickname, use that instead of their username
+                member = ctx.guild.get_member_named(row[0])
+                if member.nick:
+                    name = member.nick
+                else:
+                    name = row[0].split("#")[0]
+
+                # Format roster entry
+                formatted_name = (name[:18] + '..') if len(name) > 18 else name
                 role = row[1] if row[1] else "---"
                 time_zone = row[2] if row[2] else "---"
-                text += '{:20} {:5} {:7}\n'.format(name, time_zone, role)
+                text += '{:20} {:5} {:7}\n'.format(formatted_name, time_zone, role)
+
             text += "```"
 
             embed_msg = discord.Embed(color=constants.BLUE)
