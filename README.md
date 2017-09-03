@@ -18,9 +18,10 @@ To run the bot, you'll need the following:
 - MySQL
 
 ### Running the Bot
-Install the required Python modules with Pip
+Install the required Python modules with Pip, as well as the latest version of Discord.py
 ```
 pip3 install -r requirements.txt
+python3 -m pip install -U git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py[voice]
 ```
 Then create a MySQL database with support for UTF8mb4 encoding
 ```
