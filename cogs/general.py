@@ -98,6 +98,24 @@ class General:
             await ctx.send('PM successfully sent.')
 
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def botstats(self, ctx):
+        """Displays the bot's stats"""
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+
+        num_users = 0
+        num_guilds = len(self.bot.guilds)
+        for guild in self.bot.guilds:
+            num_users += len(guild.members)
+
+        e = discord.Embed(title='{} Stats'.format(self.bot.user.name), colour=constants.BLUE)
+        e.description = "**Servers**: {}\n**Users**: {}".format(num_guilds, num_users)
+        e.timestamp = datetime.now()
+        await ctx.channel.send(embed=e)
+        await manager.clear()
+
+
     async def on_guild_join(self, guild):
         """Send welcome message to the server owner"""
         message = ("Greetings! My name is **{}**, and my sole responsibility is to help you and "
