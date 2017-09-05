@@ -26,18 +26,22 @@ class Destiny:
         if not isinstance(ctx.channel, discord.abc.PrivateChannel):
             await manager.say("Registration instructions have been messaged to you")
 
+        await manager.say("Registering your Destiny 2 account with me will allow "
+                        + "you to invoke commands that use information from your "
+                        + "public Destiny 2 profile.", dm=True)
+
         platform = None
         while not platform:
-            res = await manager.say_and_wait("Enter your platform (pc, xbox, or ps):", dm=True)
-            platforms = {'PC': 4, 'XBOX': 1, 'PS': 2}
+            res = await manager.say_and_wait("Enter your platform (**xbox** or **playstation**):", dm=True)
+            platforms = {'PC': 4, 'XBOX': 1, 'PLAYSTATION': 2}
             platform = platforms.get(res.content.upper())
             if not platform:
-                await manager.say("Invalid platform.", dm=True)
+                await manager.say("Invalid platform. Try again.", dm=True)
 
-        act = await manager.say_and_wait("Enter your exact account name:", dm=True)
+        act = await manager.say_and_wait("Enter your exact **account name**:", dm=True)
         res = await self.destiny.api.search_destiny_player(platform, act.content)
 
-        if res['ErrorCode'] == 1:
+        if res['ErrorCode'] == 1 and len(res['Response']) > 0:
             act_exists = True
             membership_id = res['Response'][0]['membershipId']
         else:
@@ -46,7 +50,7 @@ class Destiny:
         if not act_exists:
             await manager.say("An account with that name doesn't seem to exist.", dm=True)
         else:
-            await manager.say("Account successfully registered!")
+            await manager.say("Account successfully registered!", dm=True)
             with DBase() as db:
                 db.add_user(str(ctx.author))
                 db.update_registration(platform, membership_id, str(ctx.author))
