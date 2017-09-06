@@ -104,11 +104,13 @@ class General:
         """Displays the bot's stats"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
-        num_users = 0
         num_guilds = len(self.bot.guilds)
+        users = []
         for guild in self.bot.guilds:
             if guild.id != 264445053596991498 or guild.id != 110373943822540800:
-                num_users += len(guild.members)
+                guild_users = [user for user in guild.members if user.id != self.bot.user.id]
+                users.extend(guild_users)
+        num_users = len(set(users))
 
         e = discord.Embed(title='{} Stats'.format(self.bot.user.name), colour=constants.BLUE)
         e.description = "**Servers**: {}\n**Users**: {}".format(num_guilds, num_users)
