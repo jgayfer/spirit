@@ -7,6 +7,7 @@ import pydest
 
 from db.dbase import DBase
 from cogs.utils.messages import delete_all, MessageManager
+from cogs.utils import constants
 
 
 class Destiny:
@@ -56,3 +57,28 @@ class Destiny:
                 db.update_registration(platform, membership_id, str(ctx.author))
 
         return await manager.clear()
+
+
+    @commands.command()
+    async def nightfall(self, ctx):
+        """Display the currently available nightfalls"""
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+
+        weekly = await self.destiny.api.get_public_milestones()
+        nightfall_hash = weekly['Response']['2171429505']['availableQuests'][0]['activity']['activityHash']
+        nightfall = await self.destiny.decode_hash(nightfall_hash, 'DestinyActivityDefinition')
+
+        challenges = ""
+        for entry in nightfall['challenges']:
+            challenge = await self.destiny.decode_hash(entry['objectiveHash'], 'DestinyObjectiveDefinition')
+            challenge_name = challenge['displayProperties']['name']
+            challenge_description = challenge['displayProperties']['description']
+            challenges += "**{}** - {}\n".format(challenge_name, challenge_description)
+
+        e = discord.Embed(title='{}'.format(nightfall['displayProperties']['name']), colour=constants.BLUE)
+        e.description = nightfall['displayProperties']['description']
+        e.set_thumbnail(url=('https://www.bungie.net' + nightfall['displayProperties']['icon']))
+        e.add_field(name='Challenges', value=challenges)
+
+        await manager.say(e, embed=True)
+        await manager.clear()
