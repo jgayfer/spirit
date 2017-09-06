@@ -107,11 +107,12 @@ class General:
         num_users = 0
         num_guilds = len(self.bot.guilds)
         for guild in self.bot.guilds:
-            num_users += len(guild.members)
+            if guild.id != 264445053596991498 or guild.id != 110373943822540800:
+                num_users += len(guild.members)
 
         e = discord.Embed(title='{} Stats'.format(self.bot.user.name), colour=constants.BLUE)
         e.description = "**Servers**: {}\n**Users**: {}".format(num_guilds, num_users)
-        e.timestamp = datetime.now()
+        e.timestamp = datetime.now(tz=pytz.timezone('US/Pacific'))
         await ctx.channel.send(embed=e)
         await manager.clear()
 
