@@ -1,9 +1,11 @@
 import asyncio
 import json
+from datetime import datetime
 
 from discord.ext import commands
 import discord
 import pydest
+import pytz
 
 from db.dbase import DBase
 from cogs.utils.messages import delete_all, MessageManager
@@ -75,10 +77,19 @@ class Destiny:
             challenge_description = challenge['displayProperties']['description']
             challenges += "**{}** - {}\n".format(challenge_name, challenge_description)
 
+        modifiers = ""
+        for entry in weekly['Response']['2171429505']['availableQuests'][0]['activity']['modifierHashes']:
+            modifier = await self.destiny.decode_hash(entry, 'DestinyActivityModifierDefinition')
+            modifier_name = modifier['displayProperties']['name']
+            modifier_description = modifier['displayProperties']['description']
+            modifiers += "**{}** - {}\n".format(modifier_name, modifier_description)
+
         e = discord.Embed(title='{}'.format(nightfall['displayProperties']['name']), colour=constants.BLUE)
-        e.description = nightfall['displayProperties']['description']
+        e.description = "*{}*".format(nightfall['displayProperties']['description'])
         e.set_thumbnail(url=('https://www.bungie.net' + nightfall['displayProperties']['icon']))
         e.add_field(name='Challenges', value=challenges)
+        e.add_field(name='Modifiers', value=modifiers)
+        e.timestamp = datetime.now(tz=pytz.timezone('US/Pacific'))
 
         await manager.say(e, embed=True)
         await manager.clear()
