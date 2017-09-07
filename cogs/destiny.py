@@ -22,6 +22,29 @@ class Destiny:
 
 
     @commands.command()
+    async def countdown(self, ctx):
+        """Show time until upcoming Destiny 2 releases"""
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        pst_now = datetime.now(tz=pytz.timezone('US/Pacific'))
+        text = ""
+
+        for name, date in constants.RELEASE_DATES:
+            diff = date - pst_now
+            days = diff.days + 1
+            if days == 0:
+                text += "{}: Today!\n".format(name)
+            elif days == 1:
+                text += "{}: Tomorrow!\n".format(name)
+            elif days > 1:
+                text += "{}: {} days\n".format(name, days)
+
+        countdown = discord.Embed(title="Destiny 2 Countdown", color=constants.BLUE)
+        countdown.description = text
+        await manager.say(countdown, embed=True, delete=False)
+        await manager.clear()
+
+
+    @commands.command()
     async def register(self, ctx):
         """Register your Destiny 2 account with the bot"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
