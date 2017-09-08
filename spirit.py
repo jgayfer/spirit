@@ -14,6 +14,7 @@ from cogs.settings import Settings
 from cogs.general import General
 from cogs.core import Core
 from cogs.destiny import Destiny
+from cogs.owner import Owner
 
 
 async def _prefix_callable(bot, message):
@@ -37,6 +38,7 @@ bot.add_cog(Settings(bot))
 bot.add_cog(General(bot))
 bot.add_cog(Core(bot))
 bot.add_cog(Destiny(bot))
+bot.add_cog(Owner(bot))
 
 
 def setup_logging():
