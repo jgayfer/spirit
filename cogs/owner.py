@@ -50,7 +50,7 @@ class Owner:
         users = []
         for guild in self.bot.guilds:
             if guild.id not in (264445053596991498, 110373943822540800, 349975342884061187):
-                guild_users = [user for user in guild.members if user.id != self.bot.user.id]
+                guild_users = [user for user in guild.members if not user.bot]
                 users.extend(guild_users)
         num_users = len(set(users))
 
