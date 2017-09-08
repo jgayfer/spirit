@@ -201,8 +201,7 @@ class Destiny:
         for item in equipped_items:
 
             item_dict = await self.destiny.decode_hash(item['itemHash'], 'DestinyInventoryItemDefinition')
-            item_name_format = "*{}*" if item_dict['inventory']['tierType'] == 6 else "{}"
-            item_name = item_name_format.format(item_dict['displayProperties']['name'])
+            item_name = "{}".format(item_dict['displayProperties']['name'])
 
             if weapons_index < 3:
                 weapons[weapons_index][1] = item_name
