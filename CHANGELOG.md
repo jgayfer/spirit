@@ -4,14 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.1.0] - 2017-09-08
 ### Added
 - Add 'register' command. Allows users to register their Destiny 2 account with the bot.
 - Add 'nightfall' command. This displays information about the weekly nightfall strike.
 - Add 'loadout' command. This displays your last played character's loadout.
+- Add raid release date for consoles to the countdown command.
+- The roster will now display a member's nickname instead of their username if a nickname is set.
 - Add error message when invoking a command that a user doesn't have permissions to invoke.
 ### Changed
-- The roster will now display a member's nickname instead of their username if a nickname is set
 - When the bot restarts, event messages are no longer resent. This means you won't get a notification
 every time the bot is restarted.
 

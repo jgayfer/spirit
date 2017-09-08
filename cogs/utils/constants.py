@@ -3,7 +3,7 @@ from datetime import datetime
 import discord
 import pytz
 
-VERSION = "1.0.3"
+VERSION = "1.1.0"
 BLUE = discord.Colour(3381759)
 SPAM_DELAY = 4
 
@@ -18,8 +18,11 @@ TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
               'SAMT', 'SDT', 'SRT', 'SST', 'UYST', 'UYT', 'VET',
               'WDT', 'WEST', 'WET', 'WST', 'YST', 'YDT' ]
 
-RELEASE_DATES = [("PC Beta", datetime(2017, 8, 28, tzinfo=pytz.timezone('US/Pacific'))),
+RELEASE_DATES = [
+                 ("PC Beta", datetime(2017, 8, 28, tzinfo=pytz.timezone('US/Pacific'))),
                  ("Console Release", datetime(2017, 9, 6, tzinfo=pytz.timezone('US/Pacific'))),
-                 ("PC Release", datetime(2017, 10, 24, tzinfo=pytz.timezone('US/Pacific')))]
+                 ("Console Raid", datetime(2017, 9, 13, tzinfo=pytz.timezone('US/Pacific'))),
+                 ("PC Release", datetime(2017, 10, 24, tzinfo=pytz.timezone('US/Pacific')))
+                ]
 
 PLATFORM_URLS = {1: 'https://i.imgur.com/DVskgVl.jpg', 2: 'https://i.imgur.com/nFv0wtf.png'}
