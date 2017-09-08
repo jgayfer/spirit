@@ -120,7 +120,7 @@ class Destiny:
         e.add_field(name='Modifiers', value=modifiers)
         e.timestamp = datetime.now(tz=pytz.timezone('US/Pacific'))
 
-        await manager.say(e, embed=True)
+        await manager.say(e, embed=True, delete=False)
         await manager.clear()
 
 
@@ -222,11 +222,11 @@ class Destiny:
 
         weapons_info = ""
         for weapon in weapons:
-            weapons_info += '**{}:** {} \n'.format(weapon[0], weapon[1])
+            weapons_info += '**{}:** {}  \n'.format(weapon[0], weapon[1])
 
         armor_info = ""
         for item in armor:
-            armor_info += '**{}:** {} \n'.format(item[0], item[1])
+            armor_info += '**{}:** {}\n'.format(item[0], item[1])
 
         e = discord.Embed(colour=constants.BLUE)
         e.set_author(name=char_name, icon_url=constants.PLATFORM_URLS.get(platform))
@@ -236,5 +236,5 @@ class Destiny:
         e.add_field(name='Armor', value=armor_info, inline=True)
         e.timestamp = datetime.now(tz=pytz.timezone('US/Pacific'))
 
-        await manager.say(e, embed=True)
+        await manager.say(e, embed=True, delete=False)
         await manager.clear()
