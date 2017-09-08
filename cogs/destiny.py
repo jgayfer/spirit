@@ -93,6 +93,7 @@ class Destiny:
     async def nightfall(self, ctx):
         """Display the weekly nightfall info"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        await ctx.channel.trigger_typing()
 
         weekly = await self.destiny.api.get_public_milestones()
         nightfall_hash = weekly['Response']['2171429505']['availableQuests'][0]['activity']['activityHash']
