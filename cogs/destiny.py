@@ -198,16 +198,18 @@ class Destiny:
 
         equipped_items = res['Response']['characterEquipment']['data'][last_played_char_id]['items']
         for item in equipped_items:
-            item_dict = await self.destiny.decode_hash(item['itemHash'], 'DestinyInventoryItemDefinition')
 
-            if item_dict['itemType'] == 3:
-                weapons[weapons_index][1] = item_dict['displayProperties']['name']
+            item_dict = await self.destiny.decode_hash(item['itemHash'], 'DestinyInventoryItemDefinition')
+            item_name_format = "*{}*" if item_dict['inventory']['tierType'] == 6 else "{}"
+            item_name = item_name_format.format(item_dict['displayProperties']['name'])
+
+            if weapons_index < 3:
+                weapons[weapons_index][1] = item_name
                 weapons_index += 1
 
-            elif item_dict['itemType'] == 2:
-                if item_dict['equippingBlock']['equipmentSlotTypeHash'] != 4023194814:
-                    armor[armor_index][1] = item_dict['displayProperties']['name']
-                    armor_index += 1
+            elif armor_index < 5:
+                armor[armor_index][1] = item_name
+                armor_index += 1
 
         #################################
         # ------ Formulate Embed ------ #
