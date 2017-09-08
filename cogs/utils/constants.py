@@ -6,7 +6,6 @@ import pytz
 VERSION = "1.0.3"
 BLUE = discord.Colour(3381759)
 SPAM_DELAY = 4
-REACTION_DELAY = 4
 
 TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
               'AEST', 'AKDT', 'AKST', 'AMT', 'AMST', 'AST', 'AWST',
@@ -22,3 +21,5 @@ TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
 RELEASE_DATES = [("PC Beta", datetime(2017, 8, 28, tzinfo=pytz.timezone('US/Pacific'))),
                  ("Console Release", datetime(2017, 9, 6, tzinfo=pytz.timezone('US/Pacific'))),
                  ("PC Release", datetime(2017, 10, 24, tzinfo=pytz.timezone('US/Pacific')))]
+
+PLATFORM_URLS = {1: 'https://i.imgur.com/DVskgVl.jpg', 2: 'https://i.imgur.com/nFv0wtf.png'}

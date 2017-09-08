@@ -6,14 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Add 'register' command. Allows users to register their Destiny 2 account with the bot
-- Add 'nightfall' command. This displays information about the weekly nightfall strike
-- Add error message when invoking a command that a user doesn't have permissions to invoke
-- Add owner only command to view current bot stats
+- Add 'register' command. Allows users to register their Destiny 2 account with the bot.
+- Add 'nightfall' command. This displays information about the weekly nightfall strike.
+- Add 'loadout' command. This displays your last played character's loadout.
+- Add error message when invoking a command that a user doesn't have permissions to invoke.
 ### Changed
 - The roster will now display a member's nickname instead of their username if a nickname is set
-- Reactions are no longer auto removed from events. This is to cut down on the number of API calls
-the bot has to make
 - When the bot restarts, event messages are no longer resent. This means you won't get a notification
 every time the bot is restarted.
 

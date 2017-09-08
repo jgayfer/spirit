@@ -27,7 +27,9 @@ class Events:
         After invoking the command, the bot will ask
         you to enter the event details. Once the event
         is created, it will appear in the upcoming-events
-        channel.
+        channel. The upcoming-events channel is designed
+        the assumption that it isn't used for anything but
+        displaying events.
 
         Users will be able to accept and decline the
         event by adding reactions. If a maximum number
@@ -138,6 +140,7 @@ class Events:
                 else:
                     await manager.say("You must be an administrator to do that.")
 
+            await message.remove_reaction(emoji, user)
             await manager.clear()
 
 
@@ -225,10 +228,3 @@ class Events:
                 embed_msg.add_field(name="Standby", value=text, inline=False)
 
         return embed_msg
-
-
-    async def on_guild_available(self, guild):
-        """Refresh upcoming events when the bot starts so that the event messages
-           are in the bot's cache so that wait_for_reaction() will work properly
-           """
-        #await self.list_events(guild)

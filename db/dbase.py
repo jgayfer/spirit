@@ -172,6 +172,15 @@ class DBase:
         self.cur.execute(sql, (username,))
         self.conn.commit()
 
+    def get_d2_info(self, username):
+        sql = """
+              SELECT platform, membership_id
+              FROM users
+              WHERE username = %s
+              """
+        self.cur.execute(sql, (username,))
+        return self.cur.fetchall()
+
     def set_prefix(self, guild_id, prefix):
         sql = """
               UPDATE guilds
@@ -188,7 +197,7 @@ class DBase:
               WHERE guild_id = %s
               """
         self.cur.execute(sql, (guild_id,))
-        return self.cur.fetchall()[0][0]
+        return self.cur.fetchall()
 
     def get_cleanup(self, guild_id):
         sql = """
