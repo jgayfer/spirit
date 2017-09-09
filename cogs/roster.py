@@ -95,7 +95,7 @@ class Roster:
 
                 # If the user has a server nickname, use that instead of their username
                 member = ctx.guild.get_member_named(row[0])
-                if member.nick:
+                if hasattr(member, 'nick') and member.nick:
                     name = member.nick
                 else:
                     name = row[0].split("#")[0]
