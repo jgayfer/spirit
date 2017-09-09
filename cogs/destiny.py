@@ -70,7 +70,12 @@ class Destiny:
                 await manager.say("Invalid platform. Try again.", dm=True)
 
         act = await manager.say_and_wait("Enter your exact **account name**:", dm=True)
-        res = await self.destiny.api.search_destiny_player(platform, act.content)
+
+        try:
+            res = await self.destiny.api.search_destiny_player(platform, act.content)
+        except ValueError as e:
+            await manager.say("Invalid account name. If this seems wrong, please contact the developer.")
+            return await manager.clear()
 
         if res['ErrorCode'] == 1 and len(res['Response']) > 0:
             act_exists = True
