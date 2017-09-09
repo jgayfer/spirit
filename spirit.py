@@ -25,7 +25,7 @@ async def _prefix_callable(bot, message):
     else:
         with DBase() as db:
             custom_prefix = db.get_prefix(message.guild.id)
-            if len(custom_prefix[0]) > 0:
+            if len(custom_prefix) > 0 and len(custom_prefix[0]) > 0:
                 base.append(custom_prefix[0][0])
     return base
 

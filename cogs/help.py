@@ -28,7 +28,11 @@ class Help:
                 prefix = ctx.prefix
             else:
                 with DBase() as db:
-                    prefix = db.get_prefix(ctx.guild.id)
+                    custom_prefix = db.get_prefix(ctx.guild.id)
+                    if len(custom_prefix) > 0 and len(custom_prefix[0]) > 0:
+                        prefix = custom_prefix[0][0]
+                    else:
+                        raise AttributeError("Could not retrieve command prefix")
 
         # User passed a command and a subcommand
         if str_cmd and str_subcmd:
