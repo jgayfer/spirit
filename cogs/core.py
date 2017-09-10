@@ -1,4 +1,5 @@
 from discord.ext import commands
+import discord
 
 from db.dbase import DBase
 from cogs.utils import constants
@@ -78,7 +79,10 @@ class Core:
 
         elif isinstance(error, commands.CheckFailure):
             await manager.say("You don't have the required permissions to do that")
-            pass
+
+        elif isinstance(error, commands.CommandInvokeError):
+            if isinstance(error.original, discord.errors.Forbidden):
+                pass
 
         else:
             raise error
