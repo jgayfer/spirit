@@ -104,6 +104,7 @@ class Help:
         """Create a help embed message for a command and its subcommands"""
         help = discord.Embed(title="{}".format(cmd.name.title()), color=constants.BLUE)
         help.description = "*{}*".format(cmd.help.split('\n')[0])
+        help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
         for sub_cmd in sub_cmds:
             signature = self.get_command_signature(prefix, sub_cmd)
             help.add_field(name="{}".format(signature), value="{}".format(sub_cmd.help.split('\n')[0]), inline=False)
