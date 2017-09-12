@@ -60,13 +60,13 @@ class Events:
 
         res = await manager.say_and_wait("Enter event title:", dm=True)
         if not res:
-            return
+            return await manager.clear()
         title = res.content
 
         description = ""
         res = await manager.say_and_wait("Enter event description (type 'none' for no description):", dm=True)
         if not res:
-            return
+            return await manager.clear()
         if res.content.upper() != 'NONE':
             description = res.content
 
@@ -74,7 +74,7 @@ class Events:
         while not max_members:
             res = await manager.say_and_wait("Enter the maximum numbers of attendees (type 'none' for no maximum):", dm=True)
             if not res:
-                return
+                return await manager.clear()
             if res.content.upper() == 'NONE':
                 break
             elif is_int(res.content) and int(res.content) > 0:
@@ -86,7 +86,7 @@ class Events:
         while not start_time:
             res = await manager.say_and_wait("Enter event time (YYYY-MM-DD HH:MM AM/PM):", dm=True)
             if not res:
-                return
+                return await manager.clear()
             start_time_format = '%Y-%m-%d %I:%M %p'
             try:
                 start_time = datetime.strptime(res.content, start_time_format)
@@ -97,7 +97,7 @@ class Events:
         while not time_zone:
             res = await manager.say_and_wait("Enter the time zone (PST, EST, etc):", dm=True)
             if not res:
-                return
+                return await manager.clear()
             user_timezone = "".join(res.content.upper().split())
             if user_timezone not in constants.TIME_ZONES:
                 await manager.say("Unsupported time zone", dm=True)

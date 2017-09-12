@@ -40,7 +40,17 @@ class MessageManager:
             msg = await channel.send("{}".format(content))
 
         self.messages.append(msg)
-        res = await self.bot.wait_for('message', check=check_res)
+
+        try:
+            res = await self.bot.wait_for('message', check=check_res, timeout=60)
+        except asyncio.TimeoutError as e:
+            if mention and not isinstance(channel, discord.abc.PrivateChannel):
+                msg = await channel.send("{}: I'm not sure where you went. We can try this again later.".format(self.user.mention))
+            else:
+                msg = await channel.send("I'm not sure where you went. We can try this again later.")
+            self.messages.append(msg)
+            await self.clear()
+            return False
 
         # If the user responds with a command, we'll need to stop executing and clean up
         if res.content.startswith('!'):

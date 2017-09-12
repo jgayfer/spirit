@@ -64,12 +64,16 @@ class Destiny:
         platform = None
         while not platform:
             res = await manager.say_and_wait("Enter your platform (**xbox** or **playstation**):", dm=True)
+            if not res:
+                return await manager.clear()
             platforms = {'PC': 4, 'XBOX': 1, 'PLAYSTATION': 2}
             platform = platforms.get(res.content.upper())
             if not platform:
                 await manager.say("Invalid platform. Try again.", dm=True)
 
         act = await manager.say_and_wait("Enter your exact **account name**:", dm=True)
+        if not act:
+            return await manager.clear()
 
         try:
             res = await self.destiny.api.search_destiny_player(platform, act.content)
