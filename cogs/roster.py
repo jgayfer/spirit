@@ -55,7 +55,7 @@ class Roster:
 
     @roster.command()
     @commands.guild_only()
-    async def settimezone(self, ctx, time_zone):
+    async def settimezone(self, ctx, *, time_zone):
         """
         Add your timezone to the roster
 
@@ -63,6 +63,7 @@ class Roster:
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
         time_zone = time_zone.upper()
+        time_zone = "".join(time_zone.split())
 
         if time_zone in constants.TIME_ZONES:
             with DBase() as db:
@@ -114,7 +115,7 @@ class Roster:
                 formatted_name = (name[:18] + '..') if len(name) > 18 else name
                 role = row[1] if row[1] else "---"
                 time_zone = row[2] if row[2] else "---"
-                text += '{:20} {:5} {:7}\n'.format(formatted_name, time_zone, role)
+                text += '{:20} {:6} {:7}\n'.format(formatted_name, time_zone, role)
 
             text += "```"
 

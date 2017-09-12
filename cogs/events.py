@@ -85,10 +85,11 @@ class Events:
             res = await manager.say_and_wait("Enter the time zone (PST, EST, etc):", dm=True)
             if not res:
                 return
-            if res.content.upper() not in constants.TIME_ZONES:
+            user_timezone = "".join(res.content.upper().split())
+            if user_timezone not in constants.TIME_ZONES:
                 await manager.say("Unsupported time zone", dm=True)
             else:
-                time_zone = res.content.upper()
+                time_zone = user_timezone
 
         with DBase() as db:
             res = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members)
@@ -121,9 +122,9 @@ class Events:
     async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
         """If a reaction represents a user RSVP, update the DB and event message"""
         channel = self.bot.get_channel(channel_id)
-        guild = channel.guild
-        user = guild.get_member(user_id)
         message = await channel.get_message(message_id)
+        user = self.bot.get_user(user_id)
+        guild = channel.guild
         manager = MessageManager(self.bot, user, channel)
 
         # We check that the user is not the message author as to not count

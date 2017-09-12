@@ -12,11 +12,19 @@ TIME_ZONES = ['ACT', 'ACDT', 'ACST', 'ADT', 'AEDT',
               'BOT', 'BRT', 'BRST', 'BST', 'CDT', 'CEST', 'CET',
               'CHST', 'CLT', 'CLST', 'COT', 'CST', 'CXT', 'CWST',
               'ECT', 'EDT', 'EEST', 'EST', 'FKST', 'FKT', 'FNT', 'GFT',
-              'GMT', 'GYT', 'HADT', 'HAST', 'HST', 'IST', 'KUYT',
+              'GMT', 'GMT+1', 'GMT+2', 'GMT+3', 'GMT+4', 'GMT+5', 'GMT+6',
+              'GMT+7', 'GMT+8', 'GMT+9', 'GMT+10', 'GMT+11', 'GMT+12',
+              'GMT-1', 'GMT-2', 'GMT-3', 'GMT-4', 'GMT-5', 'GMT-6', 'GMT-7',
+              'GMT-8', 'GMT-9', 'GMT-10', 'GMT-11', 'GMT-12',
+              'GYT', 'HADT', 'HAST', 'HST', 'IST', 'KUYT',
               'LHDT', 'LHST', 'MDT', 'MSD', 'MSK', 'MST', 'NDT',
               'NFT', 'NST', 'PDT', 'PST', 'PET', 'PYT', 'PYST',
-              'SAMT', 'SDT', 'SRT', 'SST', 'UYST', 'UYT', 'VET',
-              'WDT', 'WEST', 'WET', 'WST', 'YST', 'YDT' ]
+              'SAMT', 'SDT', 'SRT', 'SST',
+              'UTC', 'UTC+1', 'UTC+2', 'UTC+3', 'UTC+4', 'UTC+5', 'UTC+6',
+              'UTC+7', 'UTC+8', 'UTC+9', 'UTC+10', 'UTC+11', 'UTC+12',
+              'UTC-1', 'UTC-2', 'UTC-3', 'UTC-4', 'UTC-5', 'UTC-6', 'UTC-7',
+              'UTC-8', 'UTC-9', 'UTC-10', 'UTC-11', 'UTC-12',
+              'UYST', 'UYT', 'VET', 'WDT', 'WEST', 'WET', 'WST', 'YST', 'YDT']
 
 RELEASE_DATES = [
                  ("PC Beta", datetime(2017, 8, 28, tzinfo=pytz.timezone('US/Pacific'))),

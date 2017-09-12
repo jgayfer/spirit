@@ -16,7 +16,7 @@ CREATE TABLE users (
 CREATE TABLE events (
 	guild_id DECIMAL(20) NOT NULL,
 	start_time DATETIME NOT NULL,
-	timezone VARCHAR(5) NOT NULL,
+	timezone VARCHAR(6) NOT NULL,
 	title VARCHAR(256) NOT NULL,
 	description VARCHAR(1000),
 	max_members INT NOT NULL DEFAULT 0,
@@ -42,7 +42,7 @@ CREATE TABLE roster (
 	username VARCHAR(50) NOT NULL,
 	guild_id DECIMAL(20) NOT NULL,
 	role VARCHAR(10),
-	timezone VARCHAR(5),
+	timezone VARCHAR(6),
 	PRIMARY KEY (username, guild_id),
 	FOREIGN KEY (username) REFERENCES users(username)
 		ON DELETE CASCADE,
