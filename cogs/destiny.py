@@ -99,8 +99,12 @@ class Destiny:
         """Display the weekly nightfall info"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
         await ctx.channel.trigger_typing()
-
         weekly = await self.destiny.api.get_public_milestones()
+
+        if weekly['ErrorCode'] != 1:
+            await manager.say("Sorry, I can't seem to connect to Bungie.net right now")
+            return await manager.clear()
+
         nightfall_hash = weekly['Response']['2171429505']['availableQuests'][0]['activity']['activityHash']
         nightfall = await self.destiny.decode_hash(nightfall_hash, 'DestinyActivityDefinition')
 
@@ -123,7 +127,6 @@ class Destiny:
         e.set_thumbnail(url=('https://www.bungie.net' + nightfall['displayProperties']['icon']))
         e.add_field(name='Challenges', value=challenges)
         e.add_field(name='Modifiers', value=modifiers)
-        e.timestamp = datetime.now(tz=pytz.timezone('US/Pacific'))
 
         await manager.say(e, embed=True, delete=False)
         await manager.clear()
@@ -239,7 +242,6 @@ class Destiny:
         e.set_thumbnail(url=emblem_url)
         e.add_field(name='Weapons', value=weapons_info, inline=True)
         e.add_field(name='Armor', value=armor_info, inline=True)
-        e.timestamp = datetime.now(tz=pytz.timezone('US/Pacific'))
 
         await manager.say(e, embed=True, delete=False)
         await manager.clear()

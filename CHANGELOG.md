@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Administrators can now define the lowest role that can create events
 ### Changed
-- Roster is now a group command
-- Settings is now a group command
+- Roster and settings are now group commands. The old command are still there, but now they must
+be prefixed by either `roster` or `settings`. For more information, check out the new `help` message.
+### Fixed
+- Nightfall command would be unresponsive if Bungie.net couldn't be reached
 
 ## [1.1.2] - 2017-09-09
 ### Fixed
