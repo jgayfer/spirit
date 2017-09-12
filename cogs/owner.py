@@ -17,7 +17,7 @@ class Owner:
     @commands.command(hidden=True)
     @commands.is_owner()
     async def pm(self, ctx, user_id: int, *message):
-
+        """Send a PM via the bot to a user given their ID"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
         user = self.bot.get_user(user_id)
 
@@ -35,16 +35,51 @@ class Owner:
         try:
             await user.send(response)
         except:
-            await ctx.send('Could not PM user with ID {}'.format(user_id))
+            await manager.say('Could not PM user with ID {}'.format(user_id))
         else:
-            await ctx.send('PM successfully sent.')
+            await manager.say('PM successfully sent.')
+        await manager.clear()
 
 
     @commands.command(hidden=True)
-    @commands.is_owner()
+    async def broadcast(self, ctx, *, message):
+        """Send a message to the owner of every server the bot belongs to"""
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+
+        if ctx.author.id not in (182759337394044929, 118926942404608003):
+            return
+
+        count = 0
+        for guild in self.bot.guilds:
+            try:
+                await guild.owner.send(message)
+            except:
+                pass
+            else:
+                count+= 1
+
+        if ctx.author.id != 118926942404608003:
+            asal = self.bot.get_user(118926942404608003)
+            await asal.send("**{}** just sent out a broadcast message:\n\n{}".format(ctx.author.name, message))
+
+        await manager.say("Broadcast message sent to **{}** users".format(count))
+        await manager.clear()
+
+
+    @broadcast.error
+    async def broadcast_error(self, ctx, error):
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        await manager.say("You didn't include a broadcast message")
+        return await manager.clear()
+
+
+    @commands.command(hidden=True)
     async def botstats(self, ctx):
         """Displays the bot's stats"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+
+        if ctx.author.id not in (182759337394044929, 118926942404608003):
+            return
 
         num_guilds = len(self.bot.guilds)
         users = []
