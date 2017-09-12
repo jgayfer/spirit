@@ -54,15 +54,15 @@ class Settings:
     @settings.command()
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
-    async def setmodrole(self, ctx, *, mod_role):
-        """Set the server's mod role (admin only)
+    async def seteventrole(self, ctx, *, mod_role):
+        """Set the lowest role that is able to create events (admin only)
 
-        Certain commands, such as creating events, require the user to have a certain privelge.
-        By default, the default privilege is Administrator. If a mod role is set, then any user
-        that is of the mod role or higher may invoke the previously Administrator only commands.
+        By default, creating events requires the user to have Administrator permissions.
+        But if an event role is set, then any user that is of the event role or higher may
+        create events.
 
-        **Note:** Mentioning the role directly with this command will not work. You must the name
-        of the role without mentioning it.
+        **Note:** Mentioning the role directly with this command will not work. You must provide
+        only the name of the role without mentioning it.
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
@@ -84,8 +84,8 @@ class Settings:
         return await manager.clear()
 
 
-    @setmodrole.error
-    async def setmodrole_error(self, ctx, error):
+    @seteventrole.error
+    async def seteventrole_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
