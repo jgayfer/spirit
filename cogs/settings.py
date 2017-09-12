@@ -46,7 +46,7 @@ class Settings:
     @commands.command()
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
-    async def modrole(self, ctx, *, mod_role):
+    async def setmodrole(self, ctx, *, mod_role):
         """Set the server's mod role (admin only)
 
         Certain commands, such as creating events, require the user to have a certain privelge.
