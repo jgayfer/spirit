@@ -83,6 +83,8 @@ class Core:
         elif isinstance(error, commands.CommandInvokeError):
             if isinstance(error.original, discord.errors.Forbidden):
                 pass
+            else:
+                raise error
 
         else:
             raise error

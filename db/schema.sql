@@ -2,6 +2,7 @@ CREATE TABLE guilds (
 	guild_id DECIMAL(20) NOT NULL,
 	prefix VARCHAR(5) NOT NULL DEFAULT '!',
 	clear_spam BOOLEAN NOT NULL DEFAULT 0,
+	mod_role_id DECIMAL(20),
 	PRIMARY KEY(guild_id)
 );
 

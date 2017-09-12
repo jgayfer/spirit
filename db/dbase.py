@@ -199,6 +199,24 @@ class DBase:
         self.cur.execute(sql, (guild_id,))
         return self.cur.fetchall()
 
+    def set_mod_role_id(self, guild_id, mod_role_id):
+        sql = """
+              UPDATE guilds
+              SET mod_role_id = %s
+              WHERE guild_id = %s;
+              """
+        self.cur.execute(sql, (mod_role_id, guild_id))
+        self.conn.commit()
+
+    def get_mod_role_id(self, guild_id):
+        sql = """
+              SELECT mod_role_id
+              FROM guilds
+              WHERE guild_id = %s
+              """
+        self.cur.execute(sql, (guild_id,))
+        return self.cur.fetchall()
+
     def get_cleanup(self, guild_id):
         sql = """
               SELECT clear_spam
