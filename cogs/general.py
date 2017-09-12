@@ -15,7 +15,7 @@ class General:
 
 
     @commands.command()
-    async def feedback(self, ctx, *message):
+    async def feedback(self, ctx, *, message):
         """
         Send a message to the bot's developer
 
@@ -23,17 +23,9 @@ class General:
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
-        if len(message) == 0:
-            await manager.say("You forgot to include your feedback!")
-            return await manager.clear()
-
-        feedback = ""
-        for word in message:
-            feedback += "{} ".format(word)
-
         e = discord.Embed(title='Feedback', colour=constants.BLUE)
         e.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
-        e.description = feedback
+        e.description = message
         e.timestamp = ctx.message.created_at
 
         if ctx.guild is not None:
@@ -46,6 +38,14 @@ class General:
         await asal.send(embed=e)
         await manager.say("Your feedback has been sent to the developer!")
         await manager.clear()
+
+
+    @feedback.error
+    async def feedback_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            await manager.say("You forgot to include your feedback!")
+            await manager.clear()
 
 
     async def on_guild_join(self, guild):
