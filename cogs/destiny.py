@@ -81,17 +81,23 @@ class Destiny:
             await manager.say("Invalid account name. If this seems wrong, please contact the developer.")
             return await manager.clear()
 
-        if res['ErrorCode'] == 1 and len(res['Response']) > 0:
+        act_exists = False
+        if res['ErrorCode'] == 1 and len(res['Response']) == 1:
             act_exists = True
             membership_id = res['Response'][0]['membershipId']
-        else:
-            act_exists = False
+        elif res['ErrorCode'] == 1 and len(res['Response']) > 1:
+            for entry in res['Response']:
+                if act.content == entry['displayName']:
+                    act_exists = True
+                    membership_id = entry['membershipId']
+                    break
 
         if not act_exists:
             await manager.say("An account with that name doesn't seem to exist.", dm=True)
         else:
             await manager.say("Account successfully registered!", dm=True)
             with DBase() as db:
+                print(membership_id)
                 db.add_user(str(ctx.author))
                 db.update_registration(platform, membership_id, str(ctx.author))
 

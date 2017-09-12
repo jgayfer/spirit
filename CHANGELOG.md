@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Administrators can now define the lowest role that can create events
 ### Changed
 - Roster and settings are now group commands. The old command are still there, but now they must
-be prefixed by either `roster` or `settings`. For more information, check out the new `help` message.
+be prefixed by either `roster` or `settings`. For more information, check out the new `help` message
+- Message prompts will now time out after a minute if the bot doesn't get a response
 ### Fixed
 - Nightfall command would be unresponsive if Bungie.net couldn't be reached
+- Registering would fail if there were two account names with different capitalization
 
 ## [1.1.2] - 2017-09-09
 ### Fixed
