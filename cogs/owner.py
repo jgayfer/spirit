@@ -91,6 +91,5 @@ class Owner:
 
         e = discord.Embed(title='{} Stats'.format(self.bot.user.name), colour=constants.BLUE)
         e.description = "**Servers**: {}\n**Users**: {}".format(num_guilds, num_users)
-        e.timestamp = datetime.now(tz=pytz.timezone('US/Pacific'))
         await ctx.channel.send(embed=e)
         await manager.clear()
