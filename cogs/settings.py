@@ -14,14 +14,22 @@ class Settings:
         self.bot = bot
 
 
-    @commands.command()
+    @commands.group()
+    @commands.guild_only()
+    @commands.has_permissions(administrator=True)
+    async def settings(self, ctx):
+        """Manage the bot's server specific settings (admin only)"""
+        if ctx.invoked_subcommand is None:
+            cmd = self.bot.get_command('help')
+            await ctx.invoke(cmd, 'settings')
+
+
+    @settings.command()
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def setprefix(self, ctx, new_prefix):
         """
         Change the server's command prefix (admin only)
-
-        Ex. '!setprefix $'
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
@@ -43,7 +51,7 @@ class Settings:
             await manager.clear()
 
 
-    @commands.command()
+    @settings.command()
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def setmodrole(self, ctx, *, mod_role):
@@ -100,7 +108,7 @@ class Settings:
             await manager.clear()
 
 
-    @commands.command()
+    @settings.command()
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     async def togglecleanup(self, ctx):

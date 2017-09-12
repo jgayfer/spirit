@@ -6,6 +6,7 @@ import discord
 
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants
+import cogs.help
 
 
 class Roster:
@@ -14,13 +15,22 @@ class Roster:
         self.bot = bot
 
 
-    @commands.command()
+    @commands.group()
+    @commands.guild_only()
+    async def roster(self, ctx):
+        """View and manage the server's roster"""
+        if ctx.invoked_subcommand is None:
+            cmd = self.bot.get_command('help')
+            await ctx.invoke(cmd, 'roster')
+
+
+    @roster.command()
     @commands.guild_only()
     async def setclass(self, ctx, role):
         """
         Add your Destiny 2 class to the roster
 
-        Ex. '!setclass Warlock'
+        Class must be one of Titan, Warlock, or Hunter
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
@@ -43,13 +53,13 @@ class Roster:
             await manager.clear()
 
 
-    @commands.command()
+    @roster.command()
     @commands.guild_only()
     async def settimezone(self, ctx, time_zone):
         """
         Add your timezone to the roster
 
-        Ex. '!settimezone PST'
+        For a full list of supported timezones, check out the bot's support server
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
         time_zone = time_zone.upper()
@@ -72,9 +82,9 @@ class Roster:
             await manager.clear()
 
 
-    @commands.command()
+    @roster.command()
     @commands.guild_only()
-    async def roster(self, ctx):
+    async def show(self, ctx):
         """
         Display the roster
 
