@@ -4,6 +4,7 @@ from discord.ext import commands
 import discord
 
 from db.dbase import DBase
+from db.query_wrappers import get_event_role
 from cogs.utils.messages import MessageManager
 from cogs.utils.format import format_role_name
 
@@ -54,7 +55,7 @@ class Settings:
     @settings.command()
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
-    async def seteventrole(self, ctx, *, mod_role):
+    async def seteventrole(self, ctx, *, event_role):
         """Set the lowest role that is able to create events (admin only)
 
         By default, creating events requires the user to have Administrator permissions.
@@ -66,21 +67,21 @@ class Settings:
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
-        guild_mod_role = None
+        guild_event_role = None
         for role in ctx.guild.roles:
-            if role.name in (mod_role, "@{}".format(mod_role)):
-                guild_mod_role = role
+            if role.name in (event_role, "@{}".format(event_role)):
+                guild_event_role = role
 
-        if not guild_mod_role:
-            await manager.say("I couldn't find a role called **{}** on this server. ".format(mod_role)
+        if not guild_event_role:
+            await manager.say("I couldn't find a role called **{}** on this server.\n".format(event_role)
                             + "Note that you must provide only the name of the role. "
                             + "Mentioning it with the @ sign won't work.")
             return await manager.clear()
 
         with DBase() as db:
-            db.set_mod_role_id(ctx.guild.id, guild_mod_role.id)
+            db.set_event_role_id(ctx.guild.id, guild_event_role.id)
 
-        await manager.say("The mod role has been set to: **{}**".format(format_role_name(guild_mod_role)))
+        await manager.say("The event role has been set to: **{}**".format(format_role_name(guild_event_role)))
         return await manager.clear()
 
 
@@ -88,23 +89,15 @@ class Settings:
     async def seteventrole_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            event_role = get_event_role(ctx.guild)
 
-            with DBase() as db:
-                rows = db.get_mod_role_id(ctx.guild.id)
-
-            mod_role = None
-            if len(rows[0]):
-                for role in ctx.guild.roles:
-                    if role.id == rows[0][0]:
-                        mod_role = role
-
-            if not mod_role:
+            if not event_role:
                 role_display = 'None (Administrator)'
             else:
-                role_display = format_role_name(mod_role)
+                role_display = format_role_name(event_role)
 
-            await manager.say("The current mod role is: **{}**\n\nTo change the mod role, ".format(role_display)
-                            + "use `{}modrole <role_name>`".format(ctx.prefix))
+            await manager.say("The current event role is: **{}**\n\n".format(role_display)
+                            + "To change the event role, use `{}settings seteventrole <role_name>`".format(ctx.prefix))
             await manager.clear()
 
 

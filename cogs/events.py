@@ -6,9 +6,11 @@ from discord.ext import commands
 import discord
 
 from db.dbase import DBase
+from db.query_wrappers import get_event_role
 from cogs.utils.messages import delete_all, MessageManager
 from cogs.utils.checks import is_event, is_int
 from cogs.utils import constants
+from cogs.utils.format import format_role_name
 
 
 class Events:
@@ -19,10 +21,9 @@ class Events:
 
     @commands.command()
     @commands.guild_only()
-    @commands.has_permissions(administrator=True)
     async def event(self, ctx):
         """
-        Create an event (admin only)
+        Create an event in the events channel
 
         After invoking the command, the bot will ask
         you to enter the event details. Once the event
@@ -43,6 +44,18 @@ class Events:
         the event message with \U0001f480
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        event_role = get_event_role(ctx.guild)
+        member_permissions = ctx.author.permissions_in(ctx.channel)
+
+        if event_role and not member_permissions.administrator:
+            if ctx.author.top_role < event_role:
+                event_role_str = format_role_name(event_role)
+                await manager.say("You must be of role **{}** or higher to do that.".format(event_role))
+                return await manager.clear()
+        elif not member_permissions.administrator:
+            await manager.say("You must be an administrator to do that.")
+            return await manager.clear()
+
         await manager.say('Event creation instructions have been messaged to you')
 
         res = await manager.say_and_wait("Enter event title:", dm=True)
