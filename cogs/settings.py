@@ -66,7 +66,7 @@ class Settings:
         if not guild_mod_role:
             await manager.say("I couldn't find a role called **{}** on this server. ".format(mod_role)
                             + "Note that you must provide only the name of the role. "
-                            + "Mention it with the @ sign won't work.")
+                            + "Mentioning it with the @ sign won't work.")
             return await manager.clear()
 
         with DBase() as db:
@@ -76,8 +76,8 @@ class Settings:
         return await manager.clear()
 
 
-    @modrole.error
-    async def modrole_error(self, ctx, error):
+    @setmodrole.error
+    async def setmodrole_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
