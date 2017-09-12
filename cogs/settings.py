@@ -17,7 +17,6 @@ class Settings:
 
     @commands.group()
     @commands.guild_only()
-    @commands.has_permissions(administrator=True)
     async def settings(self, ctx):
         """Manage the bot's server specific settings (admin only)"""
         if ctx.invoked_subcommand is None:
