@@ -1,5 +1,5 @@
 CREATE TABLE guilds (
-	guild_id DECIMAL(20) NOT NULL,
+	guild_id BIGINT NOT NULL,
 	prefix VARCHAR(5) NOT NULL DEFAULT '!',
 	clear_spam BOOLEAN NOT NULL DEFAULT 0,
 	event_role_id DECIMAL(20),
@@ -14,7 +14,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE events (
-	guild_id DECIMAL(20) NOT NULL,
+	guild_id BIGINT NOT NULL,
 	start_time DATETIME NOT NULL,
 	timezone VARCHAR(6) NOT NULL,
 	title VARCHAR(256) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE events (
 
 CREATE TABLE user_event (
 	username VARCHAR(50) NOT NULL,
-	guild_id DECIMAL(20) NOT NULL,
+	guild_id BIGINT NOT NULL,
 	title VARCHAR(256) NOT NULL,
 	attending BOOLEAN NOT NULL,
 	last_updated DATETIME NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE user_event (
 
 CREATE TABLE roster (
 	username VARCHAR(50) NOT NULL,
-	guild_id DECIMAL(20) NOT NULL,
+	guild_id BIGINT NOT NULL,
 	role VARCHAR(10),
 	timezone VARCHAR(6),
 	PRIMARY KEY (username, guild_id),
