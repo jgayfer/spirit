@@ -23,3 +23,8 @@ def is_int(x):
         return False
     else:
         return a == b
+
+
+def db_index_exists(loc, rows):
+    x, y = loc
+    return 0 <= x < len(rows) and 0 <= y < len(rows[0])

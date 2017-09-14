@@ -224,7 +224,7 @@ class DBase:
               WHERE guild_id = %s
               """
         self.cur.execute(sql, (guild_id,))
-        return self.cur.fetchall()[0][0]
+        return self.cur.fetchall()
 
     def toggle_cleanup(self, guild_id):
         sql = """

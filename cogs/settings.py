@@ -7,6 +7,7 @@ from db.dbase import DBase
 from db.query_wrappers import get_event_role
 from cogs.utils.messages import MessageManager
 from cogs.utils.format import format_role_name
+from cogs.utils.checks import db_index_exists
 
 
 class Settings:
@@ -117,7 +118,12 @@ class Settings:
 
         with DBase() as db:
             db.toggle_cleanup(ctx.guild.id)
-            cleanup = db.get_cleanup(ctx.guild.id)
+            rows = db.get_cleanup(ctx.guild.id)
+
+        if db_index_exists([0,0], rows):
+            cleanup = rows[0][0]
+        else:
+            raise ValueError("Could not retrieve 'cleanup' from database")
 
         status = 'enabled' if cleanup else 'disabled'
         await manager.say("Command message cleanup is now *{}*".format(status))

@@ -4,6 +4,7 @@ import discord
 
 from db.dbase import DBase
 from cogs.utils import constants
+from cogs.utils.checks import db_index_exists
 
 
 def delete_all(message):
@@ -91,7 +92,13 @@ class MessageManager:
 
         if not isinstance(self.channel, discord.abc.PrivateChannel):
             with DBase() as db:
-                cleanup = db.get_cleanup(self.channel.guild.id)
-                if cleanup:
-                    await asyncio.sleep(constants.SPAM_DELAY)
-                    await self.channel.purge(limit=999, check=check)
+                rows = db.get_cleanup(self.channel.guild.id)
+
+            if db_index_exists([0,0], rows):
+                cleanup = rows[0][0]
+            else:
+                raise ValueError("Could not retrieve 'cleanup' from database")
+
+            if cleanup:
+                await asyncio.sleep(constants.SPAM_DELAY)
+                await self.channel.purge(limit=999, check=check)
