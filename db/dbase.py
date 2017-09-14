@@ -56,13 +56,13 @@ class DBase:
         self.conn.commit()
         return affected_count
 
-    def create_event(self, title, start_time, timezone, guild_id, description, max_members):
+    def create_event(self, title, start_time, timezone, guild_id, description, max_members, username):
         sql = """
-              INSERT INTO events (title, start_time, timezone, guild_id, description, max_members)
-              VALUES (%s, %s, %s, %s, %s, %s)
+              INSERT INTO events (title, start_time, timezone, guild_id, description, max_members, username)
+              VALUES (%s, %s, %s, %s, %s, %s, %s)
               ON DUPLICATE KEY UPDATE title = %s;
               """
-        affected_count = self.cur.execute(sql, (title, start_time, timezone, guild_id, description, max_members, title))
+        affected_count = self.cur.execute(sql, (title, start_time, timezone, guild_id, description, max_members, username, title))
         self.conn.commit()
         return affected_count
 
@@ -81,7 +81,8 @@ class DBase:
                 AND user_event.title = e
                 AND user_event.attending = 0)
                 AS declined,
-                max_members
+                max_members,
+                username
               FROM events
               WHERE events.guild_id = %s
               GROUP BY title, description, start_time, timezone
@@ -115,7 +116,8 @@ class DBase:
                 AND user_event.title = %s
                 AND user_event.attending = 0)
                 AS declined,
-                max_members
+                max_members,
+                username
               FROM events
               WHERE guild_id = %s
               AND title = %s;

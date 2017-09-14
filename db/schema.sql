@@ -20,6 +20,7 @@ CREATE TABLE events (
 	title VARCHAR(256) NOT NULL,
 	description VARCHAR(1000),
 	max_members INT NOT NULL DEFAULT 0,
+	username VARCHAR(50),
 	PRIMARY KEY (guild_id, title),
 	FOREIGN KEY (guild_id) REFERENCES guilds(guild_id)
 		ON DELETE CASCADE

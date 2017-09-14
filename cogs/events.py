@@ -105,7 +105,7 @@ class Events:
                 time_zone = user_timezone
 
         with DBase() as db:
-            affected_rows = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members)
+            affected_rows = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members, str(ctx.author))
         if affected_rows == 0:
             await manager.say("An event with that name already exists!", dm=True)
             return await manager.clear()
