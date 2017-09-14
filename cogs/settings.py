@@ -7,7 +7,6 @@ from db.dbase import DBase
 from db.query_wrappers import get_event_role
 from cogs.utils.messages import MessageManager
 from cogs.utils.format import format_role_name
-from cogs.utils.checks import db_index_exists
 
 
 class Settings:

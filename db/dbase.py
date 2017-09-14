@@ -42,8 +42,9 @@ class DBase:
                VALUES (%s, %s, %s)
                ON DUPLICATE KEY UPDATE role = %s;
                """
-        self.cur.execute(sql, (username, role, guild_id, role))
+        affected_count = self.cur.execute(sql, (username, role, guild_id, role))
         self.conn.commit()
+        return affected_count
 
     def update_timezone(self, username, timezone, guild_id):
         sql = """
@@ -51,8 +52,9 @@ class DBase:
                VALUES (%s, %s, %s)
                ON DUPLICATE KEY UPDATE timezone = %s;
                """
-        self.cur.execute(sql, (username, timezone, guild_id, timezone))
+        affected_count = self.cur.execute(sql, (username, timezone, guild_id, timezone))
         self.conn.commit()
+        return affected_count
 
     def create_event(self, title, start_time, timezone, guild_id, description, max_members):
         sql = """
@@ -60,9 +62,9 @@ class DBase:
               VALUES (%s, %s, %s, %s, %s, %s)
               ON DUPLICATE KEY UPDATE title = %s;
               """
-        rows = self.cur.execute(sql, (title, start_time, timezone, guild_id, description, max_members, title))
+        affected_count = self.cur.execute(sql, (title, start_time, timezone, guild_id, description, max_members, title))
         self.conn.commit()
-        return rows
+        return affected_count
 
     def get_events(self, guild_id):
         sql = """
@@ -94,8 +96,9 @@ class DBase:
               VALUES (%s, %s, %s, %s, %s)
               ON DUPLICATE KEY UPDATE attending = %s, last_updated = %s;
               """
-        self.cur.execute(sql, (username, guild_id, title, attending, last_updated, attending, last_updated))
+        affected_count = self.cur.execute(sql, (username, guild_id, title, attending, last_updated, attending, last_updated))
         self.conn.commit()
+        return affected_count
 
     def get_event(self, guild_id, title):
         sql = """
@@ -128,8 +131,7 @@ class DBase:
               """
         affected_count = self.cur.execute(sql, (guild_id, title))
         self.conn.commit()
-        if affected_count == 1:
-            return True
+        return affected_count
 
     def add_guild(self, guild_id):
         sql = """
@@ -137,16 +139,18 @@ class DBase:
               VALUES (%s)
               ON DUPLICATE KEY UPDATE guild_id = %s;
               """
-        self.cur.execute(sql, (guild_id, guild_id))
+        affected_count = self.cur.execute(sql, (guild_id, guild_id))
         self.conn.commit()
+        return affected_count
 
     def remove_guild(self, guild_id):
         sql = """
               DELETE FROM guilds
               WHERE guild_id = %s;
               """
-        self.cur.execute(sql, (guild_id,))
+        affected_count = self.cur.execute(sql, (guild_id,))
         self.conn.commit()
+        return affected_count
 
     def get_guilds(self):
         sql = """
@@ -161,16 +165,18 @@ class DBase:
               VALUES (%s)
               ON DUPLICATE KEY UPDATE username = %s;
               """
-        self.cur.execute(sql, (username, username))
+        affected_count = self.cur.execute(sql, (username, username))
         self.conn.commit()
+        return affected_count
 
     def remove_user(self, username):
         sql = """
               DELETE FROM users
               WHERE username = %s;
               """
-        self.cur.execute(sql, (username,))
+        affected_count = self.cur.execute(sql, (username,))
         self.conn.commit()
+        return affected_count
 
     def get_d2_info(self, username):
         sql = """
@@ -187,8 +193,9 @@ class DBase:
               SET prefix = %s
               WHERE guild_id = %s;
               """
-        self.cur.execute(sql, (prefix, guild_id))
+        affected_count = self.cur.execute(sql, (prefix, guild_id))
         self.conn.commit()
+        return affected_count
 
     def get_prefix(self, guild_id):
         sql = """
@@ -205,8 +212,9 @@ class DBase:
               SET event_role_id = %s
               WHERE guild_id = %s;
               """
-        self.cur.execute(sql, (event_role_id, guild_id))
+        affected_count = self.cur.execute(sql, (event_role_id, guild_id))
         self.conn.commit()
+        return affected_count
 
     def get_event_role_id(self, guild_id):
         sql = """
@@ -232,8 +240,9 @@ class DBase:
               SET clear_spam = !clear_spam
               WHERE guild_id = %s
               """
-        self.cur.execute(sql, (guild_id,))
+        affected_count = self.cur.execute(sql, (guild_id,))
         self.conn.commit()
+        return affected_count
 
     def update_registration(self, platform, membership_id, username):
         sql = """
@@ -241,5 +250,6 @@ class DBase:
               VALUES (%s, %s, %s)
               ON DUPLICATE KEY UPDATE platform = %s, membership_id = %s
               """
-        self.cur.execute(sql, (platform, membership_id, username, platform, membership_id))
+        affected_count = self.cur.execute(sql, (platform, membership_id, username, platform, membership_id))
         self.conn.commit()
+        return affected_count
