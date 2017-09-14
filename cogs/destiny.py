@@ -97,7 +97,6 @@ class Destiny:
         else:
             await manager.say("Account successfully registered!", dm=True)
             with DBase() as db:
-                print(membership_id)
                 db.add_user(str(ctx.author))
                 db.update_registration(platform, membership_id, str(ctx.author))
 

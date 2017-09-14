@@ -120,7 +120,7 @@ class Settings:
             db.toggle_cleanup(ctx.guild.id)
             rows = db.get_cleanup(ctx.guild.id)
 
-        if db_index_exists([0,0], rows):
+        if len(rows) and len(rows[0]):
             cleanup = rows[0][0]
         else:
             raise ValueError("Could not retrieve 'cleanup' from database")

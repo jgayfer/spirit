@@ -4,7 +4,6 @@ import discord
 
 from db.dbase import DBase
 from cogs.utils import constants
-from cogs.utils.checks import db_index_exists
 
 
 def delete_all(message):
@@ -94,7 +93,7 @@ class MessageManager:
             with DBase() as db:
                 rows = db.get_cleanup(self.channel.guild.id)
 
-            if db_index_exists([0,0], rows):
+            if len(rows) and len(rows[0]):
                 cleanup = rows[0][0]
             else:
                 raise ValueError("Could not retrieve 'cleanup' from database")

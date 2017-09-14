@@ -105,8 +105,8 @@ class Events:
                 time_zone = user_timezone
 
         with DBase() as db:
-            res = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members)
-        if res == 0:
+            affected_rows = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members)
+        if affected_rows == 0:
             await manager.say("An event with that name already exists!", dm=True)
             return await manager.clear()
 
@@ -172,17 +172,23 @@ class Events:
 
         # Update event message in place for a more seamless user experience
         with DBase() as db:
-            event = db.get_event(server_id, title)
-            event_embed = self.create_event_embed(event[0][0], event[0][1], event[0][2],
-                                                  event[0][3], event[0][4], event[0][5], event[0][6])
-            await message.edit(embed=event_embed)
+            rows = db.get_event(server_id, title)
+
+        if len(rows) and len(rows[0]):
+            event = rows[0]
+        else:
+            raise ValueError("Could not retrieve event")
+            return
+
+        event_embed = self.create_event_embed(event[0], event[1], event[2], event[3], event[4], event[5], event[6])
+        await message.edit(embed=event_embed)
 
 
     async def delete_event(self, server, title):
         """Delete an event and update the events channel on success"""
         with DBase() as db:
-            res = db.delete_event(server.id, title)
-        if res:
+            deleted = db.delete_event(server.id, title)
+        if deleted:
             await self.list_events(server)
 
 
