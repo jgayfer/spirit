@@ -135,7 +135,13 @@ class Events:
     async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
         """If a reaction represents a user RSVP, update the DB and event message"""
         channel = self.bot.get_channel(channel_id)
-        message = await channel.get_message(message_id)
+
+        try:
+            message = await channel.get_message(message_id)
+        except discord.errors.Forbidden as e:
+            # Don't have permission to read this message
+            return
+
         user = self.bot.get_user(user_id)
         guild = channel.guild
         manager = MessageManager(self.bot, user, channel)
