@@ -104,12 +104,12 @@ class Roster:
             text = "```\n"
             for row in roster:
 
-                # If the user has a server nickname, use that instead of their username
+                # If the member has a server nickname, use that instead of their username
                 member = ctx.guild.get_member_named(row[0])
                 if hasattr(member, 'nick') and member.nick:
                     name = member.nick
                 else:
-                    name = row[0].split("#")[0]
+                    name = member.name
 
                 # Format roster entry
                 formatted_name = (name[:18] + '..') if len(name) > 18 else name
