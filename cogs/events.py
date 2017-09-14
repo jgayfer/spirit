@@ -47,14 +47,11 @@ class Events:
         event_role = get_event_role(ctx.guild)
         member_permissions = ctx.author.permissions_in(ctx.channel)
 
-        if event_role and not member_permissions.administrator:
+        if event_role:
             if ctx.author.top_role < event_role:
                 event_role_str = format_role_name(event_role)
                 await manager.say("You must be of role **{}** or higher to do that.".format(event_role))
                 return await manager.clear()
-        elif not member_permissions.administrator:
-            await manager.say("You must be an administrator to do that.")
-            return await manager.clear()
 
         await manager.say('Event creation instructions have been messaged to you')
 
@@ -142,25 +139,24 @@ class Events:
             # Don't have permission to read this message
             return
 
-        user = self.bot.get_user(user_id)
         guild = channel.guild
-        manager = MessageManager(self.bot, user, channel)
+        member = guild.get_member(user_id)
+        manager = MessageManager(self.bot, member, channel)
+        deleted = None
 
         # We check that the user is not the message author as to not count
         # the initial reactions added by the bot as being indicative of attendance
-        if is_event(message) and user != message.author:
+        if is_event(message) and member != message.author:
             title = message.embeds[0].title
             if emoji.name == "\N{WHITE HEAVY CHECK MARK}":
-                await self.set_attendance(str(user), guild.id, 1, title, message)
+                await self.set_attendance(str(member), guild.id, 1, title, message)
             elif emoji.name == "\N{CROSS MARK}":
-                await self.set_attendance(str(user), guild.id, 0, title, message)
+                await self.set_attendance(str(member), guild.id, 0, title, message)
             elif emoji.name == "\N{SKULL}":
-                if user.permissions_in(channel).administrator:
-                    return await self.delete_event(guild, title)
-                else:
-                    await manager.say("You must be an administrator to do that.")
+                deleted =  await self.delete_event(guild, title, member, channel)
 
-            await message.remove_reaction(emoji, user)
+            if not deleted:
+                await message.remove_reaction(emoji, member)
             await manager.clear()
 
 
@@ -184,12 +180,23 @@ class Events:
         await message.edit(embed=event_embed)
 
 
-    async def delete_event(self, server, title):
+    async def delete_event(self, guild, title, member, channel):
         """Delete an event and update the events channel on success"""
+        event_role = get_event_role(guild)
         with DBase() as db:
-            deleted = db.delete_event(server.id, title)
-        if deleted:
-            await self.list_events(server)
+            rows = db.get_event_creator(guild.id, title)
+
+        if len(rows) and len(rows[0]):
+            creator_username = rows[0]
+
+        if member.permissions_in(channel).manage_guild or (str(member) == creator_username) or (member.top_role >= event_role):
+            with DBase() as db:
+                deleted = db.delete_event(guild.id, title)
+            if deleted:
+                await self.list_events(guild)
+                return True
+        else:
+            await member.send("You don't have permission to delete that message.")
 
 
     async def get_events_channel(self, guild):

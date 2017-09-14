@@ -91,7 +91,7 @@ class Settings:
             event_role = get_event_role(ctx.guild)
 
             if not event_role:
-                role_display = 'None (Administrator)'
+                role_display = 'None (anyone can make events)'
             else:
                 role_display = format_role_name(event_role)
 

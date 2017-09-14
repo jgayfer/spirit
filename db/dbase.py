@@ -135,6 +135,16 @@ class DBase:
         self.conn.commit()
         return affected_count
 
+    def get_event_creator(self, guild_id, title):
+        sql = """
+              SELECT username
+              FROM events
+              WHERE guild_id = %s
+              AND title = %s;
+              """
+        self.cur.execute(sql, (guild_id, title))
+        return self.cur.fetchall()
+
     def add_guild(self, guild_id):
         sql = """
               INSERT INTO guilds (guild_id)
