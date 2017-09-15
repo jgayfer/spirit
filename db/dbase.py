@@ -299,3 +299,51 @@ class DBase:
         affected_count = self.cur.execute(sql, (user_id, username))
         self.conn.commit()
         return affected_count
+
+    def prune1(self):
+        sql = """DELETE FROM users WHERE user_id=0"""
+        affected_count = self.cur.execute(sql)
+        self.conn.commit()
+        return affected_count
+
+    def prune2(self):
+        sql = """DELETE FROM roster WHERE user_id=0"""
+        affected_count = self.cur.execute(sql)
+        self.conn.commit()
+        return affected_count
+
+    def prune3(self):
+        sql = """DELETE FROM user_event WHERE user_id=0"""
+        affected_count = self.cur.execute(sql)
+        self.conn.commit()
+        return affected_count
+
+    def r1(self):
+        sql = """rename table users to users_old"""
+        affected_count = self.cur.execute(sql)
+        self.conn.commit()
+        return affected_count
+
+    def r2(self):
+        sql = """rename table roster to roster_old"""
+        affected_count = self.cur.execute(sql)
+        self.conn.commit()
+        return affected_count
+
+    def r3(self):
+        sql = """rename table user_event to user_event_old"""
+        affected_count = self.cur.execute(sql)
+        self.conn.commit()
+        return affected_count
+
+    def r4(self):
+        sql = """rename table guilds to guilds_old"""
+        affected_count = self.cur.execute(sql)
+        self.conn.commit()
+        return affected_count
+
+    def r5(self):
+        sql = """rename table events to event_old"""
+        affected_count = self.cur.execute(sql)
+        self.conn.commit()
+        return affected_count

@@ -96,14 +96,18 @@ class Owner:
         await manager.clear()
 
     @commands.command(hidden=True)
-    @commands.is_owner()
     async def migrate(self, ctx):
+
+        print('Fetching users...')
 
         users = {}
         with DBase() as db:
             rows = db.get_all_users()
 
+        print('Looking up IDs')
+
         for member in self.bot.get_all_members():
+            print("porting member")
             for row in rows:
                 username = row[0]
                 if str(member) == username:
@@ -118,7 +122,18 @@ class Owner:
                 db.add_id_user_event(username, user_id)
                 db.add_id_roster(username, user_id)
 
-        #with DBase() as db:
-            #db.change_keys()
+        with DBase() as db:
+            db.prune1()
+            db.prune2()
+            db.prune3()
+            db.r1()
+            db.r2()
+            db.r3()
+            db.r4()
+            db.r5()
+
+        print('done')
+
+
 
         #print(users)

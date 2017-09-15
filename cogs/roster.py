@@ -118,6 +118,6 @@ class Roster:
             embed_msg.description = text
             await manager.say(embed_msg, embed=True, delete=False)
         else:
-            await manager.say("No roster exists yet. Use `{}settings settimezone` or `{}settings "
-                            + "setclass` to add the first entry!".format(ctx.prefix, ctx.prefix))
+            await manager.say("No roster exists yet. Use '{}settings settimezone' or '{}settings ".format(ctx.prefix, ctx.prefix)
+                            + "setclass' to add the first entry!")
         await manager.clear()

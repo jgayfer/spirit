@@ -18,7 +18,7 @@ class Settings:
     @commands.group()
     @commands.guild_only()
     async def settings(self, ctx):
-        """Manage the bot's server specific settings (admin only)"""
+        """Manage the bot's server specific settings (Manage Server only)"""
         if ctx.invoked_subcommand is None:
             cmd = self.bot.get_command('help')
             await ctx.invoke(cmd, 'settings')
@@ -26,10 +26,10 @@ class Settings:
 
     @settings.command()
     @commands.guild_only()
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_guild=True)
     async def setprefix(self, ctx, new_prefix):
         """
-        Change the server's command prefix (admin only)
+        Change the server's command prefix (Manage Server only)
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
@@ -53,9 +53,9 @@ class Settings:
 
     @settings.command()
     @commands.guild_only()
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_guild=True)
     async def seteventrole(self, ctx, *, event_role):
-        """Set the lowest role that is able to create events (admin only)
+        """Set the lowest role that is able to create events (Manage Server only)
 
         By default, creating events requires the user to have Administrator permissions.
         But if an event role is set, then any user that is of the event role or higher may
@@ -96,16 +96,16 @@ class Settings:
                 role_display = format_role_name(event_role)
 
             await manager.say("The current event role is: **{}**\n\n".format(role_display)
-                            + "To change the event role, use `{}settings seteventrole <role_name>`".format(ctx.prefix))
+                            + "To change the event role, use '{}settings seteventrole <role_name>'".format(ctx.prefix))
             await manager.clear()
 
 
     @settings.command()
     @commands.guild_only()
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_guild=True)
     async def togglecleanup(self, ctx):
         """
-        Toggle command message cleanup on/off (admin only)
+        Toggle command message cleanup on/off (Manage Server only)
 
         When enabled, command message spam will be deleted a few seconds
         after a command has been invoked. This feature is designed to

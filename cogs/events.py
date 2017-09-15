@@ -192,9 +192,6 @@ class Events:
         if len(rows) and len(rows[0]):
             creator_id = rows[0][0]
 
-        print(member.id)
-        print(creator_id)
-
         if member.permissions_in(channel).manage_guild or (member.id == creator_id) or (event_role and member.top_role >= event_role):
             with DBase() as db:
                 deleted = db.delete_event(guild.id, title)
@@ -222,9 +219,13 @@ class Events:
     def create_event_embed(self, guild, title, description, time, time_zone, creator_id, accepted=None, declined=None, max_members=None):
         """Create and return a Discord Embed object that represents an upcoming event"""
         embed_msg = discord.Embed(color=constants.BLUE)
-        creator = guild.get_member(creator_id)
-        embed_msg.set_footer(text="Created by {} | React with {} to remove this event".format(creator.display_name, '\U0001f480'))
         embed_msg.title = title
+
+        creator = guild.get_member(creator_id)
+        if creator:
+            embed_msg.set_footer(text="Created by {} | React with {} to remove this event".format(creator.display_name, '\U0001f480'))
+        else:
+            embed_msg.set_footer(text="React with {} to remove this event".format('\U0001f480'))
 
         if description:
             embed_msg.description = description
