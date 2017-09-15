@@ -4,16 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.0]
 ### Added
-- Administrators can now define the lowest role that can create events
+- Manage Server members can now define the lowest role that can create events
+- Event creator/organizer is now displayed in each event message
 ### Changed
+- By default, everyone can create events. Manage Server members and event creators are the only ones who can delete events.
 - Roster and settings are now group commands. The old command are still there, but now they must
 be prefixed by either `roster` or `settings`. For more information, check out the new `help` message
 - Message prompts will now time out after a minute if the bot doesn't get a response
+- Previously admin only commands now require the Manage Server permission instead
 ### Fixed
 - Nightfall command would be unresponsive if Bungie.net couldn't be reached
 - Registering would fail if there were two account names with different capitalization
+- Changing your username would result in duplicate entries in the roster
 
 ## [1.1.2] - 2017-09-09
 ### Fixed
