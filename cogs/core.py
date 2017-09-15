@@ -20,7 +20,7 @@ class Core:
         print('------')
 
         # Get guilds in database
-        """with DBase() as db:
+        with DBase() as db:
             db = db.get_guilds()
         db_guilds = []
         to_delete = []
@@ -40,7 +40,7 @@ class Core:
         # Remove guilds
         for guild_id in to_delete:
             with DBase() as db:
-                db.remove_guild(guild_id)"""
+                db.remove_guild(guild_id)
 
 
     async def on_guild_join(self, guild):
