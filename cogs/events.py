@@ -25,12 +25,12 @@ class Events:
         """
         Create an event in the events channel
 
-        After invoking the command, the bot will ask
+        After invoking the event command, the bot will ask
         you to enter the event details. Once the event
         is created, it will appear in the upcoming-events
-        channel. The upcoming-events channel is designed
+        channel. The upcoming-events channel is designed with
         the assumption that it isn't used for anything but
-        displaying events.
+        displaying events; non event messages will be deleted.
 
         Users will be able to accept and decline the
         event by adding reactions. If a maximum number
@@ -40,8 +40,12 @@ class Events:
         top of the standby section will be automatically
         moved into the event.
 
-        Administrators can delete events by reacting to
-        the event message with \U0001f480
+        By default, everyone can make events. However, a minimum role
+        requirement to create events can be defined in the settings.
+        See `help settings seteventrole` for more information.
+
+        The event creator and those with the Manage Sever permission
+        can delete events by reacting to the event message with \U0001f480.
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
         event_role = get_event_role(ctx.guild)
@@ -102,7 +106,7 @@ class Events:
                 time_zone = user_timezone
 
         with DBase() as db:
-            affected_rows = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members, str(ctx.author))
+            affected_rows = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members, ctx.author.id)
         if affected_rows == 0:
             await manager.say("An event with that name already exists!", dm=True)
             return await manager.clear()
@@ -121,7 +125,7 @@ class Events:
             events = db.get_events(guild.id)
         if len(events) > 0:
             for row in events:
-                event_embed = self.create_event_embed(row[0], row[1], row[2], row[3], row[4], row[5], row[6])
+                event_embed = self.create_event_embed(guild, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
                 msg = await events_channel.send(embed=event_embed)
                 await msg.add_reaction("\N{WHITE HEAVY CHECK MARK}")
                 await msg.add_reaction("\N{CROSS MARK}")
@@ -149,9 +153,9 @@ class Events:
         if is_event(message) and member != message.author:
             title = message.embeds[0].title
             if emoji.name == "\N{WHITE HEAVY CHECK MARK}":
-                await self.set_attendance(str(member), guild.id, 1, title, message)
+                await self.set_attendance(member, guild, 1, title, message)
             elif emoji.name == "\N{CROSS MARK}":
-                await self.set_attendance(str(member), guild.id, 0, title, message)
+                await self.set_attendance(member, guild, 0, title, message)
             elif emoji.name == "\N{SKULL}":
                 deleted =  await self.delete_event(guild, title, member, channel)
 
@@ -160,23 +164,22 @@ class Events:
             await manager.clear()
 
 
-    async def set_attendance(self, username, server_id, attending, title, message):
+    async def set_attendance(self, member, guild, attending, title, message):
         """Send updated event attendance info to db and update the event"""
         with DBase() as db:
-            db.add_user(username)
-            db.update_attendance(username, server_id, attending, title, datetime.now())
+            db.add_user(member.id)
+            db.update_attendance(member.id, guild.id, attending, title, datetime.now())
 
-        # Update event message in place for a more seamless user experience
         with DBase() as db:
-            rows = db.get_event(server_id, title)
-
+            rows = db.get_event(guild.id, title)
         if len(rows) and len(rows[0]):
             event = rows[0]
         else:
             raise ValueError("Could not retrieve event")
             return
 
-        event_embed = self.create_event_embed(event[0], event[1], event[2], event[3], event[4], event[5], event[6])
+        # Update event message in place for a more seamless user experience
+        event_embed = self.create_event_embed(guild, event[0], event[1], event[2], event[3], event[4], event[5], event[6], event[7])
         await message.edit(embed=event_embed)
 
 
@@ -187,16 +190,19 @@ class Events:
             rows = db.get_event_creator(guild.id, title)
 
         if len(rows) and len(rows[0]):
-            creator_username = rows[0]
+            creator_id = rows[0][0]
 
-        if member.permissions_in(channel).manage_guild or (str(member) == creator_username) or (member.top_role >= event_role):
+        print(member.id)
+        print(creator_id)
+
+        if member.permissions_in(channel).manage_guild or (member.id == creator_id) or (event_role and member.top_role >= event_role):
             with DBase() as db:
                 deleted = db.delete_event(guild.id, title)
             if deleted:
                 await self.list_events(guild)
                 return True
         else:
-            await member.send("You don't have permission to delete that message.")
+            await member.send("You don't have permission to delete that event.")
 
 
     async def get_events_channel(self, guild):
@@ -213,10 +219,11 @@ class Events:
         return await guild.create_text_channel("upcoming-events", overwrites=overwrites)
 
 
-    def create_event_embed(self, title, description, time, time_zone, accepted=None, declined=None, max_members=None):
+    def create_event_embed(self, guild, title, description, time, time_zone, creator_id, accepted=None, declined=None, max_members=None):
         """Create and return a Discord Embed object that represents an upcoming event"""
         embed_msg = discord.Embed(color=constants.BLUE)
-        embed_msg.set_footer(text="React with {} to remove this event".format('\U0001f480'))
+        creator = guild.get_member(creator_id)
+        embed_msg.set_footer(text="Created by {} | React with {} to remove this event".format(creator.display_name, '\U0001f480'))
         embed_msg.title = title
 
         if description:
@@ -231,8 +238,9 @@ class Events:
             else:
                 accepted_list = accepted.split(',')
             text = ""
-            for member in accepted_list:
-                text += "{}\n".format(member.split("#")[0])
+            for user_id in accepted_list:
+                member = guild.get_member(int(user_id))
+                text += "{}\n".format(member.display_name)
             if max_members:
                 embed_msg.add_field(name="Accepted ({}/{})".format(len(accepted_list), max_members), value=text)
             else:
@@ -246,8 +254,9 @@ class Events:
         if declined:
             declined_list = declined.split(',')
             text = ""
-            for member in declined_list:
-                text += "{}\n".format(member.split("#")[0])
+            for user_id in declined_list:
+                member = guild.get_member(int(user_id))
+                text += "{}\n".format(member.display_name)
             embed_msg.add_field(name="Declined", value=text)
         else:
             embed_msg.add_field(name="Declined", value="-")
@@ -256,8 +265,9 @@ class Events:
             standby_list = accepted.split(',')[max_members:]
             if standby_list:
                 text = ""
-                for member in standby_list:
-                    text += "{}\n".format(member.split("#")[0])
+                for user_id in standby_list:
+                    member = guild.get_member(int(user_id))
+                    text += "{}\n".format(member.display_name)
                 embed_msg.add_field(name="Standby", value=text, inline=False)
 
         return embed_msg

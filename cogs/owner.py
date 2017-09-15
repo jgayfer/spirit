@@ -6,6 +6,7 @@ import discord
 
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants
+from db.dbase import DBase
 
 
 class Owner:
@@ -93,3 +94,31 @@ class Owner:
         e.description = "**Servers**: {}\n**Users**: {}".format(num_guilds, num_users)
         await ctx.channel.send(embed=e)
         await manager.clear()
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def migrate(self, ctx):
+
+        users = {}
+        with DBase() as db:
+            rows = db.get_all_users()
+
+        for member in self.bot.get_all_members():
+            for row in rows:
+                username = row[0]
+                if str(member) == username:
+                    users[str(member)] = member.id
+
+        with DBase() as db:
+            db.update_tables()
+
+        for username, user_id in users.items():
+            with DBase() as db:
+                db.add_id_user(username, user_id)
+                db.add_id_user_event(username, user_id)
+                db.add_id_roster(username, user_id)
+
+        #with DBase() as db:
+            #db.change_keys()
+
+        #print(users)

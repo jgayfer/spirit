@@ -97,8 +97,8 @@ class Destiny:
         else:
             await manager.say("Account successfully registered!", dm=True)
             with DBase() as db:
-                db.add_user(str(ctx.author))
-                db.update_registration(platform, membership_id, str(ctx.author))
+                db.add_user(ctx.author.id)
+                db.update_registration(platform, membership_id, ctx.author.id)
 
         return await manager.clear()
 
@@ -146,25 +146,26 @@ class Destiny:
         """Display your last played character's loadout
 
         In order to use this command, you must first register your Destiny 2 account with the bot
-        via the 'register' command.
+        via the register command.
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
         await ctx.channel.trigger_typing()
 
         # Check if user has registered their D2 account with the bot
         with DBase() as db:
-            entries = db.get_d2_info(str(ctx.author))
+            entries = db.get_d2_info(ctx.author.id)
         if len(entries) > 0 and entries[0][0] != None and entries[0][1] != None:
             platform = entries[0][0]
             membership_id = entries[0][1]
         else:
-            await manager.say("You must first register your Destiny 2 account with the 'register' command.")
+            await manager.say("You must first register your Destiny 2 account with the "
+                            + "`{}register` command.".format(ctx.prefix))
             return await manager.clear()
 
         res = await self.destiny.api.get_profile(platform, membership_id, ['characters', 'characterEquipment', 'profiles'])
 
         if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to connect to Bungie.net right now")
+            await manager.say("Sorry, I can't seem to retrive your Guardian right now.")
             return await manager.clear()
 
         # Determine which character was last played

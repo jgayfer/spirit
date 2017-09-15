@@ -37,8 +37,8 @@ class Roster:
         role = role.lower().title()
         if role == "Titan" or role == "Warlock" or role == "Hunter":
             with DBase() as db:
-                db.add_user(str(ctx.author))
-                db.update_role(str(ctx.author), role, ctx.guild.id)
+                db.add_user(ctx.author.id)
+                db.update_role(ctx.author.id, role, ctx.guild.id)
             await manager.say("Your class has been updated!")
         else:
             await manager.say("Class must be one of: Titan, Hunter, Warlock")
@@ -67,11 +67,12 @@ class Roster:
 
         if time_zone in constants.TIME_ZONES:
             with DBase() as db:
-                db.add_user(str(ctx.author))
-                db.update_timezone(str(ctx.author), time_zone, ctx.guild.id)
+                db.add_user(ctx.author.id)
+                db.update_timezone(ctx.author.id, time_zone, ctx.guild.id)
             await manager.say("Your time zone has been updated!")
         else:
-            await manager.say("Unsupported time zone")
+            await manager.say("Unsupported time zone. For a list of supported timezones, "
+                            + "check out the bot's support server.")
         await manager.clear()
 
 
@@ -103,20 +104,13 @@ class Roster:
 
             text = "```\n"
             for row in roster:
-
-                # If the member has a server nickname, use that instead of their username
-                member = ctx.guild.get_member_named(row[0])
-                if hasattr(member, 'nick') and member.nick:
-                    name = member.nick
-                else:
-                    name = member.name
-
-                # Format roster entry
-                formatted_name = (name[:18] + '..') if len(name) > 18 else name
-                role = row[1] if row[1] else "---"
-                time_zone = row[2] if row[2] else "---"
-                text += '{:20} {:6} {:7}\n'.format(formatted_name, time_zone, role)
-
+                member = ctx.guild.get_member(row[0])
+                if member:
+                    name = member.display_name
+                    formatted_name = (name[:18] + '..') if len(name) > 18 else name
+                    role = row[1] if row[1] else "---"
+                    time_zone = row[2] if row[2] else "---"
+                    text += '{:20} {:6} {:7}\n'.format(formatted_name, time_zone, role)
             text += "```"
 
             embed_msg = discord.Embed(color=constants.BLUE)
@@ -124,5 +118,6 @@ class Roster:
             embed_msg.description = text
             await manager.say(embed_msg, embed=True, delete=False)
         else:
-            await manager.say("No roster exists yet. Use 'settimezone' or 'setclass' to add the first entry!")
+            await manager.say("No roster exists yet. Use `{}settings settimezone` or `{}settings "
+                            + "setclass` to add the first entry!".format(ctx.prefix, ctx.prefix))
         await manager.clear()
