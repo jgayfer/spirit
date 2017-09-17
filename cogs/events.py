@@ -136,6 +136,8 @@ class Events:
     async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
         """If a reaction represents a user RSVP, update the DB and event message"""
         channel = self.bot.get_channel(channel_id)
+        if isinstance(channel, discord.abc.PrivateChannel):
+            return
 
         try:
             message = await channel.get_message(message_id)
