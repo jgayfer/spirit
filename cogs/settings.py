@@ -106,8 +106,8 @@ class Settings:
     async def seteventdeleterole(self, ctx, *, event_role):
         """Set the lowest role that is able to delete events (Manage Server only)
         By default, deleting events requires the user to have Administrator permissions.
-        But if an event role is set, then any user that is of the event role or higher may
-        delete events.
+        But if an event delete role is set, then any user that is of the event delete role or
+        higher may delete events.
         **Note:** Mentioning the role directly with this command will not work. You must provide
         only the name of the role without mentioning it.
         """
