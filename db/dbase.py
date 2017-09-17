@@ -226,9 +226,28 @@ class DBase:
         self.conn.commit()
         return affected_count
 
+    def set_event_delete_role_id(self, guild_id, event_delete_role_id):
+        sql = """
+              UPDATE guilds
+              SET event_delete_role_id = %s
+              WHERE guild_id = %s;
+              """
+        affected_count = self.cur.execute(sql, (event_delete_role_id, guild_id))
+        self.conn.commit()
+        return affected_count
+
     def get_event_role_id(self, guild_id):
         sql = """
               SELECT event_role_id
+              FROM guilds
+              WHERE guild_id = %s
+              """
+        self.cur.execute(sql, (guild_id,))
+        return self.cur.fetchall()
+
+    def get_event_delete_role_id(self, guild_id):
+        sql = """
+              SELECT event_delete_role_id
               FROM guilds
               WHERE guild_id = %s
               """
