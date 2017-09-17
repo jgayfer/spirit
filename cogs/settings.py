@@ -106,11 +106,13 @@ class Settings:
     @commands.has_permissions(manage_guild=True)
     async def seteventdeleterole(self, ctx, *, event_role):
         """Set the lowest role that is able to delete events (Manage Server only)
-        By default, deleting events requires the user to have Administrator permissions.
-        But if an event delete role is set, then any user that is of the event delete role or
-        higher may delete events.
+
+        By default, deleting an event requires the user to have Mange Server permissions (or be the
+        user who created the event). But if an event delete role is set, then any user that is of
+        the event delete role or higher may delete events.
+
         **Note:** Mentioning the role directly with this command will not work. You must provide
-        only the name of the role without mentioning it.
+        only the name of the role without mentioning it. The role name is also case sensitive!
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
@@ -122,7 +124,8 @@ class Settings:
         if not guild_event_delete_role:
             await manager.say("I couldn't find a role called **{}** on this server.\n".format(event_role)
                             + "Note that you must provide only the name of the role. "
-                            + "Mentioning it with the @ sign won't work.")
+                            + "Mentioning it with the @ sign won't work. The role name is also "
+                            + "case sensitive!")
             return await manager.clear()
 
         with DBase() as db:
@@ -139,7 +142,7 @@ class Settings:
             event_role = get_event_delete_role(ctx.guild)
 
             if not event_role:
-                role_display = 'None (anyone can delete events)'
+                role_display = 'None (only Manage Sever members can delete events)'
             else:
                 role_display = format_role_name(event_role)
 

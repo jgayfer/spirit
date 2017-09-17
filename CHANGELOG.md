@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - Timezones NZST, NZDT, HKT, JST are now supported
+- Manage Server members can now define the lowest role that can delete events
 ### Fixed
 - Fixed an issue where adding an emoji in a private/group message that Spirit is aware of
-could cause issues.
+could cause issues
+- Fixed issue where the event role was allowing users to delete events when it is only supposed to
+allow for event creation
 
 ## [1.2.0]
 ### Added
