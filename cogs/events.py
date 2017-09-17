@@ -6,7 +6,7 @@ from discord.ext import commands
 import discord
 
 from db.dbase import DBase
-from db.query_wrappers import get_event_role
+from db.query_wrappers import get_event_role, get_event_delete_role
 from cogs.utils.messages import delete_all, MessageManager
 from cogs.utils.checks import is_event, is_int
 from cogs.utils import constants
@@ -187,14 +187,14 @@ class Events:
 
     async def delete_event(self, guild, title, member, channel):
         """Delete an event and update the events channel on success"""
-        event_role = get_event_role(guild)
+        event_delete_role = get_event_delete_role(guild)
         with DBase() as db:
             rows = db.get_event_creator(guild.id, title)
 
         if len(rows) and len(rows[0]):
             creator_id = rows[0][0]
 
-        if member.permissions_in(channel).manage_guild or (member.id == creator_id) or (event_role and member.top_role >= event_role):
+        if member.permissions_in(channel).manage_guild or (member.id == creator_id) or (event_delete_role and member.top_role >= event_delete_role):
             with DBase() as db:
                 deleted = db.delete_event(guild.id, title)
             if deleted:

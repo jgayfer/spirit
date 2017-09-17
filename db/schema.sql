@@ -3,6 +3,7 @@ CREATE TABLE guilds (
 	prefix VARCHAR(5) NOT NULL DEFAULT '!',
 	clear_spam BOOLEAN NOT NULL DEFAULT 0,
 	event_role_id BIGINT,
+	event_delete_role_id BIGINT,
 	PRIMARY KEY(guild_id)
 );
 
