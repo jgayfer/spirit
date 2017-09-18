@@ -4,12 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.2.1] - 2017-09-17
+### Added
+- Timezones NZST, NZDT, HKT, JST are now supported
+- Manage Server members can now define the lowest role that can delete events
 ### Fixed
 - Fixed an issue where adding an emoji in a private/group message that Spirit is aware of
-could cause issues.
+could cause issues
+- Fixed issue where the event role was allowing users to delete events when it is only supposed to
+allow for event creation
 
-## [1.2.0]
+## [1.2.0] - 2017-09-15
 ### Added
 - Manage Server members can now define the lowest role that can create events
 - Event creator/organizer is now displayed in each event message
