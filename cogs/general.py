@@ -34,8 +34,13 @@ class General:
         e.add_field(name='Channel', value='{} (ID: {})'.format(ctx.channel, ctx.channel.id), inline=False)
         e.set_footer(text='Author ID: {}'.format(ctx.author.id))
 
-        asal = await self.bot.get_user_info("118926942404608003")
-        await asal.send(embed=e)
+        feedback_channel = self.bot.get_channel(359848505654771715)
+        if feedback_channel:
+            await feedback_channel.send(embed=e)
+        else:
+            asal = await self.bot.get_user_info("118926942404608003")
+            await asal.send(embed=e)
+
         await manager.say("Your feedback has been sent to the developer!")
         await manager.clear()
 
@@ -56,7 +61,7 @@ class General:
                    "**Command Prefix**\n\n"
                    "My default prefix is **!**, but you can also just mention me with **@{}**. "
                    "If another bot is already using the **!** prefix, you can choose a different prefix "
-                   "for your server with **! settings setprefix <new_prefix>** (don't include the brackets).\n\n"
+                   "for your server with **!settings setprefix <new_prefix>** (don't include the brackets).\n\n"
                    "For a list of all available commands, use the **!help** command. If you want more "
                    "information on a command, use **!help <command_name>**.\n\n"
                    "If you have any feedback, you can use my **!feedback** command to send "
