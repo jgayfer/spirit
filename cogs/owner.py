@@ -16,11 +16,13 @@ class Owner:
 
 
     @commands.command(hidden=True)
-    @commands.is_owner()
     async def pm(self, ctx, user_id: int, *message):
         """Send a PM via the bot to a user given their ID"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
         user = self.bot.get_user(user_id)
+
+        if ctx.author.id not in constants.MODS:
+            return
 
         if len(message) == 0:
             await manager.say("You forgot to include your message!")
@@ -47,7 +49,7 @@ class Owner:
         """Send a message to the owner of every server the bot belongs to"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
-        if ctx.author.id not in (182759337394044929, 118926942404608003):
+        if ctx.author.id not in constants.OWNERS:
             return
 
         count = 0
@@ -58,10 +60,6 @@ class Owner:
                 pass
             else:
                 count+= 1
-
-        if ctx.author.id != 118926942404608003:
-            asal = self.bot.get_user(118926942404608003)
-            await asal.send("**{}** just sent out a broadcast message:\n\n{}".format(ctx.author.name, message))
 
         await manager.say("Broadcast message sent to **{}** users".format(count))
         await manager.clear()
@@ -79,13 +77,13 @@ class Owner:
         """Displays the bot's stats"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
 
-        if ctx.author.id not in (182759337394044929, 118926942404608003):
+        if ctx.author.id not in constants.OWNERS:
             return
 
         num_guilds = len(self.bot.guilds)
         users = []
         for guild in self.bot.guilds:
-            if guild.id not in (264445053596991498, 110373943822540800, 349975342884061187):
+            if guild.id not in constants.SERVERS_NO_COUNT:
                 guild_users = [user for user in guild.members if not user.bot]
                 users.extend(guild_users)
         num_users = len(set(users))
