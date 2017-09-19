@@ -96,6 +96,7 @@ class Roster:
         displayed on the roster.
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        roster_groups = []
 
         with DBase() as db:
             roster = db.get_roster(ctx.guild.id)
@@ -104,20 +105,41 @@ class Roster:
 
             text = "```\n"
             for row in roster:
+
+                # Add a single entry to the roster message
                 member = ctx.guild.get_member(row[0])
                 if member:
                     name = member.display_name
-                    formatted_name = (name[:18] + '..') if len(name) > 18 else name
+                    formatted_name = (name[:16] + '..') if len(name) > 16 else name
                     role = row[1] if row[1] else "---"
                     time_zone = row[2] if row[2] else "---"
-                    text += '{:20} {:6} {:7}\n'.format(formatted_name, time_zone, role)
-            text += "```"
+                    text += '{:18} {:6} {:7}\n'.format(formatted_name, time_zone, role)
 
+                # If the message is too big, place it into a group
+                if len(text) > 2000:
+                    text += "```"
+                    roster_groups.append(text)
+                    text = "```\n"
+
+            # Add any remaining entries into a roster group
+            if len(text) > 5:
+                text += "```"
+                roster_groups.append(text)
+
+            # Send the initial roster message
             embed_msg = discord.Embed(color=constants.BLUE)
             embed_msg.title="{} Roster".format(ctx.guild.name)
-            embed_msg.description = text
+            embed_msg.description = roster_groups[0]
             await manager.say(embed_msg, embed=True, delete=False)
+
+            # Send additional roster messages if the roster is too long
+            for group in roster_groups[1:]:
+                embed_msg = discord.Embed(color=constants.BLUE)
+                embed_msg.title="{} Roster (continued)".format(ctx.guild.name)
+                embed_msg.description = group
+                await manager.say(embed_msg, embed=True, delete=False)
+
         else:
-            await manager.say("No roster exists yet. Use '{}settings settimezone' or '{}settings ".format(ctx.prefix, ctx.prefix)
+            await manager.say("No roster exists yet. Use '{}roster settimezone' or '{}roster ".format(ctx.prefix, ctx.prefix)
                             + "setclass' to add the first entry!")
         await manager.clear()
