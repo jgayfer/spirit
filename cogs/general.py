@@ -56,7 +56,7 @@ class General:
                    "**Command Prefix**\n\n"
                    "My default prefix is **!**, but you can also just mention me with **@{}**. "
                    "If another bot is already using the **!** prefix, you can choose a different prefix "
-                   "for your server with **!setprefix <new_prefix>** (don't include the brackets).\n\n"
+                   "for your server with **! settings setprefix <new_prefix>** (don't include the brackets).\n\n"
                    "For a list of all available commands, use the **!help** command. If you want more "
                    "information on a command, use **!help <command_name>**.\n\n"
                    "If you have any feedback, you can use my **!feedback** command to send "
