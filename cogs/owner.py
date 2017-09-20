@@ -18,7 +18,7 @@ class Owner:
     @commands.command(hidden=True)
     async def pm(self, ctx, user_id: int, *message):
         """Send a PM via the bot to a user given their ID"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         user = self.bot.get_user(user_id)
 
         if ctx.author.id not in constants.MODS:
@@ -47,7 +47,7 @@ class Owner:
     @commands.command(hidden=True)
     async def broadcast(self, ctx, *, message):
         """Send a message to the owner of every server the bot belongs to"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         if ctx.author.id not in constants.OWNERS:
             return
@@ -67,7 +67,7 @@ class Owner:
 
     @broadcast.error
     async def broadcast_error(self, ctx, error):
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await manager.say("You didn't include a broadcast message")
         return await manager.clear()
 
@@ -75,7 +75,7 @@ class Owner:
     @commands.command(hidden=True)
     async def botstats(self, ctx):
         """Displays the bot's stats"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         if ctx.author.id not in constants.OWNERS:
             return

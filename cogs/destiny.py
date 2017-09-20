@@ -52,14 +52,16 @@ class Destiny:
         profile. Registering is a prerequisite to using any commands to require knowledge of your
         public Destiny 2 profile.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         if not isinstance(ctx.channel, discord.abc.PrivateChannel):
             await manager.say("Registration instructions have been messaged to you")
 
-        await manager.say("Registering your Destiny 2 account with me will allow "
-                        + "you to invoke commands that use information from your "
-                        + "public Destiny 2 profile.", dm=True)
+        msg_sent = await manager.say("Registering your Destiny 2 account with me will allow "
+                                   + "you to invoke commands that use information from your "
+                                   + "public Destiny 2 profile.", dm=True)
+        if not msg_sent:
+            return await manager.clear()
 
         platform = None
         while not platform:
@@ -106,7 +108,7 @@ class Destiny:
     @commands.command()
     async def nightfall(self, ctx):
         """Display the weekly nightfall info"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await ctx.channel.trigger_typing()
         weekly = await self.destiny.api.get_public_milestones()
 
@@ -148,7 +150,7 @@ class Destiny:
         In order to use this command, you must first register your Destiny 2 account with the bot
         via the register command.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await ctx.channel.trigger_typing()
 
         # Check if user has registered their D2 account with the bot

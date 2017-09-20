@@ -13,10 +13,11 @@ def delete_all(message):
 
 class MessageManager:
 
-    def __init__(self, bot, user, channel, messages=None):
+    def __init__(self, bot, user, channel, prefix, messages=None):
         self.bot = bot
         self.user = user
         self.channel = channel
+        self.prefix = prefix
         if messages:
             self.messages = messages
         else:
@@ -25,35 +26,45 @@ class MessageManager:
 
     async def say_and_wait(self, content, dm=False, mention=True):
         """Send a message and wait for user's response"""
-        channel = self.channel
-        if dm:
-            channel =  self.user.dm_channel
-            if not channel:
-                channel = await self.user.create_dm()
-
         def check_res(m):
-            return m.author == self.user and m.channel == channel
+            return m.author == self.user and m.channel == self.channel
+        def check_res_dm(m):
+            return m.author == self.user and m.channel == self.user.dm_channel
 
-        if mention and not isinstance(channel, discord.abc.PrivateChannel):
-            msg = await channel.send("{}: {}".format(self.user.mention, content))
+        if dm:
+            try:
+                await self.user.send(content)
+            except:
+                if mention and not isinstance(self.channel, discord.abc.PrivateChannel):
+                    await self.channel.send("{}: Oops, it looks like I'm not allowed to send you a private message".format(self.user.mention))
+                else:
+                    await self.channel.send("Oops, it looks like I'm not allowed to send you a private message".format(self.user.mention))
+                return None
+            try:
+                res = await self.bot.wait_for('message', check=check_res_dm, timeout=120)
+            except asyncio.TimeoutError as e:
+                await self.user.send("I'm not sure where you went. We can try this again later.")
+                return None
+
         else:
-            msg = await channel.send("{}".format(content))
-
-        self.messages.append(msg)
-
-        try:
-            res = await self.bot.wait_for('message', check=check_res, timeout=60)
-        except asyncio.TimeoutError as e:
-            if mention and not isinstance(channel, discord.abc.PrivateChannel):
-                msg = await channel.send("{}: I'm not sure where you went. We can try this again later.".format(self.user.mention))
+            if mention and not isinstance(self.channel, discord.abc.PrivateChannel):
+                msg = await self.channel.send("{}: {}".format(self.user.mention, content))
             else:
-                msg = await channel.send("I'm not sure where you went. We can try this again later.")
+                msg = await self.channel.send(content)
             self.messages.append(msg)
-            await self.clear()
-            return False
+            try:
+                res = await self.bot.wait_for('message', check=check_res, timeout=120)
+            except asyncio.TimeoutError as e:
+                if mention and not isinstance(self.channel, discord.abc.PrivateChannel):
+                    msg = await self.channel.send("{}: I'm not sure where you went. We can try this again later.".format(self.user.mention))
+                else:
+                    msg = await self.channel.send("I'm not sure where you went. We can try this again later.")
+                self.messages.append(msg)
+                await self.clear()
+                return None
 
         # If the user responds with a command, we'll need to stop executing and clean up
-        if res.content.startswith('!'):
+        if res.content.startswith(self.prefix) or res.content.startswith('!') or res.content.startswith(self.bot.user.mention):
             await self.clear()
             return False
         else:
@@ -62,24 +73,32 @@ class MessageManager:
 
 
     async def say(self, content, embed=False, dm=False, delete=True, mention=True):
-        """Send a message"""
-        channel = self.channel
+        """Send a message to the user. Return True on success."""
         if dm:
-            channel =  self.user.dm_channel
-            if not channel:
-                channel = await self.user.create_dm()
-
-        msg = None
-        if embed:
-            msg = await channel.send(embed=content)
-        else:
-            if mention and not isinstance(channel, discord.abc.PrivateChannel):
-                msg = await channel.send("{}: {}".format(self.user.mention, content))
+            try:
+                if embed:
+                    await self.user.send(embed=content)
+                else:
+                    await self.user.send(content)
+            except:
+                if mention and not isinstance(self.channel, discord.abc.PrivateChannel):
+                    await self.channel.send("{}: Oops, it looks like I'm not allowed to send you a private message".format(self.user.mention))
+                else:
+                    await self.channel.send("Oops, it looks like I'm not allowed to send you a private message".format(self.user.mention))
             else:
-                msg = await channel.send("{}".format(content))
+                return True
 
-        if delete:
-            self.messages.append(msg)
+        else:
+            if embed:
+                msg = await self.channel.send(embed=content)
+            else:
+                if mention and not isinstance(self.channel, discord.abc.PrivateChannel):
+                    msg = await self.channel.send("{}: {}".format(self.user.mention, content))
+                else:
+                    msg = await self.channel.send(content)
+            if delete:
+                self.messages.append(msg)
+            return True
 
 
     async def clear(self):

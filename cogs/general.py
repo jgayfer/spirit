@@ -21,7 +21,7 @@ class General:
 
         Ex. '!feedback Your bot is awesome!'
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         e = discord.Embed(title='Feedback', colour=constants.BLUE)
         e.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
@@ -48,7 +48,7 @@ class General:
     @feedback.error
     async def feedback_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
             await manager.say("You forgot to include your feedback!")
             await manager.clear()
 

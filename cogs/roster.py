@@ -32,7 +32,7 @@ class Roster:
 
         Class must be one of Titan, Warlock, or Hunter
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         role = role.lower().title()
         if role == "Titan" or role == "Warlock" or role == "Hunter":
@@ -48,7 +48,7 @@ class Roster:
     @setclass.error
     async def setclass_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
             await manager.say("Oops! You didn't include your Destiny 2 class.")
             await manager.clear()
 
@@ -61,7 +61,7 @@ class Roster:
 
         For a full list of supported timezones, check out the bot's support server
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         time_zone = time_zone.upper()
         time_zone = "".join(time_zone.split())
 
@@ -79,7 +79,7 @@ class Roster:
     @settimezone.error
     async def settimezone_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
             await manager.say("Oops! You didn't include your timezone.")
             await manager.clear()
 
@@ -95,7 +95,7 @@ class Roster:
         users who have set a role or timezone will be
         displayed on the roster.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         roster_groups = []
 
         with DBase() as db:

@@ -31,7 +31,7 @@ class Settings:
         """
         Change the server's command prefix (Manage Server only)
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         if len(new_prefix) > 5:
             await manager.say("Prefix must be less than 6 characters.")
@@ -46,7 +46,7 @@ class Settings:
     @setprefix.error
     async def setprefix_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
             await manager.say("Oops! You didn't provide a new prefix.")
             await manager.clear()
 
@@ -64,7 +64,7 @@ class Settings:
         **Note:** Mentioning the role directly with this command will not work. You must provide
         only the name of the role without mentioning it. The role name is also case sensitive!
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         guild_event_role = None
         for role in ctx.guild.roles:
@@ -88,7 +88,7 @@ class Settings:
     @seteventrole.error
     async def seteventrole_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
             event_role = get_event_role(ctx.guild)
 
             if not event_role:
@@ -114,7 +114,7 @@ class Settings:
         **Note:** Mentioning the role directly with this command will not work. You must provide
         only the name of the role without mentioning it. The role name is also case sensitive!
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         guild_event_delete_role = None
         for role in ctx.guild.roles:
@@ -138,7 +138,7 @@ class Settings:
     @seteventdeleterole.error
     async def seteventdeleterole_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
             event_role = get_event_delete_role(ctx.guild)
 
             if not event_role:
@@ -164,7 +164,7 @@ class Settings:
         be deleted if this is enabled; messages like the help message or the
         roster, for example, will not be removed.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         with DBase() as db:
             db.toggle_cleanup(ctx.guild.id)

@@ -16,7 +16,7 @@ class Help:
     @commands.command(hidden=True)
     async def help(self, ctx, str_cmd=None, str_subcmd=None):
         """Display command information"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         # Determine which prefix to display in the help message
         if isinstance(ctx.channel, discord.abc.PrivateChannel):

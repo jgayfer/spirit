@@ -47,7 +47,7 @@ class Events:
         The event creator and those with the Manage Sever permission
         can delete events by reacting to the event message with \U0001f480.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         event_role = get_event_role(ctx.guild)
         member_permissions = ctx.author.permissions_in(ctx.channel)
 
