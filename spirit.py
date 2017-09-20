@@ -30,7 +30,7 @@ async def _prefix_callable(bot, message):
     return base
 
 
-bot = commands.Bot(command_prefix=_prefix_callable)
+bot = commands.AutoShardedBot(command_prefix=_prefix_callable)
 bot.add_cog(Events(bot))
 bot.add_cog(Roster(bot))
 bot.add_cog(Help(bot))
