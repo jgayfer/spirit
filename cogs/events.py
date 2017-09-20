@@ -201,7 +201,10 @@ class Events:
                 await self.list_events(guild)
                 return True
         else:
-            await member.send("You don't have permission to delete that event.")
+            try:
+                await member.send("You don't have permission to delete that event.")
+            except:
+                pass
 
 
     async def get_events_channel(self, guild):
