@@ -57,8 +57,13 @@ class Core:
 
     async def on_member_remove(self, user):
         """Remove user from database when they leave the guild"""
-        with DBase() as db:
-            db.remove_user(user.id)
+        member_ids = []
+        for member in self.bot.get_all_members():
+            member_ids.append(member.id)
+
+        if user.id not in member_ids:
+            with DBase() as db:
+                db.remove_user(user.id)
 
 
     async def on_command_error(self, ctx, error):
