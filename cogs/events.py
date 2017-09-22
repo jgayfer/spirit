@@ -147,7 +147,6 @@ class Events:
 
         guild = channel.guild
         member = guild.get_member(user_id)
-        manager = MessageManager(self.bot, member, channel)
         deleted = None
 
         # We check that the user is not the message author as to not count
@@ -163,7 +162,6 @@ class Events:
 
             if not deleted:
                 await message.remove_reaction(emoji, member)
-            await manager.clear()
 
 
     async def set_attendance(self, member, guild, attending, title, message):
