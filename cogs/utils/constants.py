@@ -37,4 +37,5 @@ RELEASE_DATES = [
                  ("PC Release", datetime(2017, 10, 24, tzinfo=pytz.timezone('US/Pacific')))
                 ]
 
+PLATFORMS = {'PC': 4, 'XBOX': 1, 'PLAYSTATION': 2}
 PLATFORM_URLS = {1: 'https://i.imgur.com/DVskgVl.jpg', 2: 'https://i.imgur.com/nFv0wtf.png'}

@@ -14,11 +14,9 @@ from cogs.utils import constants
 
 class Destiny:
 
-    def __init__(self, bot):
+    def __init__(self, bot, destiny):
         self.bot = bot
-        with open('credentials.json') as f:
-            api_key = json.load(f)['d2-api-key']
-        self.destiny = pydest.Pydest(api_key)
+        self.destiny = destiny
 
 
     @commands.command()
@@ -68,8 +66,7 @@ class Destiny:
             res = await manager.say_and_wait("Enter your platform (**xbox** or **playstation**):", dm=True)
             if not res:
                 return await manager.clear()
-            platforms = {'PC': 4, 'XBOX': 1, 'PLAYSTATION': 2}
-            platform = platforms.get(res.content.upper())
+            platform = constants.PLATFORMS.get(res.content.upper())
             if not platform:
                 await manager.say("Invalid platform. Try again.", dm=True)
 
