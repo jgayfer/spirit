@@ -47,7 +47,7 @@ class Destiny:
         """Register your Destiny 2 account with the bot
 
         This command will let the bot know which Destiny 2 profile to associate with your Discord
-        profile. Registering is a prerequisite to using any commands to require knowledge of your
+        profile. Registering is a prerequisite to using any commands that require knowledge of your
         public Destiny 2 profile.
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
@@ -110,7 +110,7 @@ class Destiny:
         weekly = await self.destiny.api.get_public_milestones()
 
         if weekly['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to connect to Bungie.net right now")
+            await manager.say("Sorry, I can't seem retrieve the nightfall info right now")
             return await manager.clear()
 
         nightfall_hash = weekly['Response']['2171429505']['availableQuests'][0]['activity']['activityHash']
@@ -164,7 +164,7 @@ class Destiny:
         res = await self.destiny.api.get_profile(platform, membership_id, ['characters', 'characterEquipment', 'profiles'])
 
         if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to retrive your Guardian right now.")
+            await manager.say("Sorry, I can't seem to retrieve your Guardian right now.")
             return await manager.clear()
 
         # Determine which character was last played

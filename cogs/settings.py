@@ -57,7 +57,7 @@ class Settings:
     async def seteventrole(self, ctx, *, event_role):
         """Set the lowest role that is able to create events (Manage Server only)
 
-        By default, creating events requires the user to have Administrator permissions.
+        By default, creating events requires the user to have Manage Server permissions.
         But if an event role is set, then any user that is of the event role or higher may
         create events.
 
@@ -107,7 +107,7 @@ class Settings:
     async def seteventdeleterole(self, ctx, *, event_role):
         """Set the lowest role that is able to delete events (Manage Server only)
 
-        By default, deleting an event requires the user to have Mange Server permissions (or be the
+        By default, deleting an event requires the user to have Manage Server permissions (or be the
         user who created the event). But if an event delete role is set, then any user that is of
         the event delete role or higher may delete events.
 
