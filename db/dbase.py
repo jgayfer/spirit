@@ -22,6 +22,8 @@ class DBase:
         return DBase()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.cur:
+            self.cur.close()
         if self.conn:
             self.conn.close()
 
