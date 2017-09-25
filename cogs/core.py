@@ -26,29 +26,12 @@ class Core:
         for row in results:
             guild_id = row.get('guild_id')
             guild = self.bot.get_guild(guild_id)
-            if guild:
-                db_guilds.append(guild)
-            else:
+            if not guild:
                 to_delete.append(guild_id)
-
-        # Add guilds
-        for guild in self.bot.guilds:
-            if guild not in db_guilds:
-                self.bot.db.add_guild(guild.id)
 
         # Remove guilds
         for guild_id in to_delete:
             self.bot.db.remove_guild(guild_id)
-
-
-    async def on_guild_join(self, guild):
-        """Add guild and it's members to database"""
-        self.bot.db.add_guild(guild.id)
-
-
-    async def on_guild_remove(self, guild):
-        """Remove guild from database"""
-        self.bot.db.remove_guild(guild.id)
 
 
     async def on_member_remove(self, user):

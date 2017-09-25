@@ -30,7 +30,8 @@ async def _prefix_callable(bot, message):
         if result:
             base.append(result.get('prefix'))
         else:
-            raise ValueError('Could not fetch prefix from database')
+            bot.db.add_guild(message.guild.id)
+            base.append('!')
     return base
 
 
@@ -48,9 +49,9 @@ class Spirit(commands.AutoShardedBot):
 if __name__ == '__main__':
 
     with open('credentials.json') as f:
-        token = json.load(f)['token']
-    with open('credentials.json') as f:
-        api_key = json.load(f)['d2-api-key']
+        file_dict = json.load(f)
+    token = file_dict['token']
+    api_key = file_dict['d2-api-key']
 
     destiny = pydest.Pydest(api_key)
     bot = Spirit(token)
