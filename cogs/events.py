@@ -5,7 +5,6 @@ import re
 from discord.ext import commands
 import discord
 
-from db.dbase import DBase
 from db.query_wrappers import get_event_role, get_event_delete_role
 from cogs.utils.messages import delete_all, MessageManager
 from cogs.utils.checks import is_event, is_int

@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 
-from db.dbase import DBase
 from cogs.utils import constants
 from cogs.utils.messages import MessageManager
 
@@ -27,12 +26,11 @@ class Help:
             if ctx.prefix != '<@{}> '.format(self.bot.user.id):
                 prefix = ctx.prefix
             else:
-                with DBase() as db:
-                    custom_prefix = db.get_prefix(ctx.guild.id)
-                    if len(custom_prefix) > 0 and len(custom_prefix[0]) > 0:
-                        prefix = custom_prefix[0][0]
-                    else:
-                        raise AttributeError("Could not retrieve command prefix")
+                custom_prefix = self.bot.db.get_prefix(ctx.guild.id)
+                if len(custom_prefix):
+                    prefix = custom_prefix.get('prefix')
+                else:
+                    raise AttributeError("Could not retrieve command prefix")
 
         # User passed a command and a subcommand
         if str_cmd and str_subcmd:

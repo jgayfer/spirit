@@ -58,8 +58,7 @@ class General:
     @commands.command()
     async def about(self, ctx):
         """Display information about the bot itself"""
-        embed = discord.Embed(colour=constants.BLUE)
-        #embed.url = 'https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344'
+        embed = discord.Embed(title='Spirit v{}'.format(constants.VERSION), colour=constants.BLUE)
 
         embed.description = ("[Invite Spirit](https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344)\n"
                            + "[Spirit Support Server](https://discord.gg/GXCFpkr)")

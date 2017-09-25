@@ -6,7 +6,6 @@ import discord
 
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants
-from db.dbase import DBase
 
 
 class Owner:

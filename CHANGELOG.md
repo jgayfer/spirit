@@ -5,8 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [1.3.2]
+### Added
+- New 'about' command to display information about the bot
 ### Fixed
-- Fix memory leak!
+- Fix memory leak (moved to a new MySQL library)
 
 ## [1.3.1]
 ### Fixed

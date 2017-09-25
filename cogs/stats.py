@@ -1,7 +1,6 @@
 from discord.ext import commands
 import discord
 
-from db.dbase import DBase
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants
 

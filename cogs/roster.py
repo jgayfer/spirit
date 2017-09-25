@@ -1,7 +1,6 @@
 import asyncio
 
 from discord.ext import commands
-from db.dbase import DBase
 import discord
 
 from cogs.utils.messages import MessageManager

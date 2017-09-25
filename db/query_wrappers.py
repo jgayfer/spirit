@@ -1,5 +1,3 @@
-from db.database import DBase
-
 def get_event_role(bot, guild):
     """Return the event role, if it exists"""
     result = bot.db.get_event_role_id(guild.id)

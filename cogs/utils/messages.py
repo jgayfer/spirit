@@ -2,7 +2,6 @@ import asyncio
 
 import discord
 
-from db.dbase import DBase
 from cogs.utils import constants
 
 
@@ -109,11 +108,9 @@ class MessageManager:
                 return True
 
         if not isinstance(self.channel, discord.abc.PrivateChannel):
-            with DBase() as db:
-                rows = db.get_cleanup(self.channel.guild.id)
-
-            if len(rows) and len(rows[0]):
-                cleanup = rows[0][0]
+            result = self.bot.db.get_cleanup(self.channel.guild.id)
+            if result:
+                cleanup = result.get('clear_spam')
             else:
                 raise ValueError("Could not retrieve 'cleanup' from database")
 
