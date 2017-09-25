@@ -216,7 +216,7 @@ class Events:
         description = event.get('description')
         time = event.get('start_time')
         timezone = event.get('timezone')
-        creator_id = event.get('creator_id')
+        creator_id = event.get('user_id')
         accepted = event.get('accepted')
         declined = event.get('declined')
         max_members = event.get('max_members')
