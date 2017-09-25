@@ -48,7 +48,7 @@ class Events:
         can delete events by reacting to the event message with \U0001f480.
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-        event_role = get_event_role(ctx.guild)
+        event_role = get_event_role(self.bot, ctx.guild)
         member_permissions = ctx.author.permissions_in(ctx.channel)
 
         if event_role:
@@ -105,8 +105,7 @@ class Events:
             else:
                 time_zone = user_timezone
 
-        with DBase() as db:
-            affected_rows = db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members, ctx.author.id)
+        affected_rows = self.bot.db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members, ctx.author.id)
         if affected_rows == 0:
             await manager.say("An event with that name already exists!", dm=True)
             return await manager.clear()
@@ -121,11 +120,11 @@ class Events:
         """Clear the event channel and display all upcoming events"""
         events_channel = await self.get_events_channel(guild)
         await events_channel.purge(limit=999, check=delete_all)
-        with DBase() as db:
-            events = db.get_events(guild.id)
+        events = self.bot.db.get_events(guild.id)
+
         if len(events) > 0:
-            for row in events:
-                event_embed = self.create_event_embed(guild, row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7])
+            for event in events:
+                event_embed = self.create_event_embed(guild, event)
                 msg = await events_channel.send(embed=event_embed)
                 await msg.add_reaction("\N{WHITE HEAVY CHECK MARK}")
                 await msg.add_reaction("\N{CROSS MARK}")
@@ -138,7 +137,6 @@ class Events:
         channel = self.bot.get_channel(channel_id)
         if isinstance(channel, discord.abc.PrivateChannel):
             return
-
         try:
             message = await channel.get_message(message_id)
         except discord.errors.Forbidden as e:
@@ -166,35 +164,29 @@ class Events:
 
     async def set_attendance(self, member, guild, attending, title, message):
         """Send updated event attendance info to db and update the event"""
-        with DBase() as db:
-            db.add_user(member.id)
-            db.update_attendance(member.id, guild.id, attending, title, datetime.now())
+        self.bot.db.add_user(member.id)
+        self.bot.db.update_attendance(member.id, guild.id, attending, title, datetime.now())
 
-        with DBase() as db:
-            rows = db.get_event(guild.id, title)
-        if len(rows) and len(rows[0]):
-            event = rows[0]
+        # Update event message in place for a more seamless user experience
+        event = self.bot.db.get_event(guild.id, title)
+        if event:
+            event_embed = self.create_event_embed(guild, event)
+            await message.edit(embed=event_embed)
         else:
             raise ValueError("Could not retrieve event")
             return
 
-        # Update event message in place for a more seamless user experience
-        event_embed = self.create_event_embed(guild, event[0], event[1], event[2], event[3], event[4], event[5], event[6], event[7])
-        await message.edit(embed=event_embed)
-
 
     async def delete_event(self, guild, title, member, channel):
         """Delete an event and update the events channel on success"""
-        event_delete_role = get_event_delete_role(guild)
-        with DBase() as db:
-            rows = db.get_event_creator(guild.id, title)
+        event_delete_role = get_event_delete_role(self.bot, guild)
+        result = self.bot.db.get_event_creator(guild.id, title)
 
-        if len(rows) and len(rows[0]):
-            creator_id = rows[0][0]
+        if result:
+            creator_id = result.get('creator_id')
 
         if member.permissions_in(channel).manage_guild or (member.id == creator_id) or (event_delete_role and member.top_role >= event_delete_role):
-            with DBase() as db:
-                deleted = db.delete_event(guild.id, title)
+            deleted = self.bot.db.delete_event(guild.id, title)
             if deleted:
                 await self.list_events(guild)
                 return True
@@ -219,8 +211,17 @@ class Events:
         return await guild.create_text_channel("upcoming-events", overwrites=overwrites)
 
 
-    def create_event_embed(self, guild, title, description, time, time_zone, creator_id, accepted=None, declined=None, max_members=None):
+    def create_event_embed(self, guild, event):
         """Create and return a Discord Embed object that represents an upcoming event"""
+        title = event.get('title')
+        description = event.get('description')
+        time = event.get('start_time')
+        timezone = event.get('timezone')
+        creator_id = event.get('creator_id')
+        accepted = event.get('accepted')
+        declined = event.get('declined')
+        max_members = event.get('max_members')
+
         embed_msg = discord.Embed(color=constants.BLUE)
         embed_msg.title = title
 
@@ -233,7 +234,7 @@ class Events:
         if description:
             embed_msg.description = description
         time_str = time.strftime("%A %b %-d, %Y @ %-I:%M %p")
-        embed_msg.add_field(name="Time", value=time_str + " " + time_zone, inline=False)
+        embed_msg.add_field(name="Time", value=time_str + " " + timezone, inline=False)
 
         if accepted:
             accepted_list = None

@@ -37,8 +37,7 @@ class Settings:
             await manager.say("Prefix must be less than 6 characters.")
             return await manager.clear()
 
-        with DBase() as db:
-            db.set_prefix(ctx.guild.id, new_prefix)
+        self.bot.db.set_prefix(ctx.guild.id, new_prefix)
         await manager.say("Command prefix has been changed to " + new_prefix)
         return await manager.clear()
 
@@ -72,15 +71,13 @@ class Settings:
                 guild_event_role = role
 
         if not guild_event_role:
-            await manager.say("I couldn't find a role called **{}** on this server.\n".format(event_role)
+            await manager.say("I couldn't find a role called **{}** on this server.\n\n".format(event_role)
                             + "Note that you must provide only the name of the role. "
                             + "Mentioning it with the @ sign won't work. The role name is also "
                             + "case sensitive!")
             return await manager.clear()
 
-        with DBase() as db:
-            db.set_event_role_id(ctx.guild.id, guild_event_role.id)
-
+        self.bot.db.set_event_role_id(ctx.guild.id, guild_event_role.id)
         await manager.say("The event role has been set to: **{}**".format(format_role_name(guild_event_role)))
         return await manager.clear()
 
@@ -89,7 +86,7 @@ class Settings:
     async def seteventrole_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-            event_role = get_event_role(ctx.guild)
+            event_role = get_event_role(self.bot, ctx.guild)
 
             if not event_role:
                 role_display = 'None (anyone can make events)'
@@ -122,15 +119,13 @@ class Settings:
                 guild_event_delete_role = role
 
         if not guild_event_delete_role:
-            await manager.say("I couldn't find a role called **{}** on this server.\n".format(event_role)
+            await manager.say("I couldn't find a role called **{}** on this server.\n\n".format(event_role)
                             + "Note that you must provide only the name of the role. "
                             + "Mentioning it with the @ sign won't work. The role name is also "
                             + "case sensitive!")
             return await manager.clear()
 
-        with DBase() as db:
-            db.set_event_delete_role_id(ctx.guild.id, guild_event_delete_role.id)
-
+        self.bot.db.set_event_delete_role_id(ctx.guild.id, guild_event_delete_role.id)
         await manager.say("The event delete role has been set to: **{}**".format(format_role_name(guild_event_delete_role)))
         return await manager.clear()
 
@@ -139,14 +134,14 @@ class Settings:
     async def seteventdeleterole_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-            event_role = get_event_delete_role(ctx.guild)
+            event_role = get_event_delete_role(self.bot, ctx.guild)
 
             if not event_role:
-                role_display = 'None (only Manage Sever members can delete events)'
+                role_display = '**None** (only Manage Sever members can delete events)'
             else:
                 role_display = format_role_name(event_role)
 
-            await manager.say("The current event delete role is: **{}**\n\n".format(role_display)
+            await manager.say("The current event delete role is: {}\n\n".format(role_display)
                             + "To change the event delete role, use '{}settings seteventdeleterole <role_name>'".format(ctx.prefix))
             await manager.clear()
 
@@ -166,12 +161,10 @@ class Settings:
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
-        with DBase() as db:
-            db.toggle_cleanup(ctx.guild.id)
-            rows = db.get_cleanup(ctx.guild.id)
-
-        if len(rows) and len(rows[0]):
-            cleanup = rows[0][0]
+        self.bot.db.toggle_cleanup(ctx.guild.id)
+        result = self.bot.db.get_cleanup(ctx.guild.id)
+        if result:
+            cleanup = result.get('clear_spam')
         else:
             raise ValueError("Could not retrieve 'cleanup' from database")
 

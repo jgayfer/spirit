@@ -6,7 +6,8 @@ import discord
 from discord.ext import commands
 import pydest
 
-from db.dbase import DBase
+#from db.dbase import DBase
+from db.database import DBase
 from cogs.utils import constants
 from cogs.events import Events
 from cogs.roster import Roster
@@ -25,39 +26,43 @@ async def _prefix_callable(bot, message):
     if isinstance(message.channel, discord.abc.PrivateChannel):
         base.append('!')
     else:
-        with DBase() as db:
-            custom_prefix = db.get_prefix(message.guild.id)
-            if len(custom_prefix) > 0 and len(custom_prefix[0]) > 0:
-                base.append(custom_prefix[0][0])
+        result = bot.db.get_prefix(message.guild.id)
+        if result:
+            base.append(result.get('prefix'))
+        else:
+            raise ValueError('Could not fetch prefix from database')
     return base
 
 
-bot = commands.AutoShardedBot(command_prefix=_prefix_callable)
-with open('credentials.json') as f:
-    api_key = json.load(f)['d2-api-key']
-destiny = pydest.Pydest(api_key)
+class Spirit(commands.AutoShardedBot):
 
-bot.add_cog(Events(bot))
-bot.add_cog(Roster(bot))
-bot.add_cog(Help(bot))
-bot.add_cog(Settings(bot))
-bot.add_cog(General(bot))
-bot.add_cog(Core(bot))
-bot.add_cog(Destiny(bot, destiny))
-bot.add_cog(Stats(bot, destiny))
-bot.add_cog(Owner(bot))
+    def __init__(self, token):
+        super().__init__(command_prefix=_prefix_callable)
+        self.token = token
+        self.db = DBase('credentials.json')
 
-
-def setup_logging():
-    """Enable logging to a file"""
-    logger = logging.getLogger('discord')
-    logger.setLevel(logging.INFO)
-    handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-    logger.addHandler(handler)
+    def run(self):
+        super().run(token, reconnect=True)
 
 
 if __name__ == '__main__':
-    setup_logging()
+
     with open('credentials.json') as f:
         token = json.load(f)['token']
-        bot.run(token)
+    with open('credentials.json') as f:
+        api_key = json.load(f)['d2-api-key']
+
+    destiny = pydest.Pydest(api_key)
+    bot = Spirit(token)
+
+    bot.add_cog(Core(bot))
+    bot.add_cog(Destiny(bot, destiny))
+    bot.add_cog(Events(bot))
+    bot.add_cog(General(bot))
+    bot.add_cog(Help(bot))
+    bot.add_cog(Owner(bot))
+    bot.add_cog(Roster(bot))
+    bot.add_cog(Settings(bot))
+    bot.add_cog(Stats(bot, destiny))
+
+    bot.run()

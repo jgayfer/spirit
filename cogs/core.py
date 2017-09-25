@@ -20,39 +20,35 @@ class Core:
         print('------')
 
         # Get guilds in database
-        with DBase() as db:
-            db = db.get_guilds()
         db_guilds = []
         to_delete = []
-        for row in db:
-            guild = self.bot.get_guild(row[0])
+        results = self.bot.db.get_guilds()
+        for row in results:
+            guild_id = row.get('guild_id')
+            guild = self.bot.get_guild(guild_id)
             if guild:
                 db_guilds.append(guild)
             else:
-                to_delete.append(row[0])
+                to_delete.append(guild_id)
 
         # Add guilds
         for guild in self.bot.guilds:
             if guild not in db_guilds:
-                with DBase() as db:
-                    db.add_guild(guild.id)
+                self.bot.db.add_guild(guild.id)
 
         # Remove guilds
         for guild_id in to_delete:
-            with DBase() as db:
-                db.remove_guild(guild_id)
+            self.bot.db.remove_guild(guild_id)
 
 
     async def on_guild_join(self, guild):
         """Add guild and it's members to database"""
-        with DBase() as db:
-            db.add_guild(guild.id)
+        self.bot.db.add_guild(guild.id)
 
 
     async def on_guild_remove(self, guild):
         """Remove guild from database"""
-        with DBase() as db:
-            db.remove_guild(guild.id)
+        self.bot.db.remove_guild(guild.id)
 
 
     async def on_member_remove(self, user):
@@ -62,8 +58,7 @@ class Core:
             member_ids.append(member.id)
 
         if user.id not in member_ids:
-            with DBase() as db:
-                db.remove_user(user.id)
+            self.bot.db.remove_user(user.id)
 
 
     async def on_command_error(self, ctx, error):

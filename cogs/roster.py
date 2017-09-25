@@ -36,9 +36,8 @@ class Roster:
 
         role = role.lower().title()
         if role == "Titan" or role == "Warlock" or role == "Hunter":
-            with DBase() as db:
-                db.add_user(ctx.author.id)
-                db.update_role(ctx.author.id, role, ctx.guild.id)
+            self.bot.db.add_user(ctx.author.id)
+            self.bot.db.update_role(ctx.author.id, role, ctx.guild.id)
             await manager.say("Your class has been updated!")
         else:
             await manager.say("Class must be one of: Titan, Hunter, Warlock")
@@ -66,9 +65,8 @@ class Roster:
         time_zone = "".join(time_zone.split())
 
         if time_zone in constants.TIME_ZONES:
-            with DBase() as db:
-                db.add_user(ctx.author.id)
-                db.update_timezone(ctx.author.id, time_zone, ctx.guild.id)
+            self.bot.db.add_user(ctx.author.id)
+            self.bot.db.update_timezone(ctx.author.id, time_zone, ctx.guild.id)
             await manager.say("Your time zone has been updated!")
         else:
             await manager.say("Unsupported time zone. For a list of supported timezones, "
@@ -97,9 +95,7 @@ class Roster:
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         roster_groups = []
-
-        with DBase() as db:
-            roster = db.get_roster(ctx.guild.id)
+        roster = self.bot.db.get_roster(ctx.guild.id)
 
         if len(roster) != 0:
 
@@ -107,13 +103,15 @@ class Roster:
             for row in roster:
 
                 # Add a single entry to the roster message
-                member = ctx.guild.get_member(row[0])
+                member = ctx.guild.get_member(row.get('user_id'))
+                role = row.get('role')
+                timezone = row.get('timezone')
                 if member:
                     name = member.display_name
                     formatted_name = (name[:16] + '..') if len(name) > 16 else name
-                    role = row[1] if row[1] else "---"
-                    time_zone = row[2] if row[2] else "---"
-                    text += '{:18} {:6} {:7}\n'.format(formatted_name, time_zone, role)
+                    role = role if role else "---"
+                    timezone = timezone if timezone else "---"
+                    text += '{:18} {:6} {:7}\n'.format(formatted_name, timezone, role)
 
                 # If the message is too big, place it into a group
                 if len(text) > 2000:

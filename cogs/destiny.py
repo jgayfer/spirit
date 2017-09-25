@@ -95,9 +95,8 @@ class Destiny:
             await manager.say("An account with that name doesn't seem to exist.", dm=True)
         else:
             await manager.say("Account successfully registered!", dm=True)
-            with DBase() as db:
-                db.add_user(ctx.author.id)
-                db.update_registration(platform, membership_id, ctx.author.id)
+            self.bot.db.add_user(ctx.author.id)
+            self.bot.db.update_registration(platform, membership_id, ctx.author.id)
 
         return await manager.clear()
 
@@ -151,11 +150,10 @@ class Destiny:
         await ctx.channel.trigger_typing()
 
         # Check if user has registered their D2 account with the bot
-        with DBase() as db:
-            entries = db.get_d2_info(ctx.author.id)
-        if len(entries) > 0 and entries[0][0] != None and entries[0][1] != None:
-            platform = entries[0][0]
-            membership_id = entries[0][1]
+        info = self.bot.db.get_d2_info(ctx.author.id)
+        if len(info) > 0:
+            platform = info.get('platform')
+            membership_id = info.get('membership_id')
         else:
             await manager.say("You must first register your Destiny 2 account with the "
                             + "`{}register` command.".format(ctx.prefix))

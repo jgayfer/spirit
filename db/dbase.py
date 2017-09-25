@@ -1,4 +1,5 @@
 import json
+import gc
 
 import MySQLdb
 
@@ -24,8 +25,10 @@ class DBase:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.cur:
             self.cur.close()
+            del self.cur
         if self.conn:
             self.conn.close()
+        gc.collect()
 
     def get_roster(self, guild_id):
         sql = """

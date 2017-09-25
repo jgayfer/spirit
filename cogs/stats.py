@@ -27,11 +27,10 @@ class Stats:
         await ctx.channel.trigger_typing()
 
         # Check if user has registered their D2 account with the bot
-        with DBase() as db:
-            entries = db.get_d2_info(ctx.author.id)
-        if len(entries) > 0 and entries[0][0] != None and entries[0][1] != None:
-            platform = entries[0][0]
-            membership_id = entries[0][1]
+        info = self.bot.db.get_d2_info(ctx.author.id)
+        if len(info) > 0:
+            platform = info.get('platform')
+            membership_id = info.get('membership_id')
         else:
             await manager.say("You must first register your Destiny 2 account with the "
                             + "`{}register` command.".format(ctx.prefix))
@@ -95,11 +94,10 @@ class Stats:
         await ctx.channel.trigger_typing()
 
         # Check if user has registered their D2 account with the bot
-        with DBase() as db:
-            entries = db.get_d2_info(ctx.author.id)
-        if len(entries) > 0 and entries[0][0] != None and entries[0][1] != None:
-            platform = entries[0][0]
-            membership_id = entries[0][1]
+        info = self.bot.db.get_d2_info(ctx.author.id)
+        if len(info) > 0:
+            platform = info.get('platform')
+            membership_id = info.get('membership_id')
         else:
             await manager.say("You must first register your Destiny 2 account with the "
                             + "`{}register` command.".format(ctx.prefix))
