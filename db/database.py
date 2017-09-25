@@ -92,7 +92,7 @@ class DBase:
     def get_event(self, guild_id, title):
         with self.connection.cursor() as cursor:
             sql = """
-                  SELECT title, description, start_time, timezone, user_id, (
+                  SELECT title as event_title, description, start_time, timezone, user_id, (
                     SELECT GROUP_CONCAT(DISTINCT user_id ORDER BY last_updated)
                     FROM user_event
                     WHERE user_event.guild_id = %s
@@ -155,17 +155,17 @@ class DBase:
     def get_events(self, guild_id):
         with self.connection.cursor() as cursor:
             sql = """
-                  SELECT title as title, description, start_time, timezone, user_id, (
+                  SELECT title as event_title, description, start_time, timezone, user_id, (
                     SELECT GROUP_CONCAT(DISTINCT user_id ORDER BY last_updated)
                     FROM user_event
                     WHERE user_event.guild_id = %s
-                    AND user_event.title = title
+                    AND user_event.title = event_title
                     AND user_event.attending = 1)
                     AS accepted, (
                     SELECT GROUP_CONCAT(DISTINCT user_id ORDER BY last_updated)
                     FROM user_event
                     WHERE user_event.guild_id = %s
-                    AND user_event.title = title
+                    AND user_event.title = event_title
                     AND user_event.attending = 0)
                     AS declined,
                     max_members
