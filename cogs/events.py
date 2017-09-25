@@ -213,7 +213,7 @@ class Events:
 
     def create_event_embed(self, guild, event):
         """Create and return a Discord Embed object that represents an upcoming event"""
-        title = event.get('title')
+        title = event.get('event_title')
         description = event.get('description')
         time = event.get('start_time')
         timezone = event.get('timezone')
