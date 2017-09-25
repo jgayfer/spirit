@@ -3,6 +3,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 import pytz
+import psutil
 
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants
@@ -12,6 +13,7 @@ class General:
 
     def __init__(self, bot):
         self.bot = bot
+        self.process = psutil.Process()
 
 
     @commands.command()
@@ -51,6 +53,67 @@ class General:
             manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
             await manager.say("You forgot to include your feedback!")
             await manager.clear()
+
+
+    @commands.command()
+    async def about(self, ctx):
+        """Display information about the bot itself"""
+        embed = discord.Embed(colour=constants.BLUE)
+        #embed.url = 'https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344'
+
+        embed.description = ("[Invite Spirit](https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344)\n"
+                           + "[Spirit Support Server](https://discord.gg/GXCFpkr)")
+
+        owner = self.bot.get_user(118926942404608003)
+        embed.set_author(name=str(owner), icon_url=owner.avatar_url)
+
+        # statistics
+        total_members = sum(1 for _ in self.bot.get_all_members())
+        total_online = len({m.id for m in self.bot.get_all_members() if m.status is discord.Status.online})
+        total_unique = len(self.bot.users)
+
+        voice_channels = []
+        text_channels = []
+        for guild in self.bot.guilds:
+            voice_channels.extend(guild.voice_channels)
+            text_channels.extend(guild.text_channels)
+
+        text = len(text_channels)
+        voice = len(voice_channels)
+
+        embed.add_field(name='Members', value='{} total\n{} unique\n{} unique online'.format(total_members, total_unique, total_online))
+        embed.add_field(name='Channels', value='{} total\n{} text\n{} voice'.format(text + voice, text, voice))
+
+        memory_usage = "%0.2f" % (self.process.memory_full_info().uss / 1024**2)
+        cpu_usage = "%0.2f" % (self.process.cpu_percent() / psutil.cpu_count())
+        embed.add_field(name='Process', value='{} MiB\n{}% CPU'.format(memory_usage, cpu_usage))
+
+        embed.add_field(name='Guilds', value=len(self.bot.guilds))
+        embed.add_field(name='Commands Run', value=self.bot.command_count)
+        embed.add_field(name='Uptime', value=self.get_bot_uptime(brief=True))
+
+        embed.set_footer(text='Made with discord.py', icon_url='http://i.imgur.com/5BFecvA.png')
+        await ctx.send(embed=embed)
+
+
+    def get_bot_uptime(self, *, brief=False):
+        now = datetime.utcnow()
+        delta = now - self.bot.uptime
+        hours, remainder = divmod(int(delta.total_seconds()), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        days, hours = divmod(hours, 24)
+
+        if not brief:
+            if days:
+                fmt = '{d} days, {h} hours, {m} minutes, and {s} seconds'
+            else:
+                fmt = '{h} hours, {m} minutes, and {s} seconds'
+        else:
+            fmt = '{h}h {m}m {s}s'
+            if days:
+                fmt = '{d}d ' + fmt
+
+        return fmt.format(d=days, h=hours, m=minutes, s=seconds)
 
 
     async def on_guild_join(self, guild):

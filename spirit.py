@@ -1,6 +1,7 @@
 import json
 import logging
 import asyncio
+import datetime
 
 import discord
 from discord.ext import commands
@@ -41,9 +42,14 @@ class Spirit(commands.AutoShardedBot):
         super().__init__(command_prefix=_prefix_callable)
         self.token = token
         self.db = DBase('credentials.json')
+        self.uptime = datetime.datetime.utcnow()
+        self.command_count = 0
 
     def run(self):
         super().run(token, reconnect=True)
+
+    async def on_command(self, ctx):
+        self.command_count += 1
 
 
 if __name__ == '__main__':

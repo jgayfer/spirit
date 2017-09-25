@@ -70,25 +70,3 @@ class Owner:
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await manager.say("You didn't include a broadcast message")
         return await manager.clear()
-
-
-    @commands.command(hidden=True)
-    async def botstats(self, ctx):
-        """Displays the bot's stats"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-
-        if ctx.author.id not in constants.OWNERS:
-            return
-
-        num_guilds = len(self.bot.guilds)
-        users = []
-        for guild in self.bot.guilds:
-            if guild.id not in constants.SERVERS_NO_COUNT:
-                guild_users = [user for user in guild.members if not user.bot]
-                users.extend(guild_users)
-        num_users = len(set(users))
-
-        e = discord.Embed(title='{} Stats'.format(self.bot.user.name), colour=constants.BLUE)
-        e.description = "**Servers**: {}\n**Users**: {}".format(num_guilds, num_users)
-        await ctx.channel.send(embed=e)
-        await manager.clear()
