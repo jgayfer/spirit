@@ -56,8 +56,6 @@ class Stats:
         time_played = pvp_stats['secondsPlayed']['basic']['displayValue']
         kdr = pvp_stats['killsDeathsRatio']['basic']['displayValue']
         kda = pvp_stats['killsDeathsAssists']['basic']['displayValue']
-        win_ratio = float(pvp_stats['winLossRatio']['basic']['displayValue'])
-        win_rate = str(round(win_ratio / (win_ratio + 1) * 100, 1)) + " %"
         best_weapon = pvp_stats['weaponBestType']['basic']['displayValue']
         games_played = pvp_stats['activitiesEntered']['basic']['displayValue']
         best_kills = pvp_stats['bestSingleGameKills']['basic']['displayValue']
@@ -66,6 +64,14 @@ class Stats:
         kills = pvp_stats['kills']['basic']['displayValue']
         assists = pvp_stats['assists']['basic']['displayValue']
         deaths = pvp_stats['deaths']['basic']['displayValue']
+
+        # Can't convert a string of '-' to a float!
+        win_ratio = pvp_stats['winLossRatio']['basic']['displayValue']
+        if win_ratio != '-':
+            win_ratio = float(win_ratio)
+            win_rate = str(round(win_ratio / (win_ratio + 1) * 100, 1)) + " %"
+        else:
+            win_rate = win_ratio
 
         e = discord.Embed(colour=constants.BLUE)
         e.set_author(name="{} | Crucible Stats".format(display_name), icon_url=constants.PLATFORM_URLS.get(platform))
