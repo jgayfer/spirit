@@ -27,7 +27,7 @@ class Stats:
 
         # Check if user has registered their D2 account with the bot
         info = self.bot.db.get_d2_info(ctx.author.id)
-        if len(info) > 0:
+        if info:
             platform = info.get('platform')
             membership_id = info.get('membership_id')
         else:
@@ -94,7 +94,7 @@ class Stats:
 
         # Check if user has registered their D2 account with the bot
         info = self.bot.db.get_d2_info(ctx.author.id)
-        if len(info) > 0:
+        if info:
             platform = info.get('platform')
             membership_id = info.get('membership_id')
         else:
