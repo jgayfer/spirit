@@ -1,6 +1,8 @@
 from discord.ext import commands
 import discord
 
+import pydest
+
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants
 
@@ -36,14 +38,22 @@ class Stats:
             return await manager.clear()
 
         # Get display name
-        res = await self.destiny.api.get_profile(platform, membership_id, ['Profiles'])
+        try:
+            res = await self.destiny.api.get_profile(platform, membership_id, ['Profiles'])
+        except:
+            await manager.say("Sorry, I can't seem to retrieve your stats right now")
+            return await manager.clear()
         if res['ErrorCode'] != 1:
             await manager.say("Sorry, I can't seem to retrieve your stats right now")
             return await manager.clear()
         display_name = res['Response']['profile']['data']['userInfo']['displayName']
 
         # Get PvP stats
-        res = await self.destiny.api.get_historical_stats(platform, membership_id, modes=[5])
+        try:
+            res = await self.destiny.api.get_historical_stats(platform, membership_id, modes=[5])
+        except:
+            await manager.say("Sorry, I can't seem to retrieve your stats right now")
+            return await manager.clear()
         if res['ErrorCode'] != 1:
             await manager.say("Sorry, I can't seem to retrieve your stats right now")
             return await manager.clear()
@@ -109,14 +119,22 @@ class Stats:
             return await manager.clear()
 
         # Get display name
-        res = await self.destiny.api.get_profile(platform, membership_id, ['Profiles'])
+        try:
+            res = await self.destiny.api.get_profile(platform, membership_id, ['Profiles'])
+        except pydest.PydestException as e:
+            await manager.say("Sorry, I can't seem to retrieve your stats right now")
+            return await manager.clear()
         if res['ErrorCode'] != 1:
             await manager.say("Sorry, I can't seem to retrieve your stats right now")
             return await manager.clear()
         display_name = res['Response']['profile']['data']['userInfo']['displayName']
 
         # Get PvE stats
-        res = await self.destiny.api.get_historical_stats(platform, membership_id, modes=[7,4,16,18])
+        try:
+            res = await self.destiny.api.get_historical_stats(platform, membership_id, modes=[7,4,16,18])
+        except pydest.PydestException as e:
+            await manager.say("Sorry, I can't seem to retrieve your stats right now")
+            return await manager.clear()
         if res['ErrorCode'] != 1:
             await manager.say("Sorry, I can't seem to retrieve your stats right now")
             return await manager.clear()

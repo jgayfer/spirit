@@ -78,6 +78,9 @@ class Destiny:
         except ValueError as e:
             await manager.say("Invalid account name. If this seems wrong, please contact the developer.")
             return await manager.clear()
+        except pydest.PydestException as e:
+            await manager.say("I can seem to connect to Bungie right now. Try again later.")
+            return await manager.clear()
 
         act_exists = False
         if res['ErrorCode'] == 1 and len(res['Response']) == 1:
@@ -105,8 +108,12 @@ class Destiny:
         """Display the weekly nightfall info"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await ctx.channel.trigger_typing()
-        weekly = await self.destiny.api.get_public_milestones()
 
+        try:
+            weekly = await self.destiny.api.get_public_milestones()
+        except pydest.PydestException as e:
+            await manager.say("Sorry, I can't seem retrieve the nightfall info right now")
+            return await manager.clear()
         if weekly['ErrorCode'] != 1:
             await manager.say("Sorry, I can't seem retrieve the nightfall info right now")
             return await manager.clear()
@@ -158,8 +165,11 @@ class Destiny:
                             + "`{}register` command.".format(ctx.prefix))
             return await manager.clear()
 
-        res = await self.destiny.api.get_profile(platform, membership_id, ['characters', 'characterEquipment', 'profiles'])
-
+        try:
+            res = await self.destiny.api.get_profile(platform, membership_id, ['characters', 'characterEquipment', 'profiles'])
+        except pydest.PydestException as e:
+            await manager.say("Sorry, I can't seem to retrieve your Guardian right now.")
+            return await manager.clear()
         if res['ErrorCode'] != 1:
             await manager.say("Sorry, I can't seem to retrieve your Guardian right now.")
             return await manager.clear()
