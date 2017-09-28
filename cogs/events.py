@@ -244,7 +244,8 @@ class Events:
             text = ""
             for user_id in accepted_list:
                 member = guild.get_member(int(user_id))
-                text += "{}\n".format(member.display_name)
+                if member:
+                    text += "{}\n".format(member.display_name)
             if max_members:
                 embed_msg.add_field(name="Accepted ({}/{})".format(len(accepted_list), max_members), value=text)
             else:
@@ -260,7 +261,8 @@ class Events:
             text = ""
             for user_id in declined_list:
                 member = guild.get_member(int(user_id))
-                text += "{}\n".format(member.display_name)
+                if member:
+                    text += "{}\n".format(member.display_name)
             embed_msg.add_field(name="Declined", value=text)
         else:
             embed_msg.add_field(name="Declined", value="-")
@@ -271,7 +273,8 @@ class Events:
                 text = ""
                 for user_id in standby_list:
                     member = guild.get_member(int(user_id))
-                    text += "{}\n".format(member.display_name)
+                    if member:
+                        text += "{}\n".format(member.display_name)
                 embed_msg.add_field(name="Standby", value=text, inline=False)
 
         return embed_msg
