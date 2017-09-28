@@ -59,7 +59,7 @@ class Stats:
             return await manager.clear()
         pvp_stats = res['Response']['allPvP'].get('allTime')
 
-        if not len(pvp_stats):
+        if not pvp_stats:
             await manager.say("Sorry, I can't seem to retrieve your stats right now")
             return await manager.clear()
 
@@ -139,6 +139,10 @@ class Stats:
             await manager.say("Sorry, I can't seem to retrieve your stats right now")
             return await manager.clear()
         pve_stats = res['Response']
+
+        if not pve_stats:
+            await manager.say("Sorry, I can't seem to retrieve your stats right now")
+            return await manager.clear()
 
         time_played = pve_stats['allPvE']['allTime']['totalActivityDurationSeconds']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
         best_weapon = pve_stats['allPvE']['allTime']['weaponBestType']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
