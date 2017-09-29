@@ -45,7 +45,7 @@ class Core:
 
     async def on_command_error(self, ctx, error):
         """Command error handler"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
         if isinstance(error, commands.CommandNotFound):
             pass

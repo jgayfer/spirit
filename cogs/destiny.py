@@ -21,7 +21,7 @@ class Destiny:
     @commands.command()
     async def countdown(self, ctx):
         """Show time until upcoming Destiny 2 releases"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, [ctx.message])
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         pst_now = datetime.now(tz=pytz.timezone('US/Pacific'))
         text = ""
 

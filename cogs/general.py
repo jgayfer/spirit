@@ -58,13 +58,14 @@ class General:
     @commands.command()
     async def about(self, ctx):
         """Display information about the bot itself"""
-        embed = discord.Embed(title='Spirit v{}'.format(constants.VERSION), colour=constants.BLUE)
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        e = discord.Embed(title='Spirit v{}'.format(constants.VERSION), colour=constants.BLUE)
 
-        embed.description = ("[Invite Spirit](https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344)\n"
+        e.description = ("[Invite Spirit](https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344)\n"
                            + "[Spirit Support Server](https://discord.gg/GXCFpkr)")
 
         owner = self.bot.get_user(118926942404608003)
-        embed.set_author(name=str(owner), icon_url=owner.avatar_url)
+        e.set_author(name=str(owner), icon_url=owner.avatar_url)
 
         # statistics
         total_members = sum(1 for _ in self.bot.get_all_members())
@@ -80,19 +81,20 @@ class General:
         text = len(text_channels)
         voice = len(voice_channels)
 
-        embed.add_field(name='Members', value='{} total\n{} unique\n{} unique online'.format(total_members, total_unique, total_online))
-        embed.add_field(name='Channels', value='{} total\n{} text\n{} voice'.format(text + voice, text, voice))
+        e.add_field(name='Members', value='{} total\n{} unique\n{} unique online'.format(total_members, total_unique, total_online))
+        e.add_field(name='Channels', value='{} total\n{} text\n{} voice'.format(text + voice, text, voice))
 
         memory_usage = "%0.2f" % (self.process.memory_full_info().uss / 1024**2)
         cpu_usage = "%0.2f" % (self.process.cpu_percent() / psutil.cpu_count())
-        embed.add_field(name='Process', value='{} MiB\n{}% CPU'.format(memory_usage, cpu_usage))
+        e.add_field(name='Process', value='{} MiB\n{}% CPU'.format(memory_usage, cpu_usage))
 
-        embed.add_field(name='Guilds', value=len(self.bot.guilds))
-        embed.add_field(name='Commands Run', value=self.bot.command_count)
-        embed.add_field(name='Uptime', value=self.get_bot_uptime(brief=True))
+        e.add_field(name='Guilds', value=len(self.bot.guilds))
+        e.add_field(name='Commands Run', value=self.bot.command_count)
+        e.add_field(name='Uptime', value=self.get_bot_uptime(brief=True))
 
-        embed.set_footer(text='Made with discord.py', icon_url='http://i.imgur.com/5BFecvA.png')
-        await ctx.send(embed=embed)
+        e.set_footer(text='Made with discord.py', icon_url='http://i.imgur.com/5BFecvA.png')
+        await manager.say(e, embed=True)
+        await manager.clear()
 
 
     def get_bot_uptime(self, *, brief=False):
