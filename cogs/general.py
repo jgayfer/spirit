@@ -93,7 +93,7 @@ class General:
         e.add_field(name='Uptime', value=self.get_bot_uptime(brief=True))
 
         e.set_footer(text='Made with discord.py', icon_url='http://i.imgur.com/5BFecvA.png')
-        await manager.say(e, embed=True)
+        await manager.say(e, embed=True, delete=False)
         await manager.clear()
 
 
