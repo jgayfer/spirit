@@ -81,7 +81,7 @@ class Help:
         """Create an embed message that displays command help"""
         help = discord.Embed(title="Available Commands", color=constants.BLUE)
         help.description = ("**Note:** don't include the angled brackets\n"
-                          + "For additional help, join the support server: https://discord.gg/GXCFpkr")
+                          + "For additional help, join the support server: https://discord.gg/ZqkjJEa")
         help.set_footer(text="Use {}help [command] for more info on a command".format(prefix))
 
         for command in commands:
