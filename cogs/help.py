@@ -13,6 +13,7 @@ class Help:
 
 
     @commands.command(hidden=True)
+    @commands.cooldown(rate=3, per=5.0, type=commands.BucketType.user)
     async def help(self, ctx, str_cmd=None, str_subcmd=None):
         """Display command information"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])

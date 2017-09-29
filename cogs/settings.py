@@ -16,6 +16,7 @@ class Settings:
 
     @commands.group()
     @commands.guild_only()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def settings(self, ctx):
         """Manage the bot's server specific settings (Manage Server only)"""
         if ctx.invoked_subcommand is None:

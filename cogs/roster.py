@@ -16,6 +16,7 @@ class Roster:
 
     @commands.group()
     @commands.guild_only()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def roster(self, ctx):
         """View and manage the server's roster"""
         if ctx.invoked_subcommand is None:

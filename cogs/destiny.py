@@ -19,6 +19,7 @@ class Destiny:
 
 
     @commands.command()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def countdown(self, ctx):
         """Show time until upcoming Destiny 2 releases"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
@@ -42,6 +43,7 @@ class Destiny:
 
 
     @commands.command()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def register(self, ctx):
         """Register your Destiny 2 account with the bot
 
@@ -104,6 +106,7 @@ class Destiny:
 
 
     @commands.command()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def nightfall(self, ctx):
         """Display the weekly nightfall info"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
@@ -146,6 +149,7 @@ class Destiny:
 
 
     @commands.command()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def loadout(self, ctx):
         """Display your last played character's loadout
 

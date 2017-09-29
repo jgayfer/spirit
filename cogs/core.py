@@ -62,6 +62,9 @@ class Core:
         elif isinstance(error, commands.CheckFailure):
             await manager.say("You don't have the required permissions to do that")
 
+        elif isinstance(error, commands.CommandOnCooldown):
+            await manager.say(error)
+
         elif isinstance(error, commands.CommandInvokeError):
             if isinstance(error.original, discord.errors.Forbidden):
                 pass

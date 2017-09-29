@@ -20,6 +20,7 @@ class Events:
 
     @commands.command()
     @commands.guild_only()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def event(self, ctx):
         """
         Create an event in the events channel

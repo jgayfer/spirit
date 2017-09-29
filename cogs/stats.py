@@ -15,6 +15,7 @@ class Stats:
 
 
     @commands.group()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def stats(self, ctx):
         """Display various Destiny 2 character stats"""
         if ctx.invoked_subcommand is None:

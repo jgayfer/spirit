@@ -17,6 +17,7 @@ class General:
 
 
     @commands.command()
+    @commands.cooldown(rate=1, per=60.0, type=commands.BucketType.user)
     async def feedback(self, ctx, *, message):
         """
         Send a message to the bot's developer
@@ -56,6 +57,7 @@ class General:
 
 
     @commands.command()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def about(self, ctx):
         """Display information about the bot itself"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
