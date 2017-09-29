@@ -77,7 +77,7 @@ class Events:
                 return await manager.clear()
             if res.content.upper() == 'NONE':
                 break
-            elif is_int(res.content) and int(res.content) > 0:
+            elif is_int(res.content) and int(res.content) in range(1,9999):
                 max_members = int(res.content)
             else:
                 await manager.say("That is not a a valid entry.", dm=True)
