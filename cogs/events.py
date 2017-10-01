@@ -182,7 +182,7 @@ class Events:
         result = self.bot.db.get_event_creator(guild.id, title)
 
         if result:
-            creator_id = result.get('creator_id')
+            creator_id = result.get('user_id')
 
         if member.permissions_in(channel).manage_guild or (member.id == creator_id) or (event_delete_role and member.top_role >= event_delete_role):
             deleted = self.bot.db.delete_event(guild.id, title)
