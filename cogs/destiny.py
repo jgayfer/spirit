@@ -81,7 +81,7 @@ class Destiny:
             await manager.say("Invalid account name. If this seems wrong, please contact the developer.")
             return await manager.clear()
         except pydest.PydestException as e:
-            await manager.say("I can seem to connect to Bungie right now. Try again later.")
+            await manager.say("I can't seem to connect to Bungie right now. Try again later.")
             return await manager.clear()
 
         act_exists = False
