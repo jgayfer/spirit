@@ -99,6 +99,33 @@ class General:
         await manager.clear()
 
 
+    @commands.command()
+    @commands.cooldown(rate=3, per=5, type=commands.BucketType.user)
+    async def donate(self, ctx):
+        """Support the continued development of Spirit!"""
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        e = discord.Embed(colour=constants.BLUE)
+
+        text = ("Spirit is a work of love that has taken countless hours to develop. Your monthly donation "
+              + "will go towards server hosting costs, development tools, and will also earn you "
+              + "some special privelges on the Spirit Discord server!\n\n"
+              + "Support Spirit here: https://www.patreon.com/spiritbot")
+        reward_1 = "- Colored name on the Spirit Discord server"
+        reward_2 = ("- Patron role and colored name on the Spirit Discord server\n"
+                  + "- Access to the developer blog on Patreon and the Spirit Discord server\n"
+                  + "- Access to a patron only channel on the Spirit Discord server which includes sneak peeks of new features!")
+        reward_3 = ("- All rewards from the previous tier\n"
+                  + "- Your own personalized message built right into Spirit!")
+
+        e.description = text
+        e.add_field(name="$1 Tier", value=reward_1)
+        e.add_field(name="$5 Tier", value=reward_2)
+        e.add_field(name="$10 Tier", value=reward_3)
+
+        await manager.say(e, embed=True, delete=False)
+        await manager.clear()
+
+
     def get_bot_uptime(self, *, brief=False):
         now = datetime.utcnow()
         delta = now - self.bot.uptime
