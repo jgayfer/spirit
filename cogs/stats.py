@@ -66,7 +66,6 @@ class Stats:
 
         time_played = pvp_stats['secondsPlayed']['basic']['displayValue']
         kdr = pvp_stats['killsDeathsRatio']['basic']['displayValue']
-        kda = pvp_stats['killsDeathsAssists']['basic']['displayValue']
         best_weapon = pvp_stats['weaponBestType']['basic']['displayValue']
         games_played = pvp_stats['activitiesEntered']['basic']['displayValue']
         best_kills = pvp_stats['bestSingleGameKills']['basic']['displayValue']
@@ -75,6 +74,7 @@ class Stats:
         kills = pvp_stats['kills']['basic']['displayValue']
         assists = pvp_stats['assists']['basic']['displayValue']
         deaths = pvp_stats['deaths']['basic']['displayValue']
+        kda = str(round((int(kills) + int(assists)) / int(deaths), 2))
 
         # Can't convert a string of '-' to a float!
         win_ratio = pvp_stats['winLossRatio']['basic']['displayValue']
@@ -89,8 +89,8 @@ class Stats:
         e.add_field(name='Kills', value=kills, inline=True)
         e.add_field(name='Assists', value=assists, inline=True)
         e.add_field(name='Deaths', value=deaths, inline=True)
-        e.add_field(name='KD Ratio', value=kdr, inline=True)
-        e.add_field(name='Efficiency (KAD)', value=kda, inline=True)
+        e.add_field(name='KD', value=kdr, inline=True)
+        e.add_field(name='KA/D', value=kda, inline=True)
         e.add_field(name='Win Rate', value=win_rate, inline=True)
         e.add_field(name='Best Spree', value=best_spree, inline=True)
         e.add_field(name='Most Kills in a Game', value=best_kills, inline=True)
