@@ -1,6 +1,7 @@
 import json
 import pymysql.cursors
 
+
 class DBase:
 
     def __init__(self, credentials_file):

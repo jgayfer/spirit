@@ -1,11 +1,8 @@
-import asyncio
-
 from discord.ext import commands
 import discord
 
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants
-import cogs.help
 
 
 class Roster:

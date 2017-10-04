@@ -1,8 +1,4 @@
-from datetime import datetime
-
-import pytz
 from discord.ext import commands
-import discord
 
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants

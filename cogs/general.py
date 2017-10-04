@@ -2,7 +2,6 @@ from datetime import datetime
 
 import discord
 from discord.ext import commands
-import pytz
 import psutil
 
 from cogs.utils.messages import MessageManager

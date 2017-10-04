@@ -1,6 +1,4 @@
 import json
-import logging
-import asyncio
 import datetime
 
 import discord
@@ -8,7 +6,6 @@ from discord.ext import commands
 import pydest
 
 from db.dbase import DBase
-from cogs.utils import constants
 from cogs.events import Events
 from cogs.roster import Roster
 from cogs.help import Help
