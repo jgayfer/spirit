@@ -11,6 +11,8 @@ from cogs.utils.messages import MessageManager
 from cogs.utils import constants
 
 
+BASE_URL = 'https://www.bungie.net'
+
 class Destiny:
 
     def __init__(self, bot, destiny):
@@ -117,6 +119,7 @@ class Destiny:
         except pydest.PydestException as e:
             await manager.say("Sorry, I can't seem retrieve the nightfall info right now")
             return await manager.clear()
+
         if weekly['ErrorCode'] != 1:
             await manager.say("Sorry, I can't seem retrieve the nightfall info right now")
             return await manager.clear()
@@ -174,6 +177,7 @@ class Destiny:
         except pydest.PydestException as e:
             await manager.say("Sorry, I can't seem to retrieve your Guardian right now.")
             return await manager.clear()
+
         if res['ErrorCode'] != 1:
             await manager.say("Sorry, I can't seem to retrieve your Guardian right now.")
             return await manager.clear()
@@ -264,4 +268,60 @@ class Destiny:
         e.add_field(name='Armor', value=armor_info, inline=True)
 
         await manager.say(e, embed=True, delete=False)
+        await manager.clear()
+
+
+    @commands.command()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
+    async def item(self, ctx, *, search_term):
+        """Search for a Destiny 2 item"""
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        await ctx.channel.trigger_typing()
+
+        try:
+            res = await self.destiny.api.search_destiny_entities('DestinyInventoryItemDefinition', search_term)
+        except pydest.PydestException as e:
+            await manager.say("Sorry, I can't seem to search for items right now")
+            return await manager.clear()
+
+        if res['ErrorCode'] != 1:
+            await manager.say("Sorry, I can't seem to search for items right now")
+            return await manager.clear()
+
+        # Check how many results were found - we need at least one
+        num_results = res['Response']['results']['totalResults']
+        if num_results == 0:
+            await manager.say("I didn't find any items that match your search.")
+            return await manager.clear()
+
+        for i, entry in enumerate(res['Response']['results']['results']):
+
+            # Display a max of 4 items
+            if i == 4:
+                break
+
+            item_hash = entry['hash']
+            item = await self.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
+
+            e = discord.Embed()
+            e.title = item['displayProperties']['name']
+            e.description = "*{}*".format(item['displayProperties']['description'])
+            e.set_thumbnail(url=BASE_URL + item['displayProperties']['icon'])
+
+            item_rarity = item['inventory']['tierType']
+            if item_rarity == 2:
+                e.color = discord.Color.light_gray()
+            if item_rarity == 3:
+                e.color = discord.Color.green()
+            if item_rarity == 4:
+                e.color = discord.Color.blue()
+            elif item_rarity == 5:
+                e.color = discord.Color.purple()
+            elif item_rarity == 6:
+                e.color = discord.Color.gold()
+            else:
+                e.color = constants.BLUE
+
+            await manager.say(e, embed=True, delete=False)
+
         await manager.clear()
