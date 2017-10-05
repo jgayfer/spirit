@@ -275,6 +275,7 @@ class Destiny:
     async def item(self, ctx, *, search_term):
         """Search for a Destiny 2 item"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        paginator = Paginator(self.bot, ctx)
         await ctx.channel.trigger_typing()
 
         try:
@@ -301,7 +302,6 @@ class Destiny:
 
             item_hash = entry['hash']
             item = await self.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
-            print(item)
 
             e = discord.Embed()
             e.title = item['displayProperties']['name']
@@ -322,6 +322,7 @@ class Destiny:
             else:
                 e.color = constants.BLUE
 
-            await manager.say(e, embed=True, delete=False)
+            paginator.add_embed(e)
 
+        await paginator.paginate()
         await manager.clear()
