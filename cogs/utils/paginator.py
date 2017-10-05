@@ -9,6 +9,7 @@ class Paginator:
         self.ctx = ctx
         self.embeds = []
         self.current_page = 0
+        self.length = 0
         self.message = None
         self.action = None
         self.paginating = False
@@ -20,18 +21,19 @@ class Paginator:
 
     def add_embed(self, embed):
         self.embeds.append(embed)
+        self.length = len(self.embeds)
 
     async def first_page(self):
         await self.show_page(0)
 
     async def last_page(self):
-        await self.show_page(len(self.embeds) - 1)
+        await self.show_page(self.length - 1)
 
     async def first_page(self):
         await self.show_page(0)
 
     async def next_page(self):
-        if self.current_page < len(self.embeds) - 1:
+        if self.current_page < self.length - 1:
             await self.show_page(self.current_page + 1)
 
     async def previous_page(self):
@@ -41,14 +43,12 @@ class Paginator:
     async def show_page(self, page_num):
         """Display the given page"""
         self.current_page = page_num
-        total_pages = len(self.embeds)
 
-        if total_pages == 0:
+        if self.length == 0:
             return
+        elif self.length > 1:
+            self.embeds[self.current_page].set_footer(text="Page {} of {}".format(page_num + 1, self.length))
 
-        if total_pages > 1:
-            self.embeds[self.current_page].set_footer(text="Page {} of {}".format(page_num + 1, total_pages))
-            
         if not self.message:
             self.message = await self.ctx.send(embed=self.embeds[self.current_page])
             await self.add_reactions()
@@ -71,11 +71,11 @@ class Paginator:
 
     async def add_reactions(self):
         """Add reaction 'buttons'"""
-        if len(self.embeds) == 1:
+        if self.length == 1:
             return
 
         for (reaction, _) in self.reaction_emojis:
-            if len(self.embeds) == 2 and reaction in ('\u23ed', '\u23ee'):
+            if self.length == 2 and reaction in ('\u23ed', '\u23ee'):
                 continue
             await self.message.add_reaction(reaction)
 

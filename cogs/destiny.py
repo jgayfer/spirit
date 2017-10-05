@@ -299,6 +299,9 @@ class Destiny:
             item_hash = entry['hash']
             item = await self.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
 
+            if item['itemType'] not in (2, 3):
+                continue
+
             e = discord.Embed()
             e.title = item['displayProperties']['name']
             e.description = "*{}*".format(item['displayProperties']['description'])
@@ -319,6 +322,10 @@ class Destiny:
                 e.color = constants.BLUE
 
             paginator.add_embed(e)
+
+        if not paginator.length:
+            await manager.say("I didn't find any items that match your search.")
+            return await manager.clear()
 
         await paginator.paginate()
         await manager.clear()
