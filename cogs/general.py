@@ -22,6 +22,8 @@ class General:
         Send a message to the bot's developer
 
         Ex. '!feedback Your bot is awesome!'
+
+        This command was adapted from RoboDanny by Rapptz - https://www.github.com/Rapptz/RoboDanny
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
@@ -58,7 +60,10 @@ class General:
     @commands.command()
     @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def about(self, ctx):
-        """Display information about the bot itself"""
+        """Display information about the bot itself
+
+        This command was adapted from RoboDanny by Rapptz - https://www.github.com/Rapptz/RoboDanny
+        """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         e = discord.Embed(title='Spirit v{}'.format(constants.VERSION), colour=constants.BLUE)
 

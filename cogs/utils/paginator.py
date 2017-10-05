@@ -2,6 +2,7 @@ import asyncio
 
 
 class Paginator:
+    """This code was adapted from RoboDanny by Rapptz - https://www.github.com/Rapptz/RoboDanny"""
 
     def __init__(self, bot, ctx):
         self.bot = bot
