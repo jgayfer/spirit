@@ -7,6 +7,7 @@ import pytz
 
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants
+from cogs.utils.paginator import Paginator
 
 
 BASE_URL = 'https://www.bungie.net'
@@ -300,6 +301,7 @@ class Destiny:
 
             item_hash = entry['hash']
             item = await self.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
+            print(item)
 
             e = discord.Embed()
             e.title = item['displayProperties']['name']
@@ -323,3 +325,12 @@ class Destiny:
             await manager.say(e, embed=True, delete=False)
 
         await manager.clear()
+
+    @commands.command()
+    async def test(self, ctx):
+        e = discord.Embed(title='test')
+        e2 = discord.Embed(title='test2')
+        p = Paginator(self.bot, ctx)
+        p.add_embed(e)
+        p.add_embed(e2)
+        await p.paginate()
