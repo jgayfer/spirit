@@ -40,9 +40,6 @@ class Paginator:
 
     async def show_page(self, page_num):
         """Display the given page"""
-        if self.paginating and page_num == self.current_page:
-            return
-
         if len(self.embeds) == 0:
             return
 
@@ -80,7 +77,8 @@ class Paginator:
 
     async def paginate(self):
         """Display message and start listening for reactions"""
-        await self.show_page(self.current_page)
+        func = self.show_page(self.current_page)
+        self.bot.loop.create_task(func)
         self.paginating = True
 
         while self.paginating:

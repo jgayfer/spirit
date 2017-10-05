@@ -296,10 +296,6 @@ class Destiny:
 
         for i, entry in enumerate(res['Response']['results']['results']):
 
-            # Display a max of 4 items
-            if i == 4:
-                break
-
             item_hash = entry['hash']
             item = await self.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
 
@@ -312,7 +308,7 @@ class Destiny:
             if item_rarity == 2:
                 e.color = discord.Color.light_grey()
             elif item_rarity == 3:
-                e.color = discord.Color.green()
+                e.color = discord.Color.dark_green()
             elif item_rarity == 4:
                 e.color = discord.Color.blue()
             elif item_rarity == 5:

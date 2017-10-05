@@ -110,10 +110,11 @@ class General:
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         e = discord.Embed(colour=constants.BLUE)
 
-        text = ("Spirit is a work of love that has taken countless hours to develop. Your monthly donation "
-              + "will go towards server hosting costs, development tools, and will also earn you "
-              + "some special privelges on the Spirit Discord server!\n\n"
-              + "Support Spirit here: https://www.patreon.com/spiritbot")
+        text = ("Spirit is a work of love that has taken countless hours to develop. Your donation "
+              + "will go towards server hosting costs, development tools, and if you donate "
+              + "monthly, will also earn you some special privelges on the Spirit Discord server!\n\n"
+              + "Donate monthly: https://www.patreon.com/spiritbot\n"
+              + "Donate once: https://www.paypal.me/spiritbot")
         reward_1 = "- Colored name on the Spirit Discord server"
         reward_2 = ("- Patron role and colored name on the Spirit Discord server\n"
                   + "- Access to the developer blog on Patreon and the Spirit Discord server\n"
