@@ -325,12 +325,3 @@ class Destiny:
             await manager.say(e, embed=True, delete=False)
 
         await manager.clear()
-
-    @commands.command()
-    async def test(self, ctx):
-        e = discord.Embed(title='test')
-        e2 = discord.Embed(title='test2')
-        p = Paginator(self.bot, ctx)
-        p.add_embed(e)
-        p.add_embed(e2)
-        await p.paginate()
