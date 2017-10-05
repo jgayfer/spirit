@@ -157,7 +157,10 @@ class Events:
                 deleted =  await self.delete_event(guild, title, member, channel)
 
             if not deleted:
-                await message.remove_reaction(emoji, member)
+                try:
+                    await message.remove_reaction(emoji, member)
+                except:
+                    pass
 
 
     async def set_attendance(self, member, guild, attending, title, message):
