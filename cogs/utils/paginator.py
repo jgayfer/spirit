@@ -46,7 +46,9 @@ class Paginator:
         if total_pages == 0:
             return
 
-        self.embeds[self.current_page].set_footer(text="Page {} of {}".format(page_num + 1, total_pages))
+        if total_pages > 1:
+            self.embeds[self.current_page].set_footer(text="Page {} of {}".format(page_num + 1, total_pages))
+            
         if not self.message:
             self.message = await self.ctx.send(embed=self.embeds[self.current_page])
             await self.add_reactions()
