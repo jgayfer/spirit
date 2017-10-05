@@ -308,12 +308,12 @@ class Destiny:
             e.description = "*{}*".format(item['displayProperties']['description'])
             e.set_thumbnail(url=BASE_URL + item['displayProperties']['icon'])
 
-            item_rarity = item['inventory']['tierType']
+            item_rarity = int(item['inventory']['tierType'])
             if item_rarity == 2:
-                e.color = discord.Color.light_gray()
-            if item_rarity == 3:
+                e.color = discord.Color.light_grey()
+            elif item_rarity == 3:
                 e.color = discord.Color.green()
-            if item_rarity == 4:
+            elif item_rarity == 4:
                 e.color = discord.Color.blue()
             elif item_rarity == 5:
                 e.color = discord.Color.purple()
