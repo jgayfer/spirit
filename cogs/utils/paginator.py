@@ -40,11 +40,13 @@ class Paginator:
 
     async def show_page(self, page_num):
         """Display the given page"""
-        if len(self.embeds) == 0:
+        self.current_page = page_num
+        total_pages = len(self.embeds)
+
+        if total_pages == 0:
             return
 
-        self.current_page = page_num
-
+        self.embeds[self.current_page].set_footer(text="Page {} of {}".format(page_num + 1, total_pages))
         if not self.message:
             self.message = await self.ctx.send(embed=self.embeds[self.current_page])
             await self.add_reactions()

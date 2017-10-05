@@ -312,7 +312,7 @@ class Destiny:
             elif item_rarity == 4:
                 e.color = discord.Color.blue()
             elif item_rarity == 5:
-                e.color = discord.Color.purple()
+                e.color = discord.Color.dark_purple()
             elif item_rarity == 6:
                 e.color = discord.Color.gold()
             else:
