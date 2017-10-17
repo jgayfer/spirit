@@ -19,26 +19,33 @@ class Paginator:
             ('\N{BLACK RIGHT-POINTING TRIANGLE}', self.next_page),
             ('\N{BLACK RIGHT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}', self.last_page)]
 
+
     def add_embed(self, embed):
         self.embeds.append(embed)
         self.length = len(self.embeds)
 
+
     async def first_page(self):
         await self.show_page(0)
+
 
     async def last_page(self):
         await self.show_page(self.length - 1)
 
+
     async def first_page(self):
         await self.show_page(0)
+
 
     async def next_page(self):
         if self.current_page < self.length - 1:
             await self.show_page(self.current_page + 1)
 
+
     async def previous_page(self):
         if self.current_page != 0:
             await self.show_page(self.current_page - 1)
+
 
     async def show_page(self, page_num):
         """Display the given page"""
@@ -55,6 +62,7 @@ class Paginator:
         else:
             await self.message.edit(embed=self.embeds[self.current_page])
 
+
     def react_check(self, reaction, user):
         """Check if reaction is valid. Set action function if it matches"""
         if user is None or user.id != self.ctx.author.id:
@@ -69,6 +77,7 @@ class Paginator:
                 return True
         return False
 
+
     async def add_reactions(self):
         """Add reaction 'buttons'"""
         if self.length == 1:
@@ -79,6 +88,7 @@ class Paginator:
                 continue
             await self.message.add_reaction(reaction)
 
+
     async def paginate(self):
         """Display message and start listening for reactions"""
         func = self.show_page(self.current_page)
@@ -87,16 +97,20 @@ class Paginator:
 
         while self.paginating:
             try:
-                reaction, user = await self.bot.wait_for('reaction_add', check=self.react_check, timeout=120.0)
+                reaction, user = await self.bot.wait_for('reaction_add', check=self.react_check, timeout=90.0)
             except asyncio.TimeoutError:
                 self.paginating = False
+
+                # Remove footer
+                self.embeds[self.current_page].set_footer(text="")
+                await self.message.edit(embed=self.embeds[self.current_page])
+
                 try:
                     await self.message.clear_reactions()
                 except:
                     pass
                 finally:
                     break
-
             try:
                 await self.message.remove_reaction(reaction, user)
             except:
