@@ -95,11 +95,13 @@ class Item:
 
         # Basic stats
         info_field = ""
-        slot = item['itemTypeDisplayName']
-        info_field += "\n**Slot:** {}".format(slot)
-        min_defense = stats['3897883278']['minimum']
-        max_defense = stats['3897883278']['maximum']
-        info_field += "\n**Defense:** {}-{}".format(min_defense, max_defense) if (min_defense and max_defense) else "\u200B"
+        if item.get('itemTypeDisplayName'):
+            slot = item['itemTypeDisplayName']
+            info_field += "\n**Slot:** {}".format(slot)
+        if stats.get('3897883278'):
+            min_defense = stats['3897883278']['minimum']
+            max_defense = stats['3897883278']['maximum']
+            info_field += "\n**Defense:** {}-{}".format(min_defense, max_defense)
 
         if not info_field:
             info_field = "\u200B"
@@ -141,15 +143,19 @@ class Item:
 
         # Basic info field
         info_field = ""
-        wep_type = item['itemTypeDisplayName']
-        info_field += "\n**Type:** {}".format(wep_type) if wep_type else "\u200B"
-        min_attack = stats['1480404414']['minimum']
-        max_attack = stats['1480404414']['maximum']
-        info_field += "\n**Attack:** {}-{}".format(min_attack, max_attack)  if (min_attack & max_attack) else "\u200B"
-        magazine = stats['3871231066']['value']
-        info_field += "\n**Magazine:** {}".format(magazine) if magazine else "\u200B"
-        rpm = stats['4284893193']['value']
-        info_field += "\n**RPM:** {}".format(rpm) if rpm else "\u200B"
+        if item.get('itemTypeDisplayName'):
+            wep_type = item['itemTypeDisplayName']
+            info_field += "\n**Type:** {}".format(wep_type)
+        if stats.get('1480404414'):
+            min_attack = stats['1480404414']['minimum']
+            max_attack = stats['1480404414']['maximum']
+            info_field += "\n**Attack:** {}-{}".format(min_attack, max_attack)
+        if stats.get('3871231066'):
+            magazine = stats['3871231066']['value']
+            info_field += "\n**Magazine:** {}".format(magazine)
+        if stats.get('4284893193'):
+            rpm = stats['4284893193']['value']
+            info_field += "\n**RPM:** {}".format(rpm)
 
         if not info_field:
             info_field = "\u200B"
@@ -157,16 +163,21 @@ class Item:
 
         # Stats field
         stats_field = ""
-        impact = stats['4043523819']['value']
-        stats_field += "\n**Impact:** {}".format(impact) if impact else "\u200B"
-        wep_range = stats['1240592695']['value']
-        stats_field += "\n**Range:** {}".format(wep_range) if wep_range else "\u200B"
-        stability = stats['155624089']['value']
-        stats_field += "\n**Stability:** {}".format(stability) if stability else "\u200B"
-        reload_speed = stats['4188031367']['value']
-        stats_field += "\n**Reload Speed:** {}".format(reload_speed) if reload_speed else "\u200B"
-        handling = stats['943549884']['value']
-        stats_field += "\n**Handling:** {}".format(handling) if handling else "\u200B"
+        if stats.get('4043523819'):
+            impact = stats['4043523819']['value']
+            stats_field += "\n**Impact:** {}".format(impact)
+        if stats.get('1240592695'):
+            wep_range = stats['1240592695']['value']
+            stats_field += "\n**Range:** {}".format(wep_range)
+        if stats.get('155624089'):
+            stability = stats['155624089']['value']
+            stats_field += "\n**Stability:** {}".format(stability)
+        if stats.get('4188031367'):
+            reload_speed = stats['4188031367']['value']
+            stats_field += "\n**Reload Speed:** {}".format(reload_speed)
+        if stats.get('943549884'):
+            handling = stats['943549884']['value']
+            stats_field += "\n**Handling:** {}".format(handling)
 
         if not stats_field:
             stats_field = "\u200B"
@@ -192,6 +203,7 @@ class Item:
         perks_field = ""
         for index in perk_indexes:
             perk_text = await self.format_perk(item, index)
+            print(repr(perk_text))
             perks_field += "\n{}".format(perk_text) if perk_text else "\u200B"
         if perks_field:
             embed.add_field(name="Perks", value=perks_field)
@@ -220,5 +232,6 @@ class Item:
             description = split[1].rstrip('\n')
         else:
             description = perk['displayProperties']['description'].rstrip('\n')
+        description = description.split('\n  •')[0]
 
         return "**{}:** {}".format(name, description)
