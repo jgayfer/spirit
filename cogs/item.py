@@ -203,7 +203,6 @@ class Item:
         perks_field = ""
         for index in perk_indexes:
             perk_text = await self.format_perk(item, index)
-            print(repr(perk_text))
             perks_field += "\n{}".format(perk_text) if perk_text else "\u200B"
         if perks_field:
             embed.add_field(name="Perks", value=perks_field)
