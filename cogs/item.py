@@ -46,6 +46,7 @@ class Item:
 
             item_hash = entry['hash']
             item = await self.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
+            print(item)
 
             # If item isn't a weapon or armor piece, skip to the next one
             if item['itemType'] not in (2, 3):
@@ -156,6 +157,12 @@ class Item:
         if stats.get('4284893193'):
             rpm = stats['4284893193']['value']
             info_field += "\n**RPM:** {}".format(rpm)
+        if stats.get('2961396640'):
+            charge_time = stats['2961396640']['value']
+            info_field += "\n**Charge Time:** {}".format(charge_time)
+        if stats.get('3614673599'):
+            blast_radius = stats['3614673599']['value']
+            info_field += "\n**Blast Radius:** {}".format(blast_radius)
 
         if not info_field:
             info_field = "\u200B"
@@ -178,6 +185,9 @@ class Item:
         if stats.get('943549884'):
             handling = stats['943549884']['value']
             stats_field += "\n**Handling:** {}".format(handling)
+        if stats.get('2523465841'):
+            velocity = stats['2523465841']['value']
+            stats_field += "\n**Velocity:** {}".format(velocity)
 
         if not stats_field:
             stats_field = "\u200B"
