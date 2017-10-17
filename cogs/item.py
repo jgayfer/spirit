@@ -1,3 +1,5 @@
+import asyncio
+
 from discord.ext import commands
 import discord
 
@@ -45,6 +47,7 @@ class Item:
             item_hash = entry['hash']
             item = await self.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
 
+            # If item isn't a weapon or armor piece, skip to the next one
             if item['itemType'] not in (2, 3):
                 continue
 
@@ -71,9 +74,10 @@ class Item:
             # Add armor/weapon specific information
             if item['itemType'] == 3:
                 e = self.embed_weapon(e, item)
+                e = await self.embed_perks(e, item, 4241085061)
             else:
-                #armor
-                pass
+                e = self.embed_armor(e, item)
+                e = await self.embed_perks(e, item, 2518356196)
 
             paginator.add_embed(e)
 
@@ -83,6 +87,41 @@ class Item:
 
         await paginator.paginate()
         await manager.clear()
+
+
+    def embed_armor(self, embed, item):
+        """Add armor specific attributes to item embed"""
+        stats = item['stats']['stats']
+
+        # Basic stats
+        info_field = ""
+        slot = item['itemTypeDisplayName']
+        info_field += "\n**Slot:** {}".format(slot)
+        min_defense = stats['3897883278']['minimum']
+        max_defense = stats['3897883278']['maximum']
+        info_field += "\n**Defense:** {}-{}".format(min_defense, max_defense) if (min_defense and max_defense) else "\u200B"
+
+        if not info_field:
+            info_field = "\u200B"
+        embed.add_field(name="Stats", value=info_field, inline=True)
+
+        # Mobility, Resilience, Recovery
+        stats_field = ""
+        if stats.get('2996146975'):
+            mobility = stats['2996146975']['value']
+            stats_field += "\n**Mobility:** {}".format(mobility) if mobility else "\u200B"
+        if stats.get('392767087'):
+            resilience = stats['392767087']['value']
+            stats_field += "\n**Resilience:** {}".format(resilience) if resilience else "\u200B"
+        if stats.get('1943323491'):
+            recovery = stats['1943323491']['value']
+            stats_field += "\n**Recovery:** {}".format(recovery) if recovery else "\u200B"
+
+        if not stats_field:
+            stats_field = "\u200B"
+        embed.add_field(name="\u200B", value=stats_field, inline=True)
+
+        return embed
 
 
     def embed_weapon(self, embed, item):
@@ -103,27 +142,83 @@ class Item:
         # Basic info field
         info_field = ""
         wep_type = item['itemTypeDisplayName']
-        info_field += "\n**Type:** {}".format(wep_type)
-        attack = stats['1480404414']['value']
-        info_field += "\n**Attack:** {}".format(attack)
+        info_field += "\n**Type:** {}".format(wep_type) if wep_type else "\u200B"
+        min_attack = stats['1480404414']['minimum']
+        max_attack = stats['1480404414']['maximum']
+        info_field += "\n**Attack:** {}-{}".format(min_attack, max_attack)  if (min_attack & max_attack) else "\u200B"
         magazine = stats['3871231066']['value']
-        info_field += "\n**Magazine:** {}".format(magazine)
+        info_field += "\n**Magazine:** {}".format(magazine) if magazine else "\u200B"
         rpm = stats['4284893193']['value']
-        info_field += "\n**RPM:** {}".format(rpm)
+        info_field += "\n**RPM:** {}".format(rpm) if rpm else "\u200B"
+
+        if not info_field:
+            info_field = "\u200B"
         embed.add_field(name="Stats", value=info_field, inline=True)
 
         # Stats field
         stats_field = ""
         impact = stats['4043523819']['value']
-        stats_field += "\n**Impact:** {}".format(impact)
+        stats_field += "\n**Impact:** {}".format(impact) if impact else "\u200B"
         wep_range = stats['1240592695']['value']
-        stats_field += "\n**Range:** {}".format(wep_range)
+        stats_field += "\n**Range:** {}".format(wep_range) if wep_range else "\u200B"
         stability = stats['155624089']['value']
-        stats_field += "\n**Stability:** {}".format(stability)
+        stats_field += "\n**Stability:** {}".format(stability) if stability else "\u200B"
         reload_speed = stats['4188031367']['value']
-        stats_field += "\n**Reload Speed:** {}".format(reload_speed)
+        stats_field += "\n**Reload Speed:** {}".format(reload_speed) if reload_speed else "\u200B"
         handling = stats['943549884']['value']
-        stats_field += "\n**Handling:** {}".format(handling)
+        stats_field += "\n**Handling:** {}".format(handling) if handling else "\u200B"
+
+        if not stats_field:
+            stats_field = "\u200B"
         embed.add_field(name="\u200B", value=stats_field, inline=True)
 
         return embed
+
+
+    async def embed_perks(self, embed, item, perk_hash):
+        """Add perks to item embed object"""
+        if not item.get('sockets'):
+            return embed
+
+        # Get indexes of perks
+        perk_indexes = []
+        socket_categories = item['sockets']['socketCategories']
+        for category in socket_categories:
+            if category['socketCategoryHash'] == perk_hash:
+                perk_indexes = category['socketIndexes']
+                break
+
+        # Decode perk info and add to embed
+        perks_field = ""
+        for index in perk_indexes:
+            perk_text = await self.format_perk(item, index)
+            perks_field += "\n{}".format(perk_text) if perk_text else "\u200B"
+        if perks_field:
+            embed.add_field(name="Perks", value=perks_field)
+
+        return embed
+
+
+    async def format_perk(self, item, index):
+        """Formulate a textual representation of a perk and it's options (if it has them)"""
+        perk_options = item['sockets']['socketEntries'][index]['reusablePlugItems']
+
+        # Don't display perks that have multiple options (for now)
+        if len(perk_options) > 1:
+            return None
+        else:
+            return await self.decode_perk(perk_options[0]['plugItemHash'])
+
+
+    async def decode_perk(self, perk_hash):
+        """Decode a single perk"""
+        perk = await self.destiny.decode_hash(perk_hash, 'DestinyInventoryItemDefinition')
+        name = perk['displayProperties']['name']
+        split = perk['displayProperties']['description'].split('\n')
+
+        if split[0].isupper() and len(split) > 1:
+            description = split[1].rstrip('\n')
+        else:
+            description = perk['displayProperties']['description'].rstrip('\n')
+
+        return "**{}:** {}".format(name, description)
