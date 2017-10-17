@@ -149,7 +149,7 @@ class Item:
         if stats.get('1480404414'):
             min_attack = stats['1480404414']['minimum']
             max_attack = stats['1480404414']['maximum']
-            info_field += "\n**Attack:** {}-{}".format(min_attack, max_attack)
+            info_field += "\n**Attack:** {}-{}".format(min_attack, max_attack) if (min_attack and max_attack) else "\u200B"
         if stats.get('3871231066'):
             magazine = stats['3871231066']['value']
             info_field += "\n**Magazine:** {}".format(magazine)
