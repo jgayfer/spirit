@@ -46,14 +46,13 @@ class Item:
 
             item_hash = entry['hash']
             item = await self.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
-            print(item)
 
             # If item isn't a weapon or armor piece, skip to the next one
             if item['itemType'] not in (2, 3):
                 continue
 
             e = discord.Embed()
-            e.title = item['displayProperties']['name']
+            e.set_author(name=item['displayProperties']['name'])
             e.description = "*{}*".format(item['displayProperties']['description'])
             e.set_thumbnail(url=BASE_URL + item['displayProperties']['icon'])
 
@@ -130,15 +129,9 @@ class Item:
     def embed_weapon(self, embed, item):
         """Add weapon specific attributes to item embed"""
         damage_type = item['defaultDamageType']
-        if damage_type == 2:
-            damage_emoji = self.bot.get_emoji(constants.ARC_ICON)
-        elif damage_type == 3:
-            damage_emoji = self.bot.get_emoji(constants.SOLAR_ICON)
-        elif damage_type == 4:
-            damage_emoji = self.bot.get_emoji(constants.VOID_ICON)
-        else:
-            damage_emoji = None
-        embed.title += str(damage_emoji) if damage_emoji else ""
+        if damage_type in (2,3,4):
+            item_name = item['displayProperties']['name']
+            embed.set_author(name=item_name, icon_url=constants.ELEMENTS.get(damage_type))
 
         stats = item['stats']['stats']
 
