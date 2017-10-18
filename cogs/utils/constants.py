@@ -44,6 +44,3 @@ PLATFORMS = {'PC': 4, 'XBOX': 1, 'PLAYSTATION': 2}
 PLATFORM_URLS = {1: 'https://i.imgur.com/DVskgVl.jpg', 2: 'https://i.imgur.com/nFv0wtf.png'}
 
 ELEMENTS = {2: 'https://i.imgur.com/pR2hu13.png', 3: 'https://i.imgur.com/paWpNGd.png', 4: 'https://i.imgur.com/RHDetvb.png'}
-
-STAT_BLACKLIST = {1331482397: "multi tool", 3089417788: "mini tool", 2362471601: "rat king",
-                  2907129556: "sturm", 3580904580: "legend of acrius", 1744115122: "legend of acrius 2"}

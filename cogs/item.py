@@ -73,16 +73,10 @@ class Item:
 
             # Add armor/weapon specific information
             if item['itemType'] == 3:
-                if constants.STAT_BLACKLIST.get(item['hash']):
-                    e.add_field(name="Stats", value="-")
-                else:
-                    e = self.embed_weapon(e, item)
+                e = self.embed_weapon(e, item)
                 e = await self.embed_perks(e, item, 4241085061)
             else:
-                if not constants.STAT_BLACKLIST.get(item['hash']):
-                    e.add_field(name="Stats", value="-")
-                else:
-                    e = self.embed_armor(e, item)
+                e = self.embed_armor(e, item)
                 e = await self.embed_perks(e, item, 2518356196)
 
             paginator.add_embed(e)
