@@ -113,8 +113,8 @@ class General:
         text = ("Spirit is a work of love that has taken countless hours to develop. Your donation "
               + "will go towards server hosting costs, development tools, and if you donate "
               + "monthly, will also earn you some special privelges on the Spirit Discord server!\n\n"
-              + "Donate monthly: https://www.patreon.com/spiritbot\n"
-              + "Donate once: https://www.paypal.me/spiritbot")
+              + "Donate once: https://www.paypal.me/spiritbot\n"
+              + "Donate monthly: https://www.patreon.com/spiritbot")
         reward_1 = "- Colored name on the Spirit Discord server"
         reward_2 = ("- Patron role and colored name on the Spirit Discord server\n"
                   + "- Access to the developer blog on Patreon and the Spirit Discord server\n"
@@ -123,9 +123,9 @@ class General:
                   + "- Your own personalized message built right into Spirit!")
 
         e.description = text
-        e.add_field(name="$1 Tier", value=reward_1)
-        e.add_field(name="$5 Tier", value=reward_2)
-        e.add_field(name="$10 Tier", value=reward_3)
+        e.add_field(name="$1/Month", value=reward_1)
+        e.add_field(name="$5/Month", value=reward_2)
+        e.add_field(name="$10/Month", value=reward_3)
 
         await manager.say(e, embed=True, delete=False)
         await manager.clear()
