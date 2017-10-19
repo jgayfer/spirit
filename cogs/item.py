@@ -20,7 +20,15 @@ class Item:
     @commands.command()
     @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def item(self, ctx, *, search_term):
-        """Search for a Destiny 2 item"""
+        """Search for a Destiny 2 item
+
+        This command searches for and displays Destiny 2 items. The results are
+        limited to weapons and armour. If multiple results are found, they will
+        be displayed in a paginated format. The user who invoked the command
+        will be able to page through the results.
+
+        Note: The search term must contain a minimum of three characters.
+        """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         paginator = Paginator(self.bot, ctx)
         await ctx.channel.trigger_typing()
