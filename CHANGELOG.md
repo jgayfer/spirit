@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2017-10-18
+### Added
+- New `!item` command that allows the user to search for and display Destiny 2 weapons and armor
+- New `!donate` command that gives information on how to support the bot
+- Limit how often commands can be run to reduce the load on the bot (as well as spam)
+- Add link to the support server in the default help message
+### Fixed
+- Fix bug where entering a very large number for the max number of event attendees would cause the
+bot to be unresponsive
+- Fix bug where some commands would not properly delete messages if spam cleanup was enabled
+
 ## [1.3.4] - 2017-10-01
 ### Fixed
 - Fix bug where event creators could not delete their own events in some cases
