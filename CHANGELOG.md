@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - New `!donate` command that gives information on how to support the bot
 - Limit how often commands can be run to reduce the load on the bot (as well as spam)
 - Add link to the support server in the default help message
+### Changed
+- KAD/KDA in the `!stats pvp` command now displays the same value that is shown in game
 ### Fixed
 - Fix bug where entering a very large number for the max number of event attendees would cause the
 bot to be unresponsive
