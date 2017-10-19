@@ -242,6 +242,7 @@ class Item:
 
         split = description.split('\n')
         if split[0].isupper() and len(split) > 1:
-            description = split[1]
+            description = split[1].rstrip('\n')
 
+        description = description.split('\n  •')[0]
         return name, description
