@@ -238,12 +238,10 @@ class Item:
         """Decode a single perk"""
         perk = await self.destiny.decode_hash(perk_hash, 'DestinyInventoryItemDefinition')
         name = perk['displayProperties']['name']
-        split = perk['displayProperties']['description'].split('\n')
+        description = perk['displayProperties']['description'].rstrip('\n')
 
+        split = description.split('\n')
         if split[0].isupper() and len(split) > 1:
-            description = split[1].rstrip('\n')
-        else:
-            description = perk['displayProperties']['description'].rstrip('\n')
-        description = description.split('\n  •')[0]
+            description = split[1]
 
         return name, description
