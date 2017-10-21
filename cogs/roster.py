@@ -79,7 +79,7 @@ class Roster:
             await manager.clear()
 
 
-    @roster.command()
+    @roster.command(aliases=['view'])
     @commands.guild_only()
     async def show(self, ctx):
         """
