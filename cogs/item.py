@@ -93,8 +93,10 @@ class Item:
             await manager.say("I didn't find any items that match your search.")
             return await manager.clear()
 
+        func = manager.clear()
+        self.bot.loop.create_task(func)
         await paginator.paginate()
-        await manager.clear()
+
 
 
     def embed_armor(self, embed, item):
