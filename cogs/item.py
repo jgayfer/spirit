@@ -165,6 +165,9 @@ class Item:
         if stats.get('3614673599'):
             blast_radius = stats['3614673599']['value']
             info_field += "\nBlast Radius: {}".format(blast_radius)
+        if stats.get('1345609583'):
+            aim_assist = stats['1345609583']['value']
+            info_field += "\nAim Assist: {}".format(aim_assist)
 
         if not info_field:
             info_field = "\u200B"
