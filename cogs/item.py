@@ -31,8 +31,12 @@ class Item:
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         paginator = Paginator(self.bot, ctx)
+        if not search_terms:
+            await manager.say("You didn't enter anything!")
+            return await manager.clear()
+        
         await ctx.channel.trigger_typing()
-
+        
         try:
             res = await self.destiny.api.search_destiny_entities('DestinyInventoryItemDefinition', search_term)
         except pydest.PydestException as e:
