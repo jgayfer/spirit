@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2017-10-21
+### Added
+- Additional information added to the help message for `!help item`
+### Changed
+- Stats command disabled due to incorrect values being returned from Bungie
+
 ## [1.4.0] - 2017-10-18
 ### Added
 - New `!item` command that allows the user to search for and display Destiny 2 weapons and armor
