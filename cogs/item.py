@@ -2,6 +2,7 @@ import asyncio
 
 from discord.ext import commands
 import discord
+import pydest
 
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants
@@ -36,7 +37,10 @@ class Item:
         try:
             res = await self.destiny.api.search_destiny_entities('DestinyInventoryItemDefinition', search_term)
         except pydest.PydestException as e:
-            await manager.say("Sorry, I can't seem to search for items right now")
+            await manager.say("Sorry, I can't seem to search for items right now.")
+            return await manager.clear()
+        except ValueError as f:
+            await manager.say("Your search term contains unsupported characters.")
             return await manager.clear()
 
         if res['ErrorCode'] != 1:
