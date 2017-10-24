@@ -98,6 +98,13 @@ class Item:
         await paginator.paginate()
 
 
+    @item.error
+    async def item_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+            await manager.say("Oops! You didn't specify a search term.")
+            await manager.clear()
+
 
     def embed_armor(self, embed, item):
         """Add armor specific attributes to item embed"""
