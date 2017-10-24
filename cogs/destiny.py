@@ -93,7 +93,8 @@ class Destiny:
         # Number sign won't work, need to replace it
         if platform == 4:
             act_name = act.content.replace('#', '%23')
-            print(act_name)
+        else:
+            act_name = act.content
 
         try:
             res = await self.destiny.api.search_destiny_player(platform, act_name)
