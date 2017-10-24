@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add aliases for `settimezone` and `setclass`
 ### Changed
 - When registering, your platform is now selected with a reaction
+- Enable `stats` command
 ### Fixed
 - Fix bug where using invalid characters in `item` command would cause it to be unresponsive
 - Fix bug where error message didn't display if no search term was passed to `item` command

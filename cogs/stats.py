@@ -26,10 +26,6 @@ class Stats:
     async def pvp(self, ctx):
         """Display Crucible stats for all characters on an account"""
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-
-        await manager.say("Stats are temporarly disabled as incorrect values are being returned from Bungie")
-        return await manager.clear()
-
         await ctx.channel.trigger_typing()
 
         # Check if user has registered their D2 account with the bot

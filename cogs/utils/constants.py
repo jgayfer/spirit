@@ -45,6 +45,6 @@ RELEASE_DATES = [
                 ]
 
 PLATFORMS = {'bnet': 4, 'xbox': 1, 'ps': 2}
-PLATFORM_URLS = {1: 'https://i.imgur.com/DVskgVl.jpg', 2: 'https://i.imgur.com/nFv0wtf.png'}
+PLATFORM_URLS = {1: 'https://i.imgur.com/DVskgVl.jpg', 2: 'https://i.imgur.com/nFv0wtf.png', 4: 'https://i.imgur.com/pMA45Vc.png'}
 
 ELEMENTS = {2: 'https://i.imgur.com/pR2hu13.png', 3: 'https://i.imgur.com/paWpNGd.png', 4: 'https://i.imgur.com/RHDetvb.png'}
