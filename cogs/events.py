@@ -137,8 +137,7 @@ class Events:
             return
         try:
             message = await channel.get_message(message_id)
-        except discord.errors.Forbidden as e:
-            # Don't have permission to read this message
+        except e:
             return
 
         guild = channel.guild
