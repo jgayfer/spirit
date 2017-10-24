@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5] - 2017-10-24
+### Added
+- Add PC support
+- Add aim assist to `item` command
+- Add aliases for `settimezone` and `setclass`
+### Changed
+- When registering, your platform is now selected with a reaction
+### Fixed
+- Fix bug where using invalid characters in `item` command would cause it to be unresponsive
+- Fix bug where error message didn't display if no search term was passed to `item` command
+- Fix bug where spam wasn't cleaned up right away when using the `item` command
+
 ## [1.4.1] - 2017-10-21
 ### Added
 - Additional information added to the help message for `!help item`
