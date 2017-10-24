@@ -21,7 +21,7 @@ class Roster:
             await ctx.invoke(cmd, 'roster')
 
 
-    @roster.command()
+    @roster.command(aliases=['class'])
     @commands.guild_only()
     async def setclass(self, ctx, role):
         """
@@ -49,7 +49,7 @@ class Roster:
             await manager.clear()
 
 
-    @roster.command()
+    @roster.command(aliases=['timezone', 'tz'])
     @commands.guild_only()
     async def settimezone(self, ctx, *, time_zone):
         """
