@@ -90,8 +90,13 @@ class Destiny:
         if not act:
             return await manager.clear()
 
+        # Number sign won't work, need to replace it
+        if platform == 4:
+            act_name = act.content.replace('#', '%23')
+            print(act_name)
+
         try:
-            res = await self.destiny.api.search_destiny_player(platform, act.content)
+            res = await self.destiny.api.search_destiny_player(platform, act_name)
         except ValueError as e:
             await manager.say("Invalid account name. If this seems wrong, please contact the developer.")
             return await manager.clear()
