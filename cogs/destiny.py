@@ -70,8 +70,8 @@ class Destiny:
                               self.bot.get_emoji(constants.PS_ICON),
                               self.bot.get_emoji(constants.BNET_ICON))
 
-        for platform_icon in platform_reactions:
-            await platform_msg.add_reaction(platform_icon)
+        func = self.add_reactions(platform_msg, platform_reactions)
+        self.bot.loop.create_task(func)
 
         def check_reaction(reaction, user):
             if reaction.message.id == platform_msg.id and user == ctx.author:
@@ -118,6 +118,12 @@ class Destiny:
             self.bot.db.update_registration(platform, membership_id, ctx.author.id)
 
         return await manager.clear()
+
+
+    async def add_reactions(self, message, reactions):
+        """Add platform reactions to message"""
+        for icon in reactions:
+            await message.add_reaction(icon)
 
 
     @commands.command()
