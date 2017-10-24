@@ -72,21 +72,18 @@ class MessageManager:
 
 
     async def say(self, content, embed=False, dm=False, delete=True, mention=True):
-        """Send a message to the user. Return True on success."""
+        """Send a message to the user. Return the message on success"""
         if dm:
             try:
                 if embed:
-                    await self.user.send(embed=content)
+                    return await self.user.send(embed=content)
                 else:
-                    await self.user.send(content)
+                    return await self.user.send(content)
             except:
                 if mention and not isinstance(self.channel, discord.abc.PrivateChannel):
                     await self.channel.send("{}: Oops, it looks like I'm not allowed to send you a private message".format(self.user.mention))
                 else:
                     await self.channel.send("Oops, it looks like I'm not allowed to send you a private message".format(self.user.mention))
-            else:
-                return True
-
         else:
             if embed:
                 msg = await self.channel.send(embed=content)
@@ -97,7 +94,7 @@ class MessageManager:
                     msg = await self.channel.send(content)
             if delete:
                 self.messages.append(msg)
-            return True
+            return msg
 
 
     async def clear(self):

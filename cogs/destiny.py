@@ -1,4 +1,5 @@
 from datetime import datetime
+import asyncio
 
 from discord.ext import commands
 import discord
@@ -57,20 +58,33 @@ class Destiny:
         if not isinstance(ctx.channel, discord.abc.PrivateChannel):
             await manager.say("Registration instructions have been messaged to you")
 
-        msg_sent = await manager.say("Registering your Destiny 2 account with me will allow "
-                                   + "you to invoke commands that use information from your "
-                                   + "public Destiny 2 profile.", dm=True)
-        if not msg_sent:
-            return await manager.clear()
-
         platform = None
-        while not platform:
-            res = await manager.say_and_wait("Enter your platform (**xbox** or **playstation**):", dm=True)
-            if not res:
-                return await manager.clear()
-            platform = constants.PLATFORMS.get(res.content.upper())
-            if not platform:
-                await manager.say("Invalid platform. Try again.", dm=True)
+        platform_msg = await manager.say("Registering your Destiny 2 account with me will allow "
+                                       + "you to invoke commands that use information from your "
+                                       + "public Destiny 2 profile. Note that you can only be "
+                                       + "registered with one platform at a time; registering again "
+                                       + "will overwrite your current registration.\n\n"
+                                       + "Select a platform:", dm=True)
+
+        platform_reactions = (self.bot.get_emoji(constants.XBOX_ICON),
+                              self.bot.get_emoji(constants.PS_ICON),
+                              self.bot.get_emoji(constants.BNET_ICON))
+
+        for platform_icon in platform_reactions:
+            await platform_msg.add_reaction(platform_icon)
+
+        def check_reaction(reaction, user):
+            if reaction.message.id == platform_msg.id and user == ctx.author:
+                for emoji in platform_reactions:
+                    if reaction.emoji == emoji:
+                        return True
+
+        try:
+            reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=check_reaction)
+        except asyncio.TimeoutError:
+            await manager.say("I'm not sure where you went. We can try this again later.", dm=True)
+            return await manager.clear()
+        platform = constants.PLATFORMS.get(reaction.emoji.name)
 
         act = await manager.say_and_wait("Enter your exact **account name**:", dm=True)
         if not act:
