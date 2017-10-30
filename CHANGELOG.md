@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.5] - 2017-10-24
+## [1.5.1] - 2017-10-30
+### Added
+- Curse of Osiris to `!countdown` command
+- Placeholder message to `!countdown` command when there are no known release dates
+### Fixed
+- Fixed issue where `!register` command would send instructions outside of a private message
+
+## [1.5.0] - 2017-10-24
 ### Added
 - Add PC support
 - Add aim assist to `item` command
