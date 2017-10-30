@@ -38,6 +38,9 @@ class Destiny:
             elif days > 1:
                 text += "{}: {} days\n".format(name, days)
 
+        if not text:
+            text = "There are no concrete dates for our next adventure..."
+
         countdown = discord.Embed(title="Destiny 2 Countdown", color=constants.BLUE)
         countdown.description = text
         await manager.say(countdown, embed=True, delete=False)

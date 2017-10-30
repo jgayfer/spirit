@@ -41,7 +41,8 @@ RELEASE_DATES = [
                  ("PC Beta", datetime(2017, 8, 28, tzinfo=pytz.timezone('US/Pacific'))),
                  ("Console Release", datetime(2017, 9, 6, tzinfo=pytz.timezone('US/Pacific'))),
                  ("Console Raid", datetime(2017, 9, 13, tzinfo=pytz.timezone('US/Pacific'))),
-                 ("PC Release", datetime(2017, 10, 24, tzinfo=pytz.timezone('US/Pacific')))
+                 ("PC Release", datetime(2017, 10, 24, tzinfo=pytz.timezone('US/Pacific'))),
+                 ("Curse of Osiris", datetime(2017, 12, 5, tzinfo=pytz.timezone('US/Pacific')))
                 ]
 
 PLATFORMS = {'bnet': 4, 'xbox': 1, 'ps': 2}
