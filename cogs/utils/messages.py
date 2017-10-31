@@ -113,4 +113,7 @@ class MessageManager:
 
             if cleanup:
                 await asyncio.sleep(constants.SPAM_DELAY)
-                await self.channel.purge(limit=999, check=check)
+                try:
+                    await self.channel.purge(limit=999, check=check)
+                except:
+                    pass
