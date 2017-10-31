@@ -137,7 +137,7 @@ class Events:
             return
         try:
             message = await channel.get_message(message_id)
-        except e:
+        except:
             return
 
         guild = channel.guild
