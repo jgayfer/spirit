@@ -16,7 +16,7 @@ To run the bot, you'll need the following:
 - Python 3.5+
 - Pip
 - MySQL
-- Pyest (installation instructions can be found [here](https://www.github.com/jgayfer/pydest))
+- Pydest (installation instructions can be found [here](https://www.github.com/jgayfer/pydest))
 
 ### Running the Bot
 Install the required Python modules with Pip, as well as the latest version of Discord.py
