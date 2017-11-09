@@ -35,7 +35,6 @@ mysql -u root -p <database_name> < ./db/schema.sql
 ```
 
 Finally, create a `credentials.json` file at the root level of this project.
-It will contain your bot's token as well as your database user, password, host, and name.
 ```
 {
   "token": "token",
@@ -43,7 +42,8 @@ It will contain your bot's token as well as your database user, password, host, 
   "dbhost": "host",
   "dbuser": "username",
   "dbpass": "password",
-  "d2-api-key": "your-key"
+  "d2-api-key": "your-key",
+  "client_id": "your-client-id"
 }
 
 ```

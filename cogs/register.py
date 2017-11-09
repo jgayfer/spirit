@@ -10,9 +10,10 @@ from cogs.utils import constants
 
 class Register:
 
-    def __init__(self, bot, destiny):
+    def __init__(self, bot, destiny, client_id):
         self.bot = bot
         self.destiny = destiny
+        self.client_id = client_id
 
 
     async def on_ready(self):
@@ -31,8 +32,19 @@ class Register:
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
 
-        await manager.say("https://www.bungie.net/en/OAuth/Authorize?client_id=21849&response_type=code&state={}".format(ctx.author.id))
+        if not isinstance(ctx.channel, discord.abc.PrivateChannel):
+            await manager.say("Registration instructions have been messaged to you")
 
-        # Wait for message from the web server
+        # Prompt user with link to authorize
+        auth_url = "https://www.bungie.net/en/OAuth/Authorize?client_id={}&response_type=code&state={}"
+        await manager.say(auth_url.format(self.client_id, ctx.author.id), dm=True)
+
+        # Grab user info from the web server
         pickled_info = await self.redis.get(ctx.author.id)
         user_info = pickle.loads(pickled_info)
+        bungie_id = user_info.get('membership_id')
+        access_token = user_info.get('access_token')
+        refresh_token = user_info.get('refresh_token')
+
+        # Save registration info to database
+        self.bot.db.update_registration(bungie_id, access_token, refresh_token, ctx.author.id)

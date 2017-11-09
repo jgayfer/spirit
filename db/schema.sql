@@ -9,8 +9,13 @@ CREATE TABLE guilds (
 
 CREATE TABLE users (
 	user_id BIGINT NOT NULL,
+	bungie_id BIGINT,
+	pc_id BIGINT,
+	xbox_id BIGINT,
+	ps_id BIGINT,
 	platform INT,
-	membership_id BIGINT,
+	access_token TEXT,
+	refresh_token TEXT,
 	PRIMARY KEY (user_id)
 );
 

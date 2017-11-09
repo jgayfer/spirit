@@ -310,14 +310,14 @@ class DBase:
         return affected_count
 
 
-    def update_registration(self, platform, membership_id, user_id):
+    def update_registration(self, bungie_id, access_token, refresh_token, user_id):
         with self.connection.cursor() as cursor:
             sql = """
-                  INSERT into users (platform, membership_id, user_id)
-                  VALUES (%s, %s, %s)
-                  ON DUPLICATE KEY UPDATE platform = %s, membership_id = %s
+                  INSERT into users (bungie_id, access_token, refresh_token, user_id)
+                  VALUES (%s, %s, %s, %s)
+                  ON DUPLICATE KEY UPDATE bungie_id = %s, access_token = %s, refresh_token = %s;
                   """
-            affected_count = cursor.execute(sql, (platform, membership_id, user_id, platform, membership_id))
+            affected_count = cursor.execute(sql, (bungie_id, access_token, refresh_token, user_id, bungie_id, access_token, refresh_token))
         self.connection.commit()
         return affected_count
 

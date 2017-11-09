@@ -59,6 +59,7 @@ if __name__ == '__main__':
         file_dict = json.load(f)
     token = file_dict['token']
     api_key = file_dict['d2-api-key']
+    client_id = file_dict['client-id']
 
     destiny = pydest.Pydest(api_key)
     bot = Spirit(token)
@@ -73,6 +74,6 @@ if __name__ == '__main__':
     bot.add_cog(Settings(bot))
     bot.add_cog(Stats(bot, destiny))
     bot.add_cog(Item(bot, destiny))
-    bot.add_cog(Register(bot, destiny))
+    bot.add_cog(Register(bot, destiny, client_id))
 
     bot.run()
