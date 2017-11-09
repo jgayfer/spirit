@@ -1,4 +1,5 @@
 import pickle
+import asyncio
 
 from discord.ext import commands
 import discord
@@ -14,11 +15,6 @@ class Register:
         self.bot = bot
         self.destiny = destiny
         self.client_id = client_id
-
-
-    async def on_ready(self):
-        """Initialize Redis connection when bot loads"""
-        self.redis = await aioredis.create_redis(('localhost', 6379))
 
 
     @commands.command()
@@ -39,12 +35,31 @@ class Register:
         auth_url = "https://www.bungie.net/en/OAuth/Authorize?client_id={}&response_type=code&state={}"
         await manager.say(auth_url.format(self.client_id, ctx.author.id), dm=True)
 
-        # Grab user info from the web server
-        pickled_info = await self.redis.get(ctx.author.id)
-        user_info = pickle.loads(pickled_info)
+        # Wait for user info from the web server via Redis
+        res = await self.redis.subscribe(ctx.author.id)
+        tsk = asyncio.ensure_future(self.wait_for_msg(res[0]))
+        try:
+            user_info = await asyncio.wait_for(tsk, timeout=30)
+        except asyncio.TimeoutError:
+            await manager.say("Timeout")
+            return await manager.clear()
+
+        # Parse response
         bungie_id = user_info.get('membership_id')
         access_token = user_info.get('access_token')
         refresh_token = user_info.get('refresh_token')
 
         # Save registration info to database
         self.bot.db.update_registration(bungie_id, access_token, refresh_token, ctx.author.id)
+
+
+    async def on_connect(self):
+        """Initialize Redis connection when bot loads"""
+        self.redis = await aioredis.create_redis(('localhost', 6379))
+
+
+    async def wait_for_msg(self, ch):
+        """Wait for a message on the specified Redis channel"""
+        while (await ch.wait_message()):
+            pickled_msg = await ch.get()
+            return pickle.loads(pickled_msg)
