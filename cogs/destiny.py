@@ -49,7 +49,7 @@ class Destiny:
 
     @commands.command()
     @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
-    async def register(self, ctx):
+    async def register_old(self, ctx):
         """Register your Destiny 2 account with the bot
 
         This command will let the bot know which Destiny 2 profile to associate with your Discord

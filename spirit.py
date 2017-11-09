@@ -1,9 +1,11 @@
 import json
 import datetime
+import asyncio
 
 import discord
 from discord.ext import commands
 import pydest
+import aioredis
 
 from db.dbase import DBase
 from cogs.events import Events
@@ -16,6 +18,7 @@ from cogs.destiny import Destiny
 from cogs.stats import Stats
 from cogs.owner import Owner
 from cogs.item import Item
+from cogs.register import Register
 
 
 async def _prefix_callable(bot, message):
@@ -51,6 +54,7 @@ class Spirit(commands.AutoShardedBot):
 
 if __name__ == '__main__':
 
+    # Get configuration from file
     with open('credentials.json') as f:
         file_dict = json.load(f)
     token = file_dict['token']
@@ -69,5 +73,6 @@ if __name__ == '__main__':
     bot.add_cog(Settings(bot))
     bot.add_cog(Stats(bot, destiny))
     bot.add_cog(Item(bot, destiny))
+    bot.add_cog(Register(bot, destiny))
 
     bot.run()
