@@ -65,7 +65,7 @@ class Register:
             return await manager.clear()
 
         if res['ErrorCode'] != 1:
-            await manager.say("Oops, something went wrong during registration. Please try again.")
+            await manager.say("Oops, something went wrong during registration. Please try again.", dm=True)
             return await manager.clear()
 
         res_content = res['Response']
@@ -111,7 +111,7 @@ class Register:
                               self.bot.get_emoji(constants.PS_ICON),
                               self.bot.get_emoji(constants.BNET_ICON))
 
-        platform_msg = await manager.say("Registration complete!\n\nPlease select your preferred platform.")
+        platform_msg = await manager.say("Registration complete!\n\nPlease select your preferred platform.", dm=True)
 
         func = self.add_reactions(platform_msg, platform_reactions)
         self.bot.loop.create_task(func)
@@ -130,7 +130,7 @@ class Register:
         platform = constants.PLATFORMS.get(reaction.emoji.name)
 
         self.bot.db.update_platform(ctx.author.id, platform)
-        await manager.say("Your preferred platform has been updated!")
+        await manager.say("Your preferred platform has been updated!", dm=True)
 
 
     async def on_connect(self):
