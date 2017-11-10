@@ -32,26 +32,24 @@ class Stats:
         info = self.bot.db.get_d2_info(ctx.author.id)
         if info:
             platform = info.get('platform')
-            membership_id = info.get('membership_id')
         else:
             await manager.say("You must first register your Destiny 2 account with the "
                             + "`{}register` command.".format(ctx.prefix))
             return await manager.clear()
 
-        # Get display name
-        try:
-            res = await self.destiny.api.get_profile(platform, membership_id, ['Profiles'])
-        except:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now")
-            return await manager.clear()
-        if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now")
-            return await manager.clear()
-        display_name = res['Response']['profile']['data']['userInfo']['displayName']
+        if platform == 4:
+            membership_id = info.get('bliz_id')
+            display_name = info.get('bliz_name')
+        if platform == 1:
+            membership_id = info.get('xbox_id')
+            display_name = info.get('xbox_name')
+        if platform == 2:
+            membership_id = info.get('psn_id')
+            display_name = info.get('psn_name')
 
         # Get PvP stats
         try:
-            res = await self.destiny.api.get_historical_stats(platform, membership_id, modes=[5])
+            res = await self.destiny.api.get_historical_stats(platform, membership_id, groups=['general'], modes=[5])
         except:
             await manager.say("Sorry, I can't seem to retrieve your stats right now")
             return await manager.clear()
@@ -113,26 +111,24 @@ class Stats:
         info = self.bot.db.get_d2_info(ctx.author.id)
         if info:
             platform = info.get('platform')
-            membership_id = info.get('membership_id')
         else:
             await manager.say("You must first register your Destiny 2 account with the "
                             + "`{}register` command.".format(ctx.prefix))
             return await manager.clear()
 
-        # Get display name
-        try:
-            res = await self.destiny.api.get_profile(platform, membership_id, ['Profiles'])
-        except pydest.PydestException as e:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now")
-            return await manager.clear()
-        if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now")
-            return await manager.clear()
-        display_name = res['Response']['profile']['data']['userInfo']['displayName']
+        if platform == 4:
+            membership_id = info.get('bliz_id')
+            display_name = info.get('bliz_name')
+        if platform == 1:
+            membership_id = info.get('xbox_id')
+            display_name = info.get('xbox_name')
+        if platform == 2:
+            membership_id = info.get('psn_id')
+            display_name = info.get('psn_name')
 
         # Get PvE stats
         try:
-            res = await self.destiny.api.get_historical_stats(platform, membership_id, modes=[7,4,16,18])
+            res = await self.destiny.api.get_historical_stats(platform, membership_id, groups=['general'], modes=[7,4,16,18])
         except pydest.PydestException as e:
             await manager.say("Sorry, I can't seem to retrieve your stats right now")
             return await manager.clear()

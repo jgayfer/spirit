@@ -81,7 +81,7 @@ class DBase:
     def get_d2_info(self, user_id):
         with self.connection.cursor() as cursor:
             sql = """
-                  SELECT platform, membership_id
+                  SELECT platform, bliz_id, xbox_id, psn_id, bliz_name, xbox_name, psn_name
                   FROM users
                   WHERE user_id = %s
                   """
@@ -187,6 +187,18 @@ class DBase:
                   """
             cursor.execute(sql)
             result = cursor.fetchall()
+        return result
+
+
+    def get_platform(self, user_id):
+        with self.connection.cursor() as cursor:
+            sql = """
+                  SELECT platform
+                  FROM users
+                  WHERE user_id = %s
+                  """
+            cursor.execute(sql)
+            result = cursor.fetchone()
         return result
 
 
@@ -298,14 +310,38 @@ class DBase:
         return affected_count
 
 
-    def update_role(self, user_id, role, guild_id):
+    def update_display_names(self, user_id, bungie_name, bliz_name, xbox_name, psn_name):
         with self.connection.cursor() as cursor:
             sql = """
-                   INSERT INTO roster (user_id, role, guild_id)
-                   VALUES (%s, %s, %s)
-                   ON DUPLICATE KEY UPDATE role = %s;
-                   """
-            affected_count = cursor.execute(sql, (user_id, role, guild_id, role))
+                  UPDATE users
+                  SET bungie_name = %s, bliz_name = %s, xbox_name = %s, psn_name = %s
+                  WHERE user_id = %s;
+                  """
+            affected_count = cursor.execute(sql, (bungie_name, bliz_name, xbox_name, psn_name, user_id))
+        self.connection.commit()
+        return affected_count
+
+
+    def update_membership_ids(self, user_id, bliz_id, xbox_id, psn_id):
+        with self.connection.cursor() as cursor:
+            sql = """
+                  UPDATE users
+                  SET bliz_id = %s, xbox_id = %s, psn_id = %s
+                  WHERE user_id = %s;
+                  """
+            affected_count = cursor.execute(sql, (bliz_id, xbox_id, psn_id, user_id))
+        self.connection.commit()
+        return affected_count
+
+
+    def update_platform(self, user_id, platform):
+        with self.connection.cursor() as cursor:
+            sql = """
+                  UPDATE users
+                  SET platform = %s
+                  WHERE user_id = %s;
+                  """
+            affected_count = cursor.execute(sql, (platform, user_id))
         self.connection.commit()
         return affected_count
 
@@ -318,6 +354,18 @@ class DBase:
                   ON DUPLICATE KEY UPDATE bungie_id = %s, access_token = %s, refresh_token = %s;
                   """
             affected_count = cursor.execute(sql, (bungie_id, access_token, refresh_token, user_id, bungie_id, access_token, refresh_token))
+        self.connection.commit()
+        return affected_count
+
+
+    def update_role(self, user_id, role, guild_id):
+        with self.connection.cursor() as cursor:
+            sql = """
+                   INSERT INTO roster (user_id, role, guild_id)
+                   VALUES (%s, %s, %s)
+                   ON DUPLICATE KEY UPDATE role = %s;
+                   """
+            affected_count = cursor.execute(sql, (user_id, role, guild_id, role))
         self.connection.commit()
         return affected_count
 

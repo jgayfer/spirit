@@ -194,11 +194,17 @@ class Destiny:
         info = self.bot.db.get_d2_info(ctx.author.id)
         if info:
             platform = info.get('platform')
-            membership_id = info.get('membership_id')
         else:
             await manager.say("You must first register your Destiny 2 account with the "
                             + "`{}register` command.".format(ctx.prefix))
             return await manager.clear()
+
+        if platform == 4:
+            membership_id = info.get('bliz_id')
+        if platform == 1:
+            membership_id = info.get('xbox_id')
+        if platform == 2:
+            membership_id = info.get('psn_id')
 
         try:
             res = await self.destiny.api.get_profile(platform, membership_id, ['characters', 'characterEquipment', 'profiles'])
