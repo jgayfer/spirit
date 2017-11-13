@@ -27,20 +27,19 @@ class Register:
         Destiny 2 profile.
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        template = "https://www.bungie.net/en/OAuth/Authorize?client_id={}&response_type=code&state={}"
+        auth_url = template.format(self.client_id, ctx.author.id)
 
         if not isinstance(ctx.channel, discord.abc.PrivateChannel):
             await manager.say("Registration instructions have been messaged to you.")
 
-        template = "https://www.bungie.net/en/OAuth/Authorize?client_id={}&response_type=code&state={}"
-        auth_url = template.format(self.client_id, ctx.author.id)
-
         e = discord.Embed(colour=constants.BLUE)
-        e.title = "Click here to register"
+        e.title = "Click Here to Register"
         e.url = auth_url
         e.description = ("Click the above link to register your Bungie.net account with Spirit. "
                        + "Registering will allow Spirit to access your connected Destiny "
                        + "2 accounts.")
-        await manager.say(e, embed=True, dm=True)
+        registration_msg = await manager.say(e, embed=True, dm=True)
 
         # Wait for user info from the web server via Redis
         res = await self.redis.subscribe(ctx.author.id)
@@ -106,12 +105,17 @@ class Register:
 
         self.bot.db.update_membership_ids(ctx.author.id, bliz_id, xbox_id, psn_id)
 
+        platform_reactions = []
+        if bliz_name:
+            platform_reactions.append(self.bot.get_emoji(constants.BNET_ICON))
+        if xbox_name:
+            platform_reactions.append(self.bot.get_emoji(constants.XBOX_ICON))
+        if psn_name:
+            platform_reactions.append(self.bot.get_emoji(constants.PSN_ICON))
 
-        platform_reactions = (self.bot.get_emoji(constants.XBOX_ICON),
-                              self.bot.get_emoji(constants.PS_ICON),
-                              self.bot.get_emoji(constants.BNET_ICON))
-
-        platform_msg = await manager.say("Registration complete!\n\nPlease select your preferred platform.", dm=True)
+        e = self.registered_embed(bungie_name, bliz_name, xbox_name, psn_name)
+        platform_msg = await manager.say(e, embed=True, dm=True)
+        await registration_msg.delete()
 
         func = self.add_reactions(platform_msg, platform_reactions)
         self.bot.loop.create_task(func)
@@ -131,6 +135,20 @@ class Register:
 
         self.bot.db.update_platform(ctx.author.id, platform)
         await manager.say("Your preferred platform has been updated!", dm=True)
+
+
+    def registered_embed(self, bungie_name, bliz_name=None, xbox_name=None, psn_name=None):
+        e = discord.Embed(colour=constants.BLUE)
+        e.title = "Registration Complete"
+        e.description = "Please select your preferred platform. You can always change it by reregistering!"
+
+        accounts = ""
+        accounts += "{} {}\n".format(str(self.bot.get_emoji(constants.BNET_ICON)), bliz_name) if bliz_name else ''
+        accounts += "{} {}\n".format(str(self.bot.get_emoji(constants.XBOX_ICON)), xbox_name) if xbox_name else ''
+        accounts += "{} {}".format(str(self.bot.get_emoji(constants.PS_ICON)), psn_name) if psn_name else ''
+
+        e.add_field(name="Connected Accounts", value=accounts)
+        return e
 
 
     async def on_connect(self):
