@@ -29,10 +29,12 @@ class Register:
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         template = "https://www.bungie.net/en/OAuth/Authorize?client_id={}&response_type=code&state={}"
         auth_url = template.format(self.client_id, ctx.author.id)
+        bliz_name, xbox_name, psn_name, bliz_id, xbox_id, psn_id = (None,)*6
 
         if not isinstance(ctx.channel, discord.abc.PrivateChannel):
             await manager.say("Registration instructions have been messaged to you.")
 
+        # Prompt user with link to Bungie.net OAuth authentication
         e = discord.Embed(colour=constants.BLUE)
         e.title = "Click Here to Register"
         e.url = auth_url
@@ -45,66 +47,48 @@ class Register:
         res = await self.redis.subscribe(ctx.author.id)
         tsk = asyncio.ensure_future(self.wait_for_msg(res[0]))
         try:
-            user_info = await asyncio.wait_for(tsk, timeout=30)
+            user_info = await asyncio.wait_for(tsk, timeout=90)
         except asyncio.TimeoutError:
-            await manager.say("Timeout")
+            await manager.say("I'm not sure where you went. We can try this again later.", dm=True)
+            await registration_msg.delete()
             return await manager.clear()
         await ctx.channel.trigger_typing()
 
+        # Save OAuth credentials and bungie ID
         bungie_id = user_info.get('membership_id')
         access_token = user_info.get('access_token')
         refresh_token = user_info.get('refresh_token')
-
         self.bot.db.update_registration(bungie_id, access_token, refresh_token, ctx.author.id)
 
+        # Fetch platform specific display names and membership IDs
         try:
-            res = await self.destiny.api.get_bungie_net_user_by_id(bungie_id)
+            res = await self.destiny.api.get_membership_data_by_id(bungie_id)
         except:
             await manager.say("I can't seem to connect to Bungie right now. Try again later.", dm=True)
+            await registration_msg.delete()
             return await manager.clear()
 
         if res['ErrorCode'] != 1:
             await manager.say("Oops, something went wrong during registration. Please try again.", dm=True)
+            await registration_msg.delete()
             return await manager.clear()
 
-        res_content = res['Response']
-        bungie_name = res_content['displayName']
-        bliz_name = res_content['blizzardDisplayName'] if 'blizzardDisplayName' in res_content else None
-        xbox_name = res_content['xboxDisplayName'] if 'xboxDisplayName' in res_content else None
-        psn_name = res_content['psnDisplayName'] if 'psnDisplayName' in res_content else None
+        for entry in res['Response']['destinyMemberships']:
+            if entry['membershipType'] == 4:
+                bliz_name = entry['displayName']
+                bliz_id = entry['membershipId']
+            elif entry['membershipType'] == 1:
+                xbox_name = entry['displayName']
+                xbox_id = entry['membershipId']
+            elif entry['membershipType'] == 2:
+                xbox_name = entry['displayName']
+                xbox_id = entry['membershipId']
 
+        bungie_name = res['Response']['bungieNetUser']['displayName']
         self.bot.db.update_display_names(ctx.author.id, bungie_name, bliz_name, xbox_name, psn_name)
-
-        bliz_id = None
-        xbox_id = None
-        psn_id = None
-
-        if bliz_name:
-            try:
-                res = await self.destiny.api.search_destiny_player(4, bliz_name)
-            except pydest.PydestException as e:
-                await manager.say("I can't seem to connect to Bungie right now. Try again later.", dm=True)
-                return await manager.clear()
-            bliz_id = res['Response'][0]['membershipId']
-
-        if xbox_name:
-            try:
-                res = await self.destiny.api.search_destiny_player(1, xbox_name)
-            except pydest.PydestException as e:
-                await manager.say("I can't seem to connect to Bungie right now. Try again later.", dm=True)
-                return await manager.clear()
-            xbox_id = res['Response'][0]['membershipId']
-
-        if psn_name:
-            try:
-                res = await self.destiny.api.search_destiny_player(4, psn_name)
-            except pydest.PydestException as e:
-                await manager.say("I can't seem to connect to Bungie right now. Try again later.", dm=True)
-                return await manager.clear()
-            psn_id = res['Response'][0]['membershipId']
-
         self.bot.db.update_membership_ids(ctx.author.id, bliz_id, xbox_id, psn_id)
 
+        # Get references to platform emojis from Spirit Support server
         platform_reactions = []
         if bliz_name:
             platform_reactions.append(self.bot.get_emoji(constants.BNET_ICON))
@@ -113,6 +97,7 @@ class Register:
         if psn_name:
             platform_reactions.append(self.bot.get_emoji(constants.PSN_ICON))
 
+        # Display message with prompts to select a preferred platform
         e = self.registered_embed(bungie_name, bliz_name, xbox_name, psn_name)
         platform_msg = await manager.say(e, embed=True, dm=True)
         await registration_msg.delete()
@@ -126,6 +111,7 @@ class Register:
                     if reaction.emoji == emoji:
                         return True
 
+        # Wait for platform reaction from user
         try:
             reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=check_reaction)
         except asyncio.TimeoutError:
@@ -134,10 +120,13 @@ class Register:
         platform = constants.PLATFORMS.get(reaction.emoji.name)
 
         self.bot.db.update_platform(ctx.author.id, platform)
-        await manager.say("Your preferred platform has been updated!", dm=True)
+        e.set_footer(text="Your preferred platform has been updated!")
+        await platform_msg.edit(embed=e)
+        return await manager.clear()
 
 
     def registered_embed(self, bungie_name, bliz_name=None, xbox_name=None, psn_name=None):
+        """Create the embed that displays a user's connected accounts"""
         e = discord.Embed(colour=constants.BLUE)
         e.title = "Registration Complete"
         e.description = "Please select your preferred platform. You can always change it by reregistering!"
