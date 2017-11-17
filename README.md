@@ -16,9 +16,15 @@ To run the bot, you'll need the following:
 - Python 3.5+
 - Pip
 - MySQL
-- Pydest (installation instructions can be found [here](https://www.github.com/jgayfer/pydest))
+- Redis Server (using the default port)
+- [Pydest](https://www.github.com/jgayfer/pydest)
+- [Spirit Server](https://www.github.com/jgayfer/spirit-server)
+- Bungie.net API app
 
 ### Running the Bot
+
+**Note:** Before the bot can be run, it's essential that both Pydest and the Spirit Server are installed and setup first.
+
 Install the required Python modules with Pip, as well as the latest version of Discord.py
 ```
 pip3 install -r requirements.txt
@@ -51,6 +57,8 @@ That's it! The bot can now be run with
 ```
 python3 spirit.py
 ```
+
+If you play on using the `register` command, ensure that Spirit Server is also running.
 
 ## Built With
 - [discord.py](https://github.com/Rapptz/discord.py) - An API wrapper for Discord written in Python
