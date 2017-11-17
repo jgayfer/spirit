@@ -133,7 +133,7 @@ class Register:
         """Create the embed that displays a user's connected accounts"""
         e = discord.Embed(colour=constants.BLUE)
         e.title = "Registration Complete"
-        e.description = "Please select your preferred platform. You can always change it by reregistering!"
+        e.description = "Please select your preferred platform. You can always change it by registering again!"
 
         # If a preferred platform is already set, display it in bold
         if platform == 4:
