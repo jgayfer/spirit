@@ -117,26 +117,42 @@ class Register:
         except asyncio.TimeoutError:
             await manager.say("I'm not sure where you went. We can try this again later.", dm=True)
             return await manager.clear()
-        platform = constants.PLATFORMS.get(reaction.emoji.name)
 
+        # Save preferred platform
+        platform = constants.PLATFORMS.get(reaction.emoji.name)
         self.bot.db.update_platform(ctx.author.id, platform)
-        e.set_footer(text="Your preferred platform has been updated!")
+
+        # Update message with preferred platform
+        e = self.registered_embed(bungie_name, bliz_name, xbox_name, psn_name, footer=True, platform=platform)
         await platform_msg.edit(embed=e)
+
         return await manager.clear()
 
 
-    def registered_embed(self, bungie_name, bliz_name=None, xbox_name=None, psn_name=None):
+    def registered_embed(self, bungie_name, bliz_name, xbox_name, psn_name, footer=False, platform=None):
         """Create the embed that displays a user's connected accounts"""
         e = discord.Embed(colour=constants.BLUE)
         e.title = "Registration Complete"
         e.description = "Please select your preferred platform. You can always change it by reregistering!"
 
+        # If a preferred platform is already set, display it in bold
+        if platform == 4:
+            bliz_name = "**{}**".format(bliz_name)
+        elif platform == 1:
+            xbox_name = "**{}**".format(xbox_name)
+        elif platform == 2:
+            psn_name = "**{}**".format(psn_name)
+
+        # Display connected accounts
         accounts = ""
         accounts += "{} {}\n".format(str(self.bot.get_emoji(constants.BNET_ICON)), bliz_name) if bliz_name else ''
         accounts += "{} {}\n".format(str(self.bot.get_emoji(constants.XBOX_ICON)), xbox_name) if xbox_name else ''
         accounts += "{} {}".format(str(self.bot.get_emoji(constants.PS_ICON)), psn_name) if psn_name else ''
-
         e.add_field(name="Connected Accounts", value=accounts)
+
+        if footer:
+            e.set_footer(text="Your preferred platform has been set!")
+
         return e
 
 
