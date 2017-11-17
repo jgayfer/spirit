@@ -50,17 +50,17 @@ class Stats:
         try:
             res = await self.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[5])
         except:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now~")
+            await manager.say("Sorry, I can't seem to retrieve those stats right now~")
             return await manager.clear()
 
         if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now--")
+            await manager.say("Sorry, I can't seem to retrieve those stats right now--")
             return await manager.clear()
 
         pvp_stats = res['Response']['allPvP'].get('allTime')
 
         if not pvp_stats:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now")
+            await manager.say("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clear()
 
         time_played = pvp_stats['secondsPlayed']['basic']['displayValue']
@@ -130,15 +130,15 @@ class Stats:
         try:
             res = await self.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[7,4,16,18])
         except pydest.PydestException as e:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now")
+            await manager.say("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clear()
         if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now")
+            await manager.say("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clear()
         pve_stats = res['Response']
 
         if not pve_stats:
-            await manager.say("Sorry, I can't seem to retrieve your stats right now")
+            await manager.say("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clear()
 
         time_played = pve_stats['allPvE']['allTime']['totalActivityDurationSeconds']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0

@@ -44,11 +44,11 @@ class Loadout:
         try:
             res = await self.destiny.api.get_profile(platform_id, membership_id, ['characters', 'characterEquipment', 'profiles'])
         except pydest.PydestException as e:
-            await manager.say("Sorry, I can't seem to retrieve your Guardian right now.")
+            await manager.say("Sorry, I can't seem to retrieve that Guardian right now.")
             return await manager.clear()
 
         if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to retrieve your Guardian right now.")
+            await manager.say("Sorry, I can't seem to retrieve that Guardian right now.")
             return await manager.clear()
 
         # Determine which character was last played
