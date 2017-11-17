@@ -16,6 +16,33 @@ class General:
 
 
     @commands.command()
+    @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
+    async def countdown(self, ctx):
+        """Show time until upcoming Destiny 2 releases"""
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        pst_now = datetime.now(tz=pytz.timezone('US/Pacific'))
+        text = ""
+
+        for name, date in constants.RELEASE_DATES:
+            diff = date - pst_now
+            days = diff.days + 1
+            if days == 0:
+                text += "{}: Today!\n".format(name)
+            elif days == 1:
+                text += "{}: Tomorrow!\n".format(name)
+            elif days > 1:
+                text += "{}: {} days\n".format(name, days)
+
+        if not text:
+            text = "There are no concrete dates for our next adventure..."
+
+        countdown = discord.Embed(title="Destiny 2 Countdown", color=constants.BLUE)
+        countdown.description = text
+        await manager.say(countdown, embed=True, delete=False)
+        await manager.clear()
+
+
+    @commands.command()
     @commands.cooldown(rate=1, per=60.0, type=commands.BucketType.user)
     async def feedback(self, ctx, *, message):
         """

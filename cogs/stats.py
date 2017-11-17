@@ -167,9 +167,10 @@ class Stats:
         if username:
 
             if platform not in constants.PLATFORMS.keys():
-                await manager.say("Platform must be one of `bnet`, `xbox`, or `ps`")
-                return await manager.clear()
+                return "Platform must be one of `bnet`, `xbox`, or `ps`"
+
             platform_id = constants.PLATFORMS.get(platform)
+            display_name = username
 
             # Try and fetch account data from Bungie.net
             try:
@@ -186,7 +187,7 @@ class Stats:
                 membership_id = res['Response'][0]['membershipId']
             elif len(res['Response']) > 1:
                 for entry in res['Response']:
-                    if act.content == entry['displayName']:
+                    if username == entry['displayName']:
                         membership_id = entry['membershipId']
                         break
 
