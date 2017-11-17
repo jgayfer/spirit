@@ -142,6 +142,7 @@ class Help:
         placeholder = '*)4_8^'
         help_msg = help_msg.replace('\n\n', placeholder)
         help_msg = help_msg.replace('\n', ' ')
+        help_msg = help_msg.replace('\$', '\n')
         help_msg = help_msg.replace(placeholder, '\n\n')
 
         first_line = help_msg.split('\n\n')[0]

@@ -18,10 +18,14 @@ class Loadout:
     @commands.command()
     @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def loadout(self, ctx, platform=None, username=None):
-        """Display youa Guardian's loadout
+        """Display a Guardian's loadout
 
-        In order to use this command, you must first register your Destiny 2 account with the bot
-        via the register command.
+        In order to use this command for your own Guardian, you must first register your Destiny 2
+        account with the bot via the register command.
+
+        `loadout` - Display your Guardian's loadout (preferred platform)
+        \$`loadout xbox` - Display your Guardian's loadout on Xbox
+        \$`loadout bnet Asal#1502` - Display Asal's Guardian's loadout on Battle.net
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await ctx.channel.trigger_typing()

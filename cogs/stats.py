@@ -24,7 +24,15 @@ class Stats:
 
     @stats.command()
     async def pvp(self, ctx, platform=None, username=None):
-        """Display Crucible stats for all characters on an account"""
+        """Display PvP stats across all characters on an account
+
+        In order to use this command for your own account, you must first register your Destiny 2
+        account with the bot via the register command.
+
+        `stats pvp` - Display your pvp stats (preferred platform)
+        \$`stats pvp xbox` - Display your pvp stats on Xbox
+        \$`stats pvp bnet Asal#1502` - Display Asal's pvp stats on Battle.net
+        """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await ctx.channel.trigger_typing()
 
@@ -96,7 +104,15 @@ class Stats:
 
     @stats.command()
     async def pve(self, ctx, platform=None, username=None):
-        """Display PvE stats for all characters on an account"""
+        """Display PvE stats across all characters on an account
+
+        In order to use this command for your own account, you must first register your Destiny 2
+        account with the bot via the register command.
+
+        `stats pve` - Display your pve stats (preferred platform)
+        \$`stats pve xbox` - Display your pve stats on Xbox
+        \$`stats pve bnet Asal#1502` - Display Asal's pve stats on Battle.net
+        """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await ctx.channel.trigger_typing()
 
