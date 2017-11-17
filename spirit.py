@@ -19,6 +19,7 @@ from cogs.owner import Owner
 from cogs.item import Item
 from cogs.register import Register
 from cogs.loadout import Loadout
+from cogs.destiny import Destiny
 
 
 async def _prefix_callable(bot, message):
@@ -75,5 +76,6 @@ if __name__ == '__main__':
     bot.add_cog(Item(bot, destiny))
     bot.add_cog(Register(bot, destiny, client_id))
     bot.add_cog(Loadout(bot, destiny))
+    bot.add_cog(Destiny(bot, destiny))
 
     bot.run()
