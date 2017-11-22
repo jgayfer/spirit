@@ -64,6 +64,7 @@ if __name__ == '__main__':
     bungie_api_key = file_dict['d2-api-key']
     bungie_client_id = file_dict['client-id']
 
+
     bot = Spirit(token, bungie_api_key, bungie_client_id)
 
     # Add modules to bot
