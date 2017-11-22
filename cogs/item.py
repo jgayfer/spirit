@@ -13,9 +13,8 @@ BASE_URL = 'https://www.bungie.net'
 
 class Item:
 
-    def __init__(self, bot, destiny):
+    def __init__(self, bot):
         self.bot = bot
-        self.destiny = destiny
 
 
     @commands.command()
@@ -35,7 +34,7 @@ class Item:
         await ctx.channel.trigger_typing()
 
         try:
-            res = await self.destiny.api.search_destiny_entities('DestinyInventoryItemDefinition', search_term)
+            res = await self.bot.destiny.api.search_destiny_entities('DestinyInventoryItemDefinition', search_term)
         except pydest.PydestException as e:
             await manager.say("Sorry, I can't seem to search for items right now.")
             return await manager.clear()
@@ -57,7 +56,7 @@ class Item:
         for i, entry in enumerate(res['Response']['results']['results']):
 
             item_hash = entry['hash']
-            item = await self.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
+            item = await self.bot.destiny.decode_hash(item_hash, 'DestinyInventoryItemDefinition')
 
             # If item isn't a weapon or armor piece, skip to the next one
             if item['itemType'] not in (2, 3):
@@ -260,7 +259,7 @@ class Item:
 
     async def decode_perk(self, perk_hash):
         """Decode a single perk"""
-        perk = await self.destiny.decode_hash(perk_hash, 'DestinyInventoryItemDefinition')
+        perk = await self.bot.destiny.decode_hash(perk_hash, 'DestinyInventoryItemDefinition')
         name = perk['displayProperties']['name']
         description = perk['displayProperties']['description'].rstrip('\n')
 

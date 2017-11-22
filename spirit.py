@@ -39,15 +39,17 @@ async def _prefix_callable(bot, message):
 
 class Spirit(commands.AutoShardedBot):
 
-    def __init__(self, token):
+    def __init__(self, token, bungie_api_key, bungie_client_id):
         super().__init__(command_prefix=_prefix_callable)
         self.token = token
         self.db = DBase('credentials.json')
+        self.destiny = pydest.Pydest(bungie_api_key)
+        self.bungie_client_id = bungie_client_id
         self.uptime = datetime.datetime.utcnow()
         self.command_count = 0
 
     def run(self):
-        super().run(token, reconnect=True)
+        super().run(self.token, reconnect=True)
 
     async def on_command(self, ctx):
         self.command_count += 1
@@ -59,12 +61,12 @@ if __name__ == '__main__':
     with open('credentials.json') as f:
         file_dict = json.load(f)
     token = file_dict['token']
-    api_key = file_dict['d2-api-key']
-    client_id = file_dict['client-id']
+    bungie_api_key = file_dict['d2-api-key']
+    bungie_client_id = file_dict['client-id']
 
-    destiny = pydest.Pydest(api_key)
-    bot = Spirit(token)
+    bot = Spirit(token, bungie_api_key, bungie_client_id)
 
+    # Add modules to bot
     bot.add_cog(Core(bot))
     bot.add_cog(Events(bot))
     bot.add_cog(General(bot))
@@ -72,10 +74,10 @@ if __name__ == '__main__':
     bot.add_cog(Owner(bot))
     bot.add_cog(Roster(bot))
     bot.add_cog(Settings(bot))
-    bot.add_cog(Stats(bot, destiny))
-    bot.add_cog(Item(bot, destiny))
-    bot.add_cog(Register(bot, destiny, client_id))
-    bot.add_cog(Loadout(bot, destiny))
-    bot.add_cog(Destiny(bot, destiny))
+    bot.add_cog(Stats(bot))
+    bot.add_cog(Item(bot))
+    bot.add_cog(Register(bot))
+    bot.add_cog(Loadout(bot))
+    bot.add_cog(Destiny(bot))
 
     bot.run()

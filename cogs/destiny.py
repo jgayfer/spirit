@@ -11,9 +11,8 @@ from cogs.utils import constants
 
 class Destiny:
 
-    def __init__(self, bot, destiny):
+    def __init__(self, bot):
         self.bot = bot
-        self.destiny = destiny
 
 
     @commands.command()
@@ -24,7 +23,7 @@ class Destiny:
         await ctx.channel.trigger_typing()
 
         try:
-            weekly = await self.destiny.api.get_public_milestones()
+            weekly = await self.bot.destiny.api.get_public_milestones()
         except pydest.PydestException as e:
             await manager.say("Sorry, I can't seem retrieve the nightfall info right now")
             return await manager.clear()
@@ -34,18 +33,18 @@ class Destiny:
             return await manager.clear()
 
         nightfall_hash = weekly['Response']['2171429505']['availableQuests'][0]['activity']['activityHash']
-        nightfall = await self.destiny.decode_hash(nightfall_hash, 'DestinyActivityDefinition')
+        nightfall = await self.bot.destiny.decode_hash(nightfall_hash, 'DestinyActivityDefinition')
 
         challenges = ""
         for entry in nightfall['challenges']:
-            challenge = await self.destiny.decode_hash(entry['objectiveHash'], 'DestinyObjectiveDefinition')
+            challenge = await self.bot.destiny.decode_hash(entry['objectiveHash'], 'DestinyObjectiveDefinition')
             challenge_name = challenge['displayProperties']['name']
             challenge_description = challenge['displayProperties']['description']
             challenges += "**{}** - {}\n".format(challenge_name, challenge_description)
 
         modifiers = ""
         for entry in weekly['Response']['2171429505']['availableQuests'][0]['activity']['modifierHashes']:
-            modifier = await self.destiny.decode_hash(entry, 'DestinyActivityModifierDefinition')
+            modifier = await self.bot.destiny.decode_hash(entry, 'DestinyActivityModifierDefinition')
             modifier_name = modifier['displayProperties']['name']
             modifier_description = modifier['displayProperties']['description']
             modifiers += "**{}** - {}\n".format(modifier_name, modifier_description)
