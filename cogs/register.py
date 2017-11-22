@@ -100,9 +100,18 @@ class Register:
         platform_msg = await manager.say(e, embed=True, dm=True)
         await registration_msg.delete()
 
-        # If only one account is connected, don't display reactions
+        # If only one account is connected, set it as preferred (don't display reactions)
         platform_names = (bliz_name, xbox_name, psn_name)
         if self.num_non_null_entries(platform_names) == 1:
+
+            if bliz_name:
+                platform_id = 4
+            elif xbox_name:
+                platform_id = 2
+            else:
+                platform_id = 1
+
+            self.bot.db.update_platform(ctx.author.id, platform_id)
             return await manager.clear()
 
         func = self.add_reactions(platform_msg, platform_reactions)
