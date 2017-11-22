@@ -13,7 +13,7 @@ async def get_membership_details(bot, ctx, username, platform):
         user_id = ctx.message.mentions[0].id
         info = bot.db.get_d2_info(user_id)
 
-        if info:
+        if info.get('bungie_id'):
 
             # If platform wasn't given, use the preferred platform
             if not platform:
@@ -79,7 +79,7 @@ async def get_membership_details(bot, ctx, username, platform):
     # User wants credentials for their own Guardian
     else:
         info = bot.db.get_d2_info(ctx.author.id)
-        if info:
+        if info.get('bungie_id'):
 
             # If platform wasn't given, use the user's preferred platform
             if not platform:
@@ -91,6 +91,7 @@ async def get_membership_details(bot, ctx, username, platform):
                     return "Platform must be one of `bnet`, `xbox`, or `ps`"
                 platform_id = constants.PLATFORMS.get(platform)
 
+            membership_id = None
             if platform_id == 4:
                 membership_id = info.get('bliz_id')
                 display_name = info.get('bliz_name')
