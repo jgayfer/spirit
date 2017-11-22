@@ -46,7 +46,9 @@ async def get_membership_details(bot, ctx, username, platform):
     # User wants credentials for a Guardian who has NOT registered with Spirit
     elif username and not ctx.message.mentions:
 
-        if platform not in constants.PLATFORMS.keys():
+        if not platform:
+            return "Oops, you must provide a platform."
+        elif platform not in constants.PLATFORMS.keys():
             return "Platform must be one of `bnet`, `xbox`, or `ps`"
 
         platform_id = constants.PLATFORMS.get(platform)
