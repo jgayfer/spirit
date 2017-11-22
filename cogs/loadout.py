@@ -23,7 +23,6 @@ class Loadout:
         account with the bot via the register command.
 
         `loadout` - Display your Guardian's loadout (preferred platform)
-        \$`loadout xbox` - Display your Guardian's loadout on Xbox
         \$`loadout Asal#1502 bnet` - Display Asal's Guardian's loadout on Battle.net
         \$`loadout @user` - Display a registered user's Guardian (preferred platform)
         \$`loadout @user bnet` - Display a registered user's Guardian on Battle.net

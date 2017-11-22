@@ -107,9 +107,9 @@ class Register:
             if bliz_name:
                 platform_id = 4
             elif xbox_name:
-                platform_id = 2
-            else:
                 platform_id = 1
+            else:
+                platform_id = 2
 
             self.bot.db.update_platform(ctx.author.id, platform_id)
             return await manager.clear()

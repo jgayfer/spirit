@@ -30,7 +30,6 @@ class Stats:
         account with the bot via the register command.
 
         `stats pvp` - Display your PvP stats (preferred platform)
-        \$`stats pvp xbox` - Display your PvP stats on Xbox
         \$`stats pvp Asal#1502 bnet` - Display Asal's PvP stats on Battle.net
         \$`stats pvp @user` - Display a registered user's PvP stats (preferred platform)
         \$`stats pvp @user bnet` - Display a registered user's PvP stats on Battle.net
@@ -112,7 +111,6 @@ class Stats:
         account with the bot via the register command.
 
         `stats pve` - Display your PvE stats (preferred platform)
-        \$`stats pve xbox` - Display your PvE stats on Xbox
         \$`stats pve Asal#1502 bnet` - Display Asal's PvE stats on Battle.net
         \$`stats pve @user` - Display a registered user's PvE stats (preferred platform)
         \$`stats pve @user bnet` - Display a registered user's PvE stats on Battle.net
