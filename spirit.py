@@ -60,7 +60,7 @@ if __name__ == '__main__':
         file_dict = json.load(f)
     token = file_dict['token']
     api_key = file_dict['d2-api-key']
-    client_id = file_dict['client-id']
+    client_id = file_dict['client_id']
 
     destiny = pydest.Pydest(api_key)
     bot = Spirit(token)
