@@ -93,7 +93,7 @@ class Register:
         if xbox_name:
             platform_reactions.append(self.bot.get_emoji(constants.XBOX_ICON))
         if psn_name:
-            platform_reactions.append(self.bot.get_emoji(constants.PSN_ICON))
+            platform_reactions.append(self.bot.get_emoji(constants.PS_ICON))
 
         # Display message with prompts to select a preferred platform
         e = self.registered_embed(bungie_name, bliz_name, xbox_name, psn_name)
