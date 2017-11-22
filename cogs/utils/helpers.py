@@ -47,7 +47,7 @@ async def get_membership_details(bot, ctx, username, platform):
     elif username and not ctx.message.mentions:
 
         if not platform:
-            return "Oops, you must provide a platform."
+            return "Oops, you didn't provide a platform."
         elif platform not in constants.PLATFORMS.keys():
             return "Platform must be one of `bnet`, `xbox`, or `ps`"
 

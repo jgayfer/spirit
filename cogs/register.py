@@ -100,6 +100,11 @@ class Register:
         platform_msg = await manager.say(e, embed=True, dm=True)
         await registration_msg.delete()
 
+        # If only one account is connected, don't display reactions
+        platform_names = (bliz_name, xbox_name, psn_name)
+        if self.num_non_null_entries(platform_names) == 1:
+            return await manager.clear()
+
         func = self.add_reactions(platform_msg, platform_reactions)
         self.bot.loop.create_task(func)
 
@@ -129,9 +134,14 @@ class Register:
 
     def registered_embed(self, bungie_name, bliz_name, xbox_name, psn_name, footer=False, platform=None):
         """Create the embed that displays a user's connected accounts"""
+        names = (bliz_name, xbox_name, psn_name)
         e = discord.Embed(colour=constants.BLUE)
         e.title = "Registration Complete"
-        e.description = "Please select your preferred platform. You can always change it by registering again!"
+
+        if self.num_non_null_entries(names) != 1:
+            e.description = "Please select your preferred platform. You can always change it by registering again!"
+        else:
+            e.description = "As you have only one connected account, it has been set as your preferred platform."
 
         # If a preferred platform is already set, display it in bold
         if platform == 4:
@@ -152,6 +162,15 @@ class Register:
             e.set_footer(text="Your preferred platform has been set!")
 
         return e
+
+
+    def num_non_null_entries(self, list):
+        """Count the number of non null entries in a list"""
+        count = 0
+        for entry in list:
+            if entry:
+                count += 1
+        return count
 
 
     async def on_connect(self):
