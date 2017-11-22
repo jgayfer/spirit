@@ -26,7 +26,7 @@ class Register:
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         template = "https://www.bungie.net/en/OAuth/Authorize?client_id={}&response_type=code&state={}"
-        auth_url = template.format(self.client_id, ctx.author.id)
+        auth_url = template.format(self.bot.bungie_client_id, ctx.author.id)
         bliz_name, xbox_name, psn_name, bliz_id, xbox_id, psn_id = (None,)*6
 
         if not isinstance(ctx.channel, discord.abc.PrivateChannel):
