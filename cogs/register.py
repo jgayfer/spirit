@@ -79,8 +79,8 @@ class Register:
                 xbox_name = entry['displayName']
                 xbox_id = entry['membershipId']
             elif entry['membershipType'] == 2:
-                xbox_name = entry['displayName']
-                xbox_id = entry['membershipId']
+                psn_name = entry['displayName']
+                psn_id = entry['membershipId']
 
         bungie_name = res['Response']['bungieNetUser']['displayName']
         self.bot.db.update_display_names(ctx.author.id, bungie_name, bliz_name, xbox_name, psn_name)
