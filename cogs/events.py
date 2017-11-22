@@ -186,11 +186,6 @@ class Events:
         if member.permissions_in(channel).manage_guild or (member.id == creator_id) or (event_delete_role and member.top_role >= event_delete_role):
             deleted = self.bot.db.delete_event(guild.id, title)
             if deleted:
-
-                if guild.id == 351073221241470976:
-                    asal = self.bot.get_user(118926942404608003)
-                    await asal.send("Event **{}** deleted by **{}**".format(title, str(member)))
-
                 await self.list_events(guild)
                 return True
         else:

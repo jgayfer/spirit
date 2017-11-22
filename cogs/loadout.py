@@ -5,19 +5,18 @@ import discord
 import pydest
 
 from cogs.utils.messages import MessageManager
-from cogs.utils import constants
+from cogs.utils import constants, helpers
 
 
 class Loadout:
 
-    def __init__(self, bot, destiny):
+    def __init__(self, bot):
         self.bot = bot
-        self.destiny = destiny
 
 
     @commands.command()
     @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
-    async def loadout(self, ctx, platform=None, username=None):
+    async def loadout(self, ctx, username=None, platform=None):
         """Display a Guardian's loadout
 
         In order to use this command for your own Guardian, you must first register your Destiny 2
@@ -25,24 +24,26 @@ class Loadout:
 
         `loadout` - Display your Guardian's loadout (preferred platform)
         \$`loadout xbox` - Display your Guardian's loadout on Xbox
-        \$`loadout bnet Asal#1502` - Display Asal's Guardian's loadout on Battle.net
+        \$`loadout Asal#1502 bnet` - Display Asal's Guardian's loadout on Battle.net
+        \$`loadout @user` - Display a registered user's Guardian (preferred platform)
+        \$`loadout @user bnet` - Display a registered user's Guardian on Battle.net
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await ctx.channel.trigger_typing()
 
         # Get membership details. This depends on whether or not a platform or username were given.
-        membership_details = await self.get_membership_details(ctx, platform, username)
+        membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
 
         # If there was an error getting membership details, display it
         if isinstance(membership_details, str):
             await manager.say(membership_details)
             return await manager.clear()
         else:
-            platform_id, membership_id = membership_details
+            platform_id, membership_id, _ = membership_details
 
         # Attempt to fetch character information from Bungie.net
         try:
-            res = await self.destiny.api.get_profile(platform_id, membership_id, ['characters', 'characterEquipment', 'profiles'])
+            res = await self.bot.destiny.api.get_profile(platform_id, membership_id, ['characters', 'characterEquipment', 'profiles'])
         except pydest.PydestException as e:
             await manager.say("Sorry, I can't seem to retrieve that Guardian right now.")
             return await manager.clear()
@@ -65,13 +66,13 @@ class Loadout:
         # ------ Decode Character Info ------ #
         #######################################
 
-        role_dict = await self.destiny.decode_hash(last_played_char['classHash'], 'DestinyClassDefinition')
+        role_dict = await self.bot.destiny.decode_hash(last_played_char['classHash'], 'DestinyClassDefinition')
         role = role_dict['displayProperties']['name']
 
-        gender_dict = await self.destiny.decode_hash(last_played_char['genderHash'], 'DestinyGenderDefinition')
+        gender_dict = await self.bot.destiny.decode_hash(last_played_char['genderHash'], 'DestinyGenderDefinition')
         gender = gender_dict['displayProperties']['name']
 
-        race_dict = await self.destiny.decode_hash(last_played_char['raceHash'], 'DestinyRaceDefinition')
+        race_dict = await self.bot.destiny.decode_hash(last_played_char['raceHash'], 'DestinyRaceDefinition')
         race= race_dict['displayProperties']['name']
 
         char_name = res['Response']['profile']['data']['userInfo']['displayName']
@@ -81,7 +82,7 @@ class Loadout:
 
         stats = []
         for stat_hash in ('2996146975', '392767087', '1943323491'):
-            stat_dict = await self.destiny.decode_hash(stat_hash, 'DestinyStatDefinition')
+            stat_dict = await self.bot.destiny.decode_hash(stat_hash, 'DestinyStatDefinition')
             stat_name = stat_dict['displayProperties']['name']
             if stat_hash in last_played_char['stats'].keys():
                 stats.append((stat_name, last_played_char['stats'].get(stat_hash)))
@@ -101,7 +102,7 @@ class Loadout:
         equipped_items = res['Response']['characterEquipment']['data'][last_played_char_id]['items']
         for item in equipped_items:
 
-            item_dict = await self.destiny.decode_hash(item['itemHash'], 'DestinyInventoryItemDefinition')
+            item_dict = await self.bot.destiny.decode_hash(item['itemHash'], 'DestinyInventoryItemDefinition')
             item_name = "{}".format(item_dict['displayProperties']['name'])
 
             if weapons_index < 3:
@@ -138,71 +139,3 @@ class Loadout:
 
         await manager.say(e, embed=True, delete=False)
         await manager.clear()
-
-
-    async def get_membership_details(self, ctx, platform, username):
-        """Get the platform_id, membership_id, and display name for a user
-
-           Note that platform and username can be None, in which case the credentials
-           for the user in the database are used"""
-
-        # User wants stats for another Guardian
-        if username:
-
-            if platform not in constants.PLATFORMS.keys():
-                return "Platform must be one of `bnet`, `xbox`, or `ps`"
-
-            platform_id = constants.PLATFORMS.get(platform)
-
-            # Try and fetch account data from Bungie.net
-            try:
-                res = await self.destiny.api.search_destiny_player(platform_id, username)
-            except pydest.PydestException as e:
-                return "I can't seem to connect to Bungie right now. Try again later."
-
-            if res['ErrorCode'] != 1:
-                return "I can't seem to connect to Bungie right now. Try again later."
-
-            # Get a single membership ID for the given credentials (if one exists)
-            membership_id = None
-            if len(res['Response']) == 1:
-                membership_id = res['Response'][0]['membershipId']
-            elif len(res['Response']) > 1:
-                for entry in res['Response']:
-                    if username == entry['displayName']:
-                        membership_id = entry['membershipId']
-                        break
-
-            if not membership_id:
-                return "Sorry, I couldn't find the Guardian you're looking for."
-
-        # User wants a loadout for their own Guardian
-        else:
-            info = self.bot.db.get_d2_info(ctx.author.id)
-            if info:
-
-                # If platform wasn't given, use the user's preferred platform
-                if not platform:
-                    platform_id = info.get('platform')
-
-                # Otherwise, use the platform provided by the user (assuming it's valid)
-                else:
-                    if platform not in constants.PLATFORMS.keys():
-                        return "Platform must be one of `bnet`, `xbox`, or `ps`"
-                    platform_id = constants.PLATFORMS.get(platform)
-
-                if platform_id == 4:
-                    membership_id = info.get('bliz_id')
-                elif platform_id == 1:
-                    membership_id = info.get('xbox_id')
-                elif platform_id == 2:
-                    membership_id = info.get('psn_id')
-
-                if not membership_id:
-                    return "Oops, you don't have a connected account of that type."
-
-            else:
-                return ("You must first register your Destiny 2 account with the "
-                      + "`{}register` command.".format(ctx.prefix))
-
-        return platform_id, membership_id

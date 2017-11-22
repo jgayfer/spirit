@@ -4,40 +4,42 @@ import discord
 import pydest
 
 from cogs.utils.messages import MessageManager
-from cogs.utils import constants
+from cogs.utils import constants, helpers
 
 
 class Stats:
 
-    def __init__(self, bot, destiny):
+    def __init__(self, bot):
         self.bot = bot
-        self.destiny = destiny
 
 
     @commands.group()
     @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def stats(self, ctx):
-        """Display various Destiny 2 character stats"""
+        """Display various Destiny 2 stats"""
         if ctx.invoked_subcommand is None:
             cmd = self.bot.get_command('help')
             await ctx.invoke(cmd, 'stats')
 
+
     @stats.command()
-    async def pvp(self, ctx, platform=None, username=None):
+    async def pvp(self, ctx, username=None, platform=None):
         """Display PvP stats across all characters on an account
 
         In order to use this command for your own account, you must first register your Destiny 2
         account with the bot via the register command.
 
-        `stats pvp` - Display your pvp stats (preferred platform)
-        \$`stats pvp xbox` - Display your pvp stats on Xbox
-        \$`stats pvp bnet Asal#1502` - Display Asal's pvp stats on Battle.net
+        `stats pvp` - Display your PvP stats (preferred platform)
+        \$`stats pvp xbox` - Display your PvP stats on Xbox
+        \$`stats pvp Asal#1502 bnet` - Display Asal's PvP stats on Battle.net
+        \$`stats pvp @user` - Display a registered user's PvP stats (preferred platform)
+        \$`stats pvp @user bnet` - Display a registered user's PvP stats on Battle.net
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await ctx.channel.trigger_typing()
 
         # Get membership details. This depends on whether or not a platform or username were given.
-        membership_details = await self.get_membership_details(ctx, platform, username)
+        membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
 
         # If there was an error getting membership details, display it
         if isinstance(membership_details, str):
@@ -48,7 +50,7 @@ class Stats:
 
         # Get PvP stats
         try:
-            res = await self.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[5])
+            res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[5])
         except:
             await manager.say("Sorry, I can't seem to retrieve those stats right now~")
             return await manager.clear()
@@ -103,21 +105,23 @@ class Stats:
 
 
     @stats.command()
-    async def pve(self, ctx, platform=None, username=None):
+    async def pve(self, ctx, username=None, platform=None):
         """Display PvE stats across all characters on an account
 
         In order to use this command for your own account, you must first register your Destiny 2
         account with the bot via the register command.
 
-        `stats pve` - Display your pve stats (preferred platform)
-        \$`stats pve xbox` - Display your pve stats on Xbox
-        \$`stats pve bnet Asal#1502` - Display Asal's pve stats on Battle.net
+        `stats pve` - Display your PvE stats (preferred platform)
+        \$`stats pve xbox` - Display your PvE stats on Xbox
+        \$`stats pve Asal#1502 bnet` - Display Asal's PvE stats on Battle.net
+        \$`stats pve @user` - Display a registered user's PvE stats (preferred platform)
+        \$`stats pve @user bnet` - Display a registered user's PvE stats on Battle.net
         """
         manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
         await ctx.channel.trigger_typing()
 
         # Get membership details. This depends on whether or not a platform or username were given.
-        membership_details = await self.get_membership_details(ctx, platform, username)
+        membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
 
         # If there was an error getting membership details, display it
         if isinstance(membership_details, str):
@@ -128,7 +132,7 @@ class Stats:
 
         # Get PvE stats
         try:
-            res = await self.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[7,4,16,18])
+            res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[7,4,16,18])
         except pydest.PydestException as e:
             await manager.say("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clear()
@@ -171,75 +175,3 @@ class Stats:
 
         await manager.say(e, embed=True, delete=False)
         await manager.clear()
-
-
-    async def get_membership_details(self, ctx, platform, username):
-        """Get the platform_id, membership_id, and display name for a user
-
-           Note that platform and username can be None, in which case the credentials
-           for the user in the database are used"""
-
-        # User wants stats for another Guardian
-        if username:
-
-            if platform not in constants.PLATFORMS.keys():
-                return "Platform must be one of `bnet`, `xbox`, or `ps`"
-
-            platform_id = constants.PLATFORMS.get(platform)
-            display_name = username
-
-            # Try and fetch account data from Bungie.net
-            try:
-                res = await self.destiny.api.search_destiny_player(platform_id, username)
-            except pydest.PydestException as e:
-                return "I can't seem to connect to Bungie right now. Try again later."
-
-            if res['ErrorCode'] != 1:
-                return "I can't seem to connect to Bungie right now. Try again later."
-
-            # Get a single membership ID for the given credentials (if one exists)
-            membership_id = None
-            if len(res['Response']) == 1:
-                membership_id = res['Response'][0]['membershipId']
-            elif len(res['Response']) > 1:
-                for entry in res['Response']:
-                    if username == entry['displayName']:
-                        membership_id = entry['membershipId']
-                        break
-
-            if not membership_id:
-                return "Sorry, I couldn't find the Guardian you're looking for."
-
-        # User wants a loadout for their own Guardian
-        else:
-            info = self.bot.db.get_d2_info(ctx.author.id)
-            if info:
-
-                # If platform wasn't given, use the user's preferred platform
-                if not platform:
-                    platform_id = info.get('platform')
-
-                # Otherwise, use the platform provided by the user (assuming it's valid)
-                else:
-                    if platform not in constants.PLATFORMS.keys():
-                        return "Platform must be one of `bnet`, `xbox`, or `ps`"
-                    platform_id = constants.PLATFORMS.get(platform)
-
-                if platform_id == 4:
-                    membership_id = info.get('bliz_id')
-                    display_name = info.get('bliz_name')
-                elif platform_id == 1:
-                    membership_id = info.get('xbox_id')
-                    display_name = info.get('xbox_name')
-                elif platform_id == 2:
-                    membership_id = info.get('psn_id')
-                    display_name = info.get('psn_name')
-
-                if not membership_id:
-                    return "Oops, you don't have a connected account of that type."
-
-            else:
-                return ("You must first register your Destiny 2 account with the "
-                      + "`{}register` command.".format(ctx.prefix))
-
-        return platform_id, membership_id, display_name

@@ -11,10 +11,8 @@ from cogs.utils import constants
 
 class Register:
 
-    def __init__(self, bot, destiny, client_id):
+    def __init__(self, bot):
         self.bot = bot
-        self.destiny = destiny
-        self.client_id = client_id
 
 
     @commands.command()
@@ -62,7 +60,7 @@ class Register:
 
         # Fetch platform specific display names and membership IDs
         try:
-            res = await self.destiny.api.get_membership_data_by_id(bungie_id)
+            res = await self.bot.destiny.api.get_membership_data_by_id(bungie_id)
         except:
             await manager.say("I can't seem to connect to Bungie right now. Try again later.", dm=True)
             await registration_msg.delete()
