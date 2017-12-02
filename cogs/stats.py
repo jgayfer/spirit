@@ -6,10 +6,6 @@ import pydest
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants, helpers
 
-####### DEBUGGING ############
-import json
-
-
 class Stats:
 
     def __init__(self, bot):
@@ -207,10 +203,6 @@ class Stats:
             if res['ErrorCode'] != 1: 
                 await manager.say("Sorry, I can't seem to retrieve those stats right now")
                 return await manager.clear()
-
-            trials_stats = res['Response']['trialsofthenine'].get('allTime')
-            with open('res.json', 'w') as outfile:
-                json.dump(res['Response'], outfile)
             
             #| time played | KDR | best weapon | games played | most kills in sg | longest spree | combar rating | kills | assists | deaths | kda 
 
