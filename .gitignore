@@ -2,3 +2,11 @@ Turbulent.pem
 credentials.json
 __pycache__
 discord.log
+
+# Visual studio #
+.vscode/launch.json
+.vscode/settings.json
+
+# Debugging output #
+res.json
+trialsofthenine-data.json

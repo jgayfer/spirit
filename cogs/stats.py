@@ -6,7 +6,6 @@ import pydest
 from cogs.utils.messages import MessageManager
 from cogs.utils import constants, helpers
 
-
 class Stats:
 
     def __init__(self, bot):
@@ -61,7 +60,7 @@ class Stats:
         pvp_stats = res['Response']['allPvP'].get('allTime')
 
         if not pvp_stats:
-            await manager.say("Sorry, I can't seem to retrieve those stats right now")
+            await manager.say("Sorry, I can't seem to retrieve those stats right now- -")
             return await manager.clear()
 
         time_played = pvp_stats['secondsPlayed']['basic']['displayValue']
@@ -80,7 +79,7 @@ class Stats:
         win_ratio = pvp_stats['winLossRatio']['basic']['displayValue']
         if win_ratio != '-':
             win_ratio = float(win_ratio)
-            win_rate = str(round(win_ratio / (win_ratio + 1) * 100, 1)) + " %"
+            win_rate = str(round(win_ratio / (win_ratio + 1) * 100, 1)) + "%"
         else:
             win_rate = win_ratio
 
@@ -173,3 +172,77 @@ class Stats:
 
         await manager.say(e, embed=True, delete=False)
         await manager.clear()
+
+
+    @stats.command()
+    async def trials(self, ctx, username=None, platform=None):
+        """Display Trials stats across all characters on an account
+
+        In order to use this command for your own account, you must first register your Destiny 2
+        account with the bot via the register command.
+
+        `stats trials` - Display your Trials stats (preferred platform)
+        \$`stats trials Asal#1502 bnet` - Display Asal's Trials stats on Battle.net
+        \$`stats trials @user` - Display a registered user's Trials stats (preferred platform)
+        \$`stats trials @user bnet` - Display a registered user's Trials stats on Battle.net
+        """
+        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        await ctx.channel.trigger_typing()
+
+        membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
+
+        if isinstance(membership_details, str):
+            await manager.say(membership_details)
+            return await manager.clear()
+        
+        platform_id, membership_id, display_name = membership_details        
+        
+        try:
+            res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[39])
+
+            if res['ErrorCode'] != 1: 
+                await manager.say("Sorry, I can't seem to retrieve those stats right now")
+                return await manager.clear()
+            
+            #| time played | KDR | best weapon | games played | most kills in sg | longest spree | combar rating | kills | assists | deaths | kda 
+
+            time_played = trials_stats['secondsPlayed']['basic']['displayValue']
+            kdr = trials_stats['killsDeathsRatio']['basic']['displayValue']
+            best_weapon = trials_stats['weaponBestType']['basic']['displayValue']
+            games_played = trials_stats['activitiesEntered']['basic']['displayValue']
+            best_kills = trials_stats['bestSingleGameKills']['basic']['displayValue']
+            best_spree = trials_stats['longestKillSpree']['basic']['displayValue']
+            combat_rating = trials_stats['combatRating']['basic']['displayValue']
+            kills = trials_stats['kills']['basic']['displayValue']
+            assists = trials_stats['assists']['basic']['displayValue']
+            deaths = trials_stats['deaths']['basic']['displayValue']
+            kda = str(round((int(kills) + int(assists)) /int(deaths), 2))
+            win_ratio = trials_stats['winLossRatio']['basic']['displayValue']
+            if win_ratio != '-':
+                win_ratio = float(win_ratio)
+                win_rate = str(round(win_ratio / (win_ratio + 1) * 100, 1)) + "%"
+            else:
+                win_rate = win_ratio
+            
+            e = discord.Embed(color=constants.BLUE)
+            e.set_author(name="{} | Trials of the Nine stats".format(display_name),
+            icon_url=constants.PLATFORM_URLS.get(platform_id))
+            e.add_field(name='Kills', value=kills, inline=True)
+            e.add_field(name='Assists', value=assists, inline=True)
+            e.add_field(name='Deaths', value=deaths, inline=True)
+            e.add_field(name='KD', value=kdr, inline=True)
+            e.add_field(name='KA/D', value=kda, inline=True)
+            e.add_field(name='Win Rate', value=win_rate, inline=True)
+            e.add_field(name='Best Spree', value=best_spree, inline=True)
+            e.add_field(name='Most kills in a Game', value=best_kills, inline=True)
+            e.add_field(name='Favorite Weapon', value=best_weapon, inline=True)
+            e.add_field(name='Combat Rating', value=combat_rating, inline=True)
+            e.add_field(name='Games Played', value=games_played, inline=True)
+            e.add_field(name='Time Played', value=time_played, inline=True)
+
+            await manager.say(e, embed=True, delete=False)
+            await manager.clear()
+
+        except:
+            await manager.say("Sorry, I can't seem to retrieve those stats right now~")
+            return await manager.clear()
