@@ -50,8 +50,13 @@ class Register:
         except asyncio.TimeoutError:
             await manager.send_private_message("I'm not sure where you went. We can try this again later.")
             await registration_msg.delete()
+<<<<<<< HEAD
             return await manager.clean_messages()
         await ctx.channel.trigger_typing()
+=======
+            return await manager.clear()
+        await manager.trigger_dm_typing() 
+>>>>>>> a27831957996bebcef5a8097bec4b14eceba271e
 
         # Save OAuth credentials and bungie ID
         bungie_id = user_info.get('membership_id')
