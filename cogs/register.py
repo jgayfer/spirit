@@ -35,7 +35,7 @@ class Register:
         # Prompt user with link to Bungie.net OAuth authentication
         e = discord.Embed(colour=constants.BLUE)
         e.title = "Click Here to Register"
-        e.url = auth_url
+        e.url = auth_url    
         e.description = ("Click the above link to register your Bungie.net account with Spirit. "
                        + "Registering will allow Spirit to access your connected Destiny "
                        + "2 accounts.")
@@ -50,7 +50,7 @@ class Register:
             await manager.say("I'm not sure where you went. We can try this again later.", dm=True)
             await registration_msg.delete()
             return await manager.clear()
-        await ctx.channel.trigger_typing()
+        await manager.trigger_dm_typing() 
 
         # Save OAuth credentials and bungie ID
         bungie_id = user_info.get('membership_id')

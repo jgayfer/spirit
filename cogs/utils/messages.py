@@ -117,3 +117,10 @@ class MessageManager:
                     await self.channel.purge(limit=999, check=check)
                 except:
                     pass
+
+
+    async def trigger_dm_typing(self):
+        """Trigger typing animation in Private Message channel"""
+        async with self.channel.typing():
+            pass
+
