@@ -3,7 +3,7 @@ import discord
 
 import pydest
 
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants, helpers
 
 
@@ -34,7 +34,7 @@ class Stats:
         \$`stats pvp @user` - Display a registered user's PvP stats (preferred platform)
         \$`stats pvp @user bnet` - Display a registered user's PvP stats on Battle.net
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         await ctx.channel.trigger_typing()
 
         # Get membership details. This depends on whether or not a platform or username were given.
@@ -42,8 +42,8 @@ class Stats:
 
         # If there was an error getting membership details, display it
         if isinstance(membership_details, str):
-            await manager.say(membership_details)
-            return await manager.clear()
+            await manager.send_message(membership_details)
+            return await manager.clean_messages()
         else:
             platform_id, membership_id, display_name = membership_details
 
@@ -51,18 +51,18 @@ class Stats:
         try:
             res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[5])
         except:
-            await manager.say("Sorry, I can't seem to retrieve those stats right now~")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now~")
+            return await manager.clean_messages()
 
         if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to retrieve those stats right now--")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now--")
+            return await manager.clean_messages()
 
         pvp_stats = res['Response']['allPvP'].get('allTime')
 
         if not pvp_stats:
-            await manager.say("Sorry, I can't seem to retrieve those stats right now- -")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now- -")
+            return await manager.clean_messages()
 
         time_played = pvp_stats['secondsPlayed']['basic']['displayValue']
         kdr = pvp_stats['killsDeathsRatio']['basic']['displayValue']
@@ -99,8 +99,8 @@ class Stats:
         e.add_field(name='Games Played', value=games_played, inline=True)
         e.add_field(name='Time Played', value=time_played, inline=True)
 
-        await manager.say(e, embed=True, delete=False)
-        await manager.clear()
+        await manager.send_embed(e)
+        await manager.clean_messages()
 
 
     @stats.command()
@@ -115,7 +115,7 @@ class Stats:
         \$`stats pve @user` - Display a registered user's PvE stats (preferred platform)
         \$`stats pve @user bnet` - Display a registered user's PvE stats on Battle.net
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         await ctx.channel.trigger_typing()
 
         # Get membership details. This depends on whether or not a platform or username were given.
@@ -123,8 +123,8 @@ class Stats:
 
         # If there was an error getting membership details, display it
         if isinstance(membership_details, str):
-            await manager.say(membership_details)
-            return await manager.clear()
+            await manager.send_message(membership_details)
+            return await manager.clean_messages()
         else:
             platform_id, membership_id, display_name = membership_details
 
@@ -132,16 +132,16 @@ class Stats:
         try:
             res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[7,4,16,18])
         except pydest.PydestException as e:
-            await manager.say("Sorry, I can't seem to retrieve those stats right now")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
+            return await manager.clean_messages()
         if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to retrieve those stats right now")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
+            return await manager.clean_messages()
         pve_stats = res['Response']
 
         if not pve_stats:
-            await manager.say("Sorry, I can't seem to retrieve those stats right now")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
+            return await manager.clean_messages()
 
         time_played = pve_stats['allPvE']['allTime']['totalActivityDurationSeconds']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
         best_weapon = pve_stats['allPvE']['allTime']['weaponBestType']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
@@ -171,8 +171,8 @@ class Stats:
         e.add_field(name='Raids', value=num_raids, inline=True)
         e.add_field(name='Time Played', value=time_played, inline=True)
 
-        await manager.say(e, embed=True, delete=False)
-        await manager.clear()
+        await manager.send_embed(e)
+        await manager.clean_messages()
 
 
     @stats.command()
@@ -187,27 +187,27 @@ class Stats:
         \$`stats trials @user` - Display a registered user's Trials of the Nine stats (preferred platform)
         \$`stats trials @user bnet` - Display a registered user's Trials of the Nine stats on Battle.net
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         await ctx.channel.trigger_typing()
 
         membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
 
         if isinstance(membership_details, str):
-            await manager.say(membership_details)
-            return await manager.clear()
-        
-        platform_id, membership_id, display_name = membership_details        
-        
+            await manager.send_message(membership_details)
+            return await manager.clean_messages()
+
+        platform_id, membership_id, display_name = membership_details
+
         try:
             res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[39])
 
-            if res['ErrorCode'] != 1: 
-                await manager.say("Sorry, I can't seem to retrieve those stats right now--")
-                return await manager.clear()
+            if res['ErrorCode'] != 1:
+                await manager.send_message("Sorry, I can't seem to retrieve those stats right now--")
+                return await manager.clean_messages()
 
             trials_stats = res['Response']['trialsofthenine'].get('allTime')
-            
-            #| time played | KDR | best weapon | games played | most kills in sg | longest spree | combar rating | kills | assists | deaths | kda 
+
+            #| time played | KDR | best weapon | games played | most kills in sg | longest spree | combar rating | kills | assists | deaths | kda
 
             time_played = trials_stats['secondsPlayed']['basic']['displayValue']
             kdr = trials_stats['killsDeathsRatio']['basic']['displayValue']
@@ -226,7 +226,7 @@ class Stats:
                 win_rate = str(round(win_ratio / (win_ratio + 1) * 100, 1)) + "%"
             else:
                 win_rate = win_ratio
-            
+
             e = discord.Embed(color=constants.BLUE)
             e.set_author(name="{} | Trials of the Nine stats".format(display_name),
             icon_url=constants.PLATFORM_URLS.get(platform_id))
@@ -243,9 +243,9 @@ class Stats:
             e.add_field(name='Games Played', value=games_played, inline=True)
             e.add_field(name='Time Played', value=time_played, inline=True)
 
-            await manager.say(e, embed=True, delete=False)
-            await manager.clear()
+            await manager.send_embed(e)
+            await manager.clean_messages()
 
         except:
-            await manager.say("Sorry, I can't seem to retrieve those stats right now~")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now~")
+            return await manager.clean_messages()

@@ -4,8 +4,8 @@ from discord.ext import commands
 import discord
 
 from db.query_wrappers import get_event_role, get_event_delete_role
-from cogs.utils.messages import delete_all, MessageManager
-from cogs.utils.checks import is_event, is_int
+from cogs.utils.message_manager import MessageManager
+from cogs.utils.checks import is_event, is_int, is_message
 from cogs.utils import constants
 from cogs.utils.format import format_role_name
 
@@ -45,79 +45,94 @@ class Events:
         The event creator and those with the Manage Sever permission
         can delete events by reacting to the event message with \U0001f480.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-        event_role = get_event_role(self.bot, ctx.guild)
+        manager = MessageManager(ctx)
+        event_role = get_event_role(ctx)
         member_permissions = ctx.author.permissions_in(ctx.channel)
 
         if event_role:
             if ctx.author.top_role < event_role:
                 event_role_str = format_role_name(event_role)
-                await manager.say("You must be of role **{}** or higher to do that.".format(event_role))
-                return await manager.clear()
+                await manager.send_message("You must be of role **{}** or higher to do that.".format(event_role))
+                return await manager.clean_messages()
 
-        await manager.say('Event creation instructions have been messaged to you')
+        await manager.send_message('Event creation instructions have been messaged to you')
 
-        res = await manager.say_and_wait("Enter event title:", dm=True)
+        # Title
+        await manager.send_private_message("Enter event title:")
+        res = await manager.get_next_private_message()
         if not res:
-            return await manager.clear()
+            return await manager.clean_messages()
         title = res.content
 
-        description = ""
-        res = await manager.say_and_wait("Enter event description (type 'none' for no description):", dm=True)
+        # Description
+        await manager.send_private_message("Enter event description (type 'none' for no description):")
+        res = await manager.get_next_private_message()
         if not res:
-            return await manager.clear()
+            return await manager.clean_messages()
         if res.content.upper() != 'NONE':
             description = res.content
+        else:
+            description = ""
 
+        # Number of attendees
         max_members = 0
         while not max_members:
-            res = await manager.say_and_wait("Enter the maximum numbers of attendees (type 'none' for no maximum):", dm=True)
+            await manager.send_private_message("Enter the maximum numbers of attendees (type 'none' for no maximum):")
+            res = await manager.get_next_private_message()
             if not res:
-                return await manager.clear()
+                return await manager.clean_messages()
             if res.content.upper() == 'NONE':
                 break
             elif is_int(res.content) and int(res.content) in range(1,10000):
                 max_members = int(res.content)
             else:
-                await manager.say("Invalid entry. Must be a number between 1 and 9999.", dm=True)
+                await manager.send_private_message("Invalid entry. Must be a number between 1 and 9999.")
 
+        # Start time
         start_time = None
         while not start_time:
-            res = await manager.say_and_wait("Enter event time (YYYY-MM-DD HH:MM AM/PM):", dm=True)
+            await manager.send_private_message("Enter event time (YYYY-MM-DD HH:MM AM/PM):")
+            res = await manager.get_next_private_message()
             if not res:
-                return await manager.clear()
+                return await manager.clean_messages()
             start_time_format = '%Y-%m-%d %I:%M %p'
             try:
                 start_time = datetime.strptime(res.content, start_time_format)
             except ValueError:
-                await manager.say("Invalid event time!", dm=True)
+                await manager.send_private_message("Invalid event time!")
 
+        # Time zone
         time_zone = None
         while not time_zone:
-            res = await manager.say_and_wait("Enter the time zone (PST, EST, etc):", dm=True)
+            await manager.send_private_message("Enter the time zone (PST, EST, etc):")
+            res = await manager.get_next_private_message()
             if not res:
-                return await manager.clear()
+                return await manager.clean_messages()
             user_timezone = "".join(res.content.upper().split())
             if user_timezone not in constants.TIME_ZONES:
-                await manager.say("Unsupported time zone", dm=True)
+                await manager.send_private_message("Unsupported time zone")
             else:
                 time_zone = user_timezone
 
         affected_rows = self.bot.db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members, ctx.author.id)
         if affected_rows == 0:
-            await manager.say("An event with that name already exists!", dm=True)
-            return await manager.clear()
+            await manager.send_private_message("An event with that name already exists!", dm=True)
+            return await manager.clean_messages()
 
         event_channel = await self.get_events_channel(ctx.guild)
-        await manager.say("Event created! The " + event_channel.mention + " channel will be updated momentarily.", dm=True)
+        await manager.send_private_message("Event created! The " + event_channel.mention + " channel will be updated momentarily.")
         await self.list_events(ctx.guild)
-        await manager.clear()
+        await manager.clean_messages()
+
+
+    def user_can_create_events(self, member):
+        pass
 
 
     async def list_events(self, guild):
         """Clear the event channel and display all upcoming events"""
         events_channel = await self.get_events_channel(guild)
-        await events_channel.purge(limit=999, check=delete_all)
+        await events_channel.purge(limit=999, check=is_message)
         events = self.bot.db.get_events(guild.id)
 
         if len(events) > 0:

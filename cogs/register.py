@@ -1,11 +1,12 @@
 import pickle
 import asyncio
+import sys
 
 from discord.ext import commands
 import discord
 import aioredis
 
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants
 
 
@@ -24,13 +25,13 @@ class Register:
         profile. Registering is a prerequisite to using any commands that require knowledge of your
         Destiny 2 profile.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         template = "https://www.bungie.net/en/OAuth/Authorize?client_id={}&response_type=code&state={}"
         auth_url = template.format(self.bot.bungie_client_id, ctx.author.id)
         bliz_name, xbox_name, psn_name, bliz_id, xbox_id, psn_id = (None,)*6
 
         if not isinstance(ctx.channel, discord.abc.PrivateChannel):
-            await manager.say("Registration instructions have been messaged to you.")
+            await manager.send_message("Registration instructions have been messaged to you.")
 
         # Prompt user with link to Bungie.net OAuth authentication
         e = discord.Embed(colour=constants.BLUE)
@@ -39,17 +40,17 @@ class Register:
         e.description = ("Click the above link to register your Bungie.net account with Spirit. "
                        + "Registering will allow Spirit to access your connected Destiny "
                        + "2 accounts.")
-        registration_msg = await manager.say(e, embed=True, dm=True)
+        registration_msg = await manager.send_private_embed(e)
 
         # Wait for user info from the web server via Redis
         res = await self.redis.subscribe(ctx.author.id)
         tsk = asyncio.ensure_future(self.wait_for_msg(res[0]))
         try:
-            user_info = await asyncio.wait_for(tsk, timeout=90)
+            user_info = await asyncio.wait_for(tsk, timeout=120)
         except asyncio.TimeoutError:
-            await manager.say("I'm not sure where you went. We can try this again later.", dm=True)
+            await manager.send_private_message("I'm not sure where you went. We can try this again later.")
             await registration_msg.delete()
-            return await manager.clear()
+            return await manager.clean_messages()
         await ctx.channel.trigger_typing()
 
         # Save OAuth credentials and bungie ID
@@ -62,14 +63,14 @@ class Register:
         try:
             res = await self.bot.destiny.api.get_membership_data_by_id(bungie_id)
         except:
-            await manager.say("I can't seem to connect to Bungie right now. Try again later.", dm=True)
+            await manager.send_private_message("I can't seem to connect to Bungie right now. Try again later.")
             await registration_msg.delete()
-            return await manager.clear()
+            return await manager.clean_messages()
 
         if res['ErrorCode'] != 1:
-            await manager.say("Oops, something went wrong during registration. Please try again.", dm=True)
+            await manager.send_private_message("Oops, something went wrong during registration. Please try again.")
             await registration_msg.delete()
-            return await manager.clear()
+            return await manager.clean_messages()
 
         for entry in res['Response']['destinyMemberships']:
             if entry['membershipType'] == 4:
@@ -97,7 +98,7 @@ class Register:
 
         # Display message with prompts to select a preferred platform
         e = self.registered_embed(bungie_name, bliz_name, xbox_name, psn_name)
-        platform_msg = await manager.say(e, embed=True, dm=True)
+        platform_msg = await manager.send_private_embed(e)
         await registration_msg.delete()
 
         # If only one account is connected, set it as preferred (don't display reactions)
@@ -112,7 +113,7 @@ class Register:
                 platform_id = 2
 
             self.bot.db.update_platform(ctx.author.id, platform_id)
-            return await manager.clear()
+            return await manager.clean_messages()
 
         func = self.add_reactions(platform_msg, platform_reactions)
         self.bot.loop.create_task(func)
@@ -125,10 +126,10 @@ class Register:
 
         # Wait for platform reaction from user
         try:
-            reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=check_reaction)
+            reaction, user = await self.bot.wait_for('reaction_add', timeout=120.0, check=check_reaction)
         except asyncio.TimeoutError:
-            await manager.say("I'm not sure where you went. We can try this again later.", dm=True)
-            return await manager.clear()
+            await manager.send_private_message("I'm not sure where you went. We can try this again later.")
+            return await manager.clean_messages()
 
         # Save preferred platform
         platform = constants.PLATFORMS.get(reaction.emoji.name)
@@ -138,7 +139,7 @@ class Register:
         e = self.registered_embed(bungie_name, bliz_name, xbox_name, psn_name, footer=True, platform=platform)
         await platform_msg.edit(embed=e)
 
-        return await manager.clear()
+        return await manager.clean_messages()
 
 
     def registered_embed(self, bungie_name, bliz_name, xbox_name, psn_name, footer=False, platform=None):

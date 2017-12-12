@@ -5,7 +5,7 @@ from discord.ext import commands
 import psutil
 import pytz
 
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants
 
 
@@ -20,7 +20,7 @@ class General:
     @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def countdown(self, ctx):
         """Show time until upcoming Destiny 2 releases"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         pst_now = datetime.now(tz=pytz.timezone('US/Pacific'))
         text = ""
 
@@ -39,8 +39,8 @@ class General:
 
         countdown = discord.Embed(title="Destiny 2 Countdown", color=constants.BLUE)
         countdown.description = text
-        await manager.say(countdown, embed=True, delete=False)
-        await manager.clear()
+        await manager.send_embed(countdown)
+        await manager.clean_messages()
 
 
     @commands.command()
@@ -53,7 +53,7 @@ class General:
 
         This command was adapted from RoboDanny by Rapptz - https://www.github.com/Rapptz/RoboDanny
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
 
         e = discord.Embed(title='Feedback', colour=constants.BLUE)
         e.set_author(name=str(ctx.author), icon_url=ctx.author.avatar_url)
@@ -73,16 +73,16 @@ class General:
             asal = await self.bot.get_user_info("118926942404608003")
             await asal.send(embed=e)
 
-        await manager.say("Your feedback has been sent to the developer!")
-        await manager.clear()
+        await manager.send_message("Your feedback has been sent to the developer!")
+        await manager.clean_messages()
 
 
     @feedback.error
     async def feedback_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-            await manager.say("You forgot to include your feedback!")
-            await manager.clear()
+            manager = MessageManager(ctx)
+            await manager.send_message("You forgot to include your feedback!")
+            await manager.clean_messages()
 
 
     @commands.command()
@@ -92,7 +92,7 @@ class General:
 
         This command was adapted from RoboDanny by Rapptz - https://www.github.com/Rapptz/RoboDanny
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         e = discord.Embed(title='Spirit v{}'.format(constants.VERSION), colour=constants.BLUE)
 
         e.description = ("[Invite Spirit](https://discordapp.com/oauth2/authorize?client_id=335084645743984641&scope=bot&permissions=523344)\n"
@@ -127,15 +127,15 @@ class General:
         e.add_field(name='Uptime', value=self.get_bot_uptime(brief=True))
 
         e.set_footer(text='Made with discord.py', icon_url='http://i.imgur.com/5BFecvA.png')
-        await manager.say(e, embed=True, delete=False)
-        await manager.clear()
+        await manager.send_embed(e)
+        await manager.clean_messages()
 
 
     @commands.command()
     @commands.cooldown(rate=3, per=5, type=commands.BucketType.user)
     async def donate(self, ctx):
         """Support the continued development of Spirit!"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         e = discord.Embed(colour=constants.BLUE)
 
         text = ("Spirit is a work of love that has taken countless hours to develop. Your donation "
@@ -155,8 +155,8 @@ class General:
         e.add_field(name="$5/Month", value=reward_2)
         e.add_field(name="$10/Month", value=reward_3)
 
-        await manager.say(e, embed=True, delete=False)
-        await manager.clear()
+        await manager.send_embed(e)
+        await manager.clean_messages()
 
 
     def get_bot_uptime(self, *, brief=False):

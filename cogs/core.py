@@ -1,8 +1,9 @@
 from discord.ext import commands
 import discord
+import asyncio
 
 from cogs.utils import constants
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 
 
 class Core:
@@ -45,7 +46,7 @@ class Core:
 
     async def on_command_error(self, ctx, error):
         """Command error handler"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
 
         if isinstance(error, commands.CommandNotFound):
             pass
@@ -57,21 +58,24 @@ class Core:
             pass
 
         elif isinstance(error, commands.NoPrivateMessage):
-            await manager.say("You can't use that command in a private message", mention=False)
+            await manager.send_message("You can't use that command in a private message")
 
         elif isinstance(error, commands.CheckFailure):
-            await manager.say("You don't have the required permissions to do that")
+            await manager.send_message("You don't have the required permissions to do that")
 
         elif isinstance(error, commands.CommandOnCooldown):
-            await manager.say(error)
+            await manager.send_message(error)
 
+        # Non Discord.py errors
         elif isinstance(error, commands.CommandInvokeError):
             if isinstance(error.original, discord.errors.Forbidden):
                 pass
+            elif isinstance(error.original, asyncio.TimeoutError):
+                await manager.send_private_message("I'm not sure where you went. We can try this again later.")
             else:
                 raise error
 
         else:
             raise error
 
-        await manager.clear()
+        await manager.clean_messages()

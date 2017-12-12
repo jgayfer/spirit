@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants
 
 
@@ -13,15 +13,15 @@ class Owner:
     @commands.command(hidden=True)
     async def pm(self, ctx, user_id: int, *message):
         """Send a PM via the bot to a user given their ID"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         user = self.bot.get_user(user_id)
 
         if ctx.author.id not in constants.MODS:
             return
 
         if len(message) == 0:
-            await manager.say("You forgot to include your message!")
-            return await manager.clear()
+            await manager.send_message("You forgot to include your message!")
+            return await manager.clean_messages()
 
         response = "You have received a message from my developer:\n\n**"
         for word in message:
@@ -33,16 +33,16 @@ class Owner:
         try:
             await user.send(response)
         except:
-            await manager.say('Could not PM user with ID {}'.format(user_id))
+            await manager.send_message('Could not PM user with ID {}'.format(user_id))
         else:
-            await manager.say('PM successfully sent.')
-        await manager.clear()
+            await manager.send_message('PM successfully sent.')
+        await manager.clean_messages()
 
 
     @commands.command(hidden=True)
     async def broadcast(self, ctx, *, message):
         """Send a message to the owner of every server the bot belongs to"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
 
         if ctx.author.id not in constants.OWNERS:
             return
@@ -56,12 +56,12 @@ class Owner:
             else:
                 count+= 1
 
-        await manager.say("Broadcast message sent to **{}** users".format(count))
-        await manager.clear()
+        await manager.send_message("Broadcast message sent to **{}** users".format(count))
+        await manager.clean_messages()
 
 
     @broadcast.error
     async def broadcast_error(self, ctx, error):
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-        await manager.say("You didn't include a broadcast message")
-        return await manager.clear()
+        manager = MessageManager(ctx)
+        await manager.send_message("You didn't include a broadcast message")
+        return await manager.clean_messages()

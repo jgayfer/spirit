@@ -5,7 +5,7 @@ from discord.ext import commands
 import discord
 import pydest
 
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants
 
 
@@ -19,18 +19,18 @@ class Destiny:
     @commands.cooldown(rate=2, per=5, type=commands.BucketType.user)
     async def nightfall(self, ctx):
         """Display the weekly nightfall info"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         await ctx.channel.trigger_typing()
 
         try:
             weekly = await self.bot.destiny.api.get_public_milestones()
         except pydest.PydestException as e:
-            await manager.say("Sorry, I can't seem retrieve the nightfall info right now")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem retrieve the nightfall info right now")
+            return await manager.clean_messages()
 
         if weekly['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem retrieve the nightfall info right now")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem retrieve the nightfall info right now")
+            return await manager.clean_messages()
 
         nightfall_hash = weekly['Response']['2171429505']['availableQuests'][0]['activity']['activityHash']
         nightfall = await self.bot.destiny.decode_hash(nightfall_hash, 'DestinyActivityDefinition')
@@ -55,5 +55,5 @@ class Destiny:
         e.add_field(name='Challenges', value=challenges)
         e.add_field(name='Modifiers', value=modifiers)
 
-        await manager.say(e, embed=True, delete=False)
-        await manager.clear()
+        await manager.send_embed(e)
+        await manager.clean_messages()

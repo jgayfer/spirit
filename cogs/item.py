@@ -4,7 +4,7 @@ from discord.ext import commands
 import discord
 import pydest
 
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants
 from cogs.utils.paginator import Paginator
 
@@ -29,28 +29,28 @@ class Item:
 
         Note: The search term must contain a minimum of three characters.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         paginator = Paginator(self.bot, ctx)
         await ctx.channel.trigger_typing()
 
         try:
             res = await self.bot.destiny.api.search_destiny_entities('DestinyInventoryItemDefinition', search_term)
         except pydest.PydestException as e:
-            await manager.say("Sorry, I can't seem to search for items right now.")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to search for items right now.")
+            return await manager.clean_messages()
         except ValueError as f:
-            await manager.say("Your search term contains unsupported characters.")
-            return await manager.clear()
+            await manager.send_message("Your search term contains unsupported characters.")
+            return await manager.clean_messages()
 
         if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to search for items right now")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to search for items right now")
+            return await manager.clean_messages()
 
         # Check how many results were found - we need at least one
         num_results = res['Response']['results']['totalResults']
         if num_results == 0:
-            await manager.say("I didn't find any items that match your search.")
-            return await manager.clear()
+            await manager.send_message("I didn't find any items that match your search.")
+            return await manager.clean_messages()
 
         # Iterate through each result, and add them to the paginator if valid type
         for i, entry in enumerate(res['Response']['results']['results']):
@@ -93,10 +93,10 @@ class Item:
             paginator.add_embed(e)
 
         if not paginator.length:
-            await manager.say("I didn't find any items that match your search.")
-            return await manager.clear()
+            await manager.send_message("I didn't find any items that match your search.")
+            return await manager.clean_messages()
 
-        func = manager.clear()
+        func = manager.clean_messages()
         self.bot.loop.create_task(func)
         await paginator.paginate()
 
@@ -104,9 +104,9 @@ class Item:
     @item.error
     async def item_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-            await manager.say("Oops! You didn't specify a search term.")
-            await manager.clear()
+            manager = MessageManager(ctx)
+            await manager.send_message("Oops! You didn't specify a search term.")
+            await manager.clean_messages()
 
 
     def embed_armor(self, embed, item):

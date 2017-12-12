@@ -1,7 +1,7 @@
 from discord.ext import commands
 
-from db.query_wrappers import get_event_role, get_event_delete_role
-from cogs.utils.messages import MessageManager
+from db.query_wrappers import get_event_role, get_event_delete_role, cleanup_is_enabled
+from cogs.utils.message_manager import MessageManager
 from cogs.utils.format import format_role_name
 
 
@@ -28,23 +28,23 @@ class Settings:
         """
         Change the server's command prefix (Manage Server only)
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
 
         if len(new_prefix) > 5:
-            await manager.say("Prefix must be less than 6 characters.")
-            return await manager.clear()
+            await manager.send_message("Prefix must be less than 6 characters.")
+            return await manager.clean_messages()
 
         self.bot.db.set_prefix(ctx.guild.id, new_prefix)
-        await manager.say("Command prefix has been changed to " + new_prefix)
-        return await manager.clear()
+        await manager.send_message("Command prefix has been changed to " + new_prefix)
+        return await manager.clean_messages()
 
 
     @setprefix.error
     async def setprefix_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-            await manager.say("Oops! You didn't provide a new prefix.")
-            await manager.clear()
+            manager = MessageManager(ctx)
+            await manager.send_message("Oops! You didn't provide a new prefix.")
+            await manager.clean_messages()
 
 
     @settings.command()
@@ -60,7 +60,7 @@ class Settings:
         **Note:** Mentioning the role directly with this command will not work. You must provide
         only the name of the role without mentioning it. The role name is also case sensitive!
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
 
         guild_event_role = None
         for role in ctx.guild.roles:
@@ -68,31 +68,31 @@ class Settings:
                 guild_event_role = role
 
         if not guild_event_role:
-            await manager.say("I couldn't find a role called **{}** on this server.\n\n".format(event_role)
+            await manager.send_message("I couldn't find a role called **{}** on this server.\n\n".format(event_role)
                             + "Note that you must provide only the name of the role. "
                             + "Mentioning it with the @ sign won't work. The role name is also "
                             + "case sensitive!")
-            return await manager.clear()
+            return await manager.clean_messages()
 
         self.bot.db.set_event_role_id(ctx.guild.id, guild_event_role.id)
-        await manager.say("The event role has been set to: **{}**".format(format_role_name(guild_event_role)))
-        return await manager.clear()
+        await manager.send_message("The event role has been set to: **{}**".format(format_role_name(guild_event_role)))
+        return await manager.clean_messages()
 
 
     @seteventrole.error
     async def seteventrole_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-            event_role = get_event_role(self.bot, ctx.guild)
+            manager = MessageManager(ctx)
+            event_role = get_event_role(ctx)
 
             if not event_role:
                 role_display = 'None (anyone can make events)'
             else:
                 role_display = format_role_name(event_role)
 
-            await manager.say("The current event role is: **{}**\n\n".format(role_display)
+            await manager.send_message("The current event role is: **{}**\n\n".format(role_display)
                             + "To change the event role, use '{}settings seteventrole <role_name>'".format(ctx.prefix))
-            await manager.clear()
+            await manager.clean_messages()
 
 
     @settings.command()
@@ -108,7 +108,7 @@ class Settings:
         **Note:** Mentioning the role directly with this command will not work. You must provide
         only the name of the role without mentioning it. The role name is also case sensitive!
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
 
         guild_event_delete_role = None
         for role in ctx.guild.roles:
@@ -116,31 +116,31 @@ class Settings:
                 guild_event_delete_role = role
 
         if not guild_event_delete_role:
-            await manager.say("I couldn't find a role called **{}** on this server.\n\n".format(event_role)
+            await manager.send_message("I couldn't find a role called **{}** on this server.\n\n".format(event_role)
                             + "Note that you must provide only the name of the role. "
                             + "Mentioning it with the @ sign won't work. The role name is also "
                             + "case sensitive!")
-            return await manager.clear()
+            return await manager.clean_messages()
 
         self.bot.db.set_event_delete_role_id(ctx.guild.id, guild_event_delete_role.id)
-        await manager.say("The event delete role has been set to: **{}**".format(format_role_name(guild_event_delete_role)))
-        return await manager.clear()
+        await manager.send_message("The event delete role has been set to: **{}**".format(format_role_name(guild_event_delete_role)))
+        return await manager.clean_messages()
 
 
     @seteventdeleterole.error
     async def seteventdeleterole_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-            event_role = get_event_delete_role(self.bot, ctx.guild)
+            manager = MessageManager(ctx)
+            event_role = get_event_delete_role(ctx)
 
             if not event_role:
                 role_display = '**None** (only Manage Sever members can delete events)'
             else:
                 role_display = format_role_name(event_role)
 
-            await manager.say("The current event delete role is: {}\n\n".format(role_display)
+            await manager.send_message("The current event delete role is: {}\n\n".format(role_display)
                             + "To change the event delete role, use '{}settings seteventdeleterole <role_name>'".format(ctx.prefix))
-            await manager.clear()
+            await manager.clean_messages()
 
 
     @settings.command()
@@ -156,15 +156,10 @@ class Settings:
         be deleted if this is enabled; messages like the help message or the
         roster, for example, will not be removed.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
 
         self.bot.db.toggle_cleanup(ctx.guild.id)
-        result = self.bot.db.get_cleanup(ctx.guild.id)
-        if result:
-            cleanup = result.get('clear_spam')
-        else:
-            raise ValueError("Could not retrieve 'cleanup' from database")
+        cleanup_status_text = 'enabled' if cleanup_is_enabled(ctx) else 'disabled'
 
-        status = 'enabled' if cleanup else 'disabled'
-        await manager.say("Command message cleanup is now *{}*".format(status))
-        return await manager.clear()
+        await manager.send_message("Command message cleanup is now *{}*".format(cleanup_status_text))
+        return await manager.clean_messages()

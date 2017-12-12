@@ -4,7 +4,7 @@ import discord
 
 import pydest
 
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants, helpers
 
 
@@ -27,7 +27,7 @@ class Loadout:
         \$`loadout @user` - Display a registered user's Guardian (preferred platform)
         \$`loadout @user bnet` - Display a registered user's Guardian on Battle.net
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         await ctx.channel.trigger_typing()
 
         # Get membership details. This depends on whether or not a platform or username were given.
@@ -35,8 +35,8 @@ class Loadout:
 
         # If there was an error getting membership details, display it
         if isinstance(membership_details, str):
-            await manager.say(membership_details)
-            return await manager.clear()
+            await manager.send_message(membership_details)
+            return await manager.clean_messages()
         else:
             platform_id, membership_id, _ = membership_details
 
@@ -44,12 +44,12 @@ class Loadout:
         try:
             res = await self.bot.destiny.api.get_profile(platform_id, membership_id, ['characters', 'characterEquipment', 'profiles'])
         except pydest.PydestException as e:
-            await manager.say("Sorry, I can't seem to retrieve that Guardian right now.")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to retrieve that Guardian right now.")
+            return await manager.clean_messages()
 
         if res['ErrorCode'] != 1:
-            await manager.say("Sorry, I can't seem to retrieve that Guardian right now.")
-            return await manager.clear()
+            await manager.send_message("Sorry, I can't seem to retrieve that Guardian right now.")
+            return await manager.clean_messages()
 
         # Determine which character was last played
         chars_last_played = []
@@ -136,5 +136,5 @@ class Loadout:
         e.add_field(name='Weapons', value=weapons_info, inline=True)
         e.add_field(name='Armor', value=armor_info, inline=True)
 
-        await manager.say(e, embed=True, delete=False)
-        await manager.clear()
+        await manager.send_embed(e)
+        await manager.clean_messages()

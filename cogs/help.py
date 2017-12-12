@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from cogs.utils import constants
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 
 
 class Help:
@@ -16,7 +16,7 @@ class Help:
     @commands.cooldown(rate=3, per=5.0, type=commands.BucketType.user)
     async def help(self, ctx, str_cmd=None, str_subcmd=None):
         """Display command information"""
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
 
         # Determine which prefix to display in the help message
         if isinstance(ctx.channel, discord.abc.PrivateChannel):
@@ -37,44 +37,44 @@ class Help:
         if str_cmd and str_subcmd:
             cmd = self.bot.get_command(str_cmd)
             if cmd is None:
-                await manager.say("There are no commands called '{}'".format(str_cmd))
-                return await manager.clear()
+                await manager.send_message("There are no commands called '{}'".format(str_cmd))
+                return await manager.clean_messages()
 
             # Check for subcommand
             if hasattr(cmd, 'commands'):
                 for sub_cmd in cmd.commands:
                     if sub_cmd.name == str_subcmd:
-                        help = self.help_embed_single(prefix, sub_cmd)
-                        await manager.say(help, embed=True, delete=False)
+                        help_embed = self.help_embed_single(prefix, sub_cmd)
+                        await manager.send_embed(help_embed)
                         break
                 else:
-                    await manager.say("'{}' doesn't have a subcommand called '{}'".format(str_cmd, str_subcmd))
+                    await manager.send_message("'{}' doesn't have a subcommand called '{}'".format(str_cmd, str_subcmd))
             else:
-                await manager.say("'{}' does not have any subcommands".format(str_cmd))
+                await manager.send_message("'{}' does not have any subcommands".format(str_cmd))
 
         # User passed in a single command
         elif str_cmd:
             cmd = self.bot.get_command(str_cmd)
             if cmd is None:
-                await manager.say("There are no commands called '{}'".format(str_cmd))
-                return await manager.clear()
+                await manager.send_message("There are no commands called '{}'".format(str_cmd))
+                return await manager.clean_messages()
 
             # Check if command has subcommands
             if hasattr(cmd, 'commands'):
                 sub_cmds = []
                 for sub_cmd in cmd.commands:
                     sub_cmds.append(sub_cmd)
-                help = self.help_embed_group(prefix, cmd, sub_cmds)
+                help_embed = self.help_embed_group(prefix, cmd, sub_cmds)
             else:
-                help = self.help_embed_single(prefix, cmd)
-            await manager.say(help, embed=True, delete=False)
+                help_embed = self.help_embed_single(prefix, cmd)
+            await manager.send_embed(help_embed)
 
         # No command passed, print help for all commands
         else:
-            help = self.help_embed_all(prefix, self.bot.commands)
-            await manager.say(help, embed=True, delete=False)
+            help_embed = self.help_embed_all(prefix, self.bot.commands)
+            await manager.send_embed(help_embed)
 
-        await manager.clear()
+        await manager.clean_messages()
 
 
     def help_embed_all(self, prefix, commands):

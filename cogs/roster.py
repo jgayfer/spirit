@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 
-from cogs.utils.messages import MessageManager
+from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants
 
 
@@ -29,24 +29,24 @@ class Roster:
 
         Class must be one of Titan, Warlock, or Hunter
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
 
         role = role.lower().title()
         if role == "Titan" or role == "Warlock" or role == "Hunter":
             self.bot.db.add_user(ctx.author.id)
             self.bot.db.update_role(ctx.author.id, role, ctx.guild.id)
-            await manager.say("Your class has been updated!")
+            await manager.send_message("Your class has been updated!")
         else:
-            await manager.say("Class must be one of: Titan, Hunter, Warlock")
-        await manager.clear()
+            await manager.send_message("Class must be one of: Titan, Hunter, Warlock")
+        await manager.clean_messages()
 
 
     @setclass.error
     async def setclass_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-            await manager.say("Oops! You didn't include your Destiny 2 class.")
-            await manager.clear()
+            manager = MessageManager(ctx)
+            await manager.send_message("Oops! You didn't include your Destiny 2 class.")
+            await manager.clean_messages()
 
 
     @roster.command(aliases=['timezone', 'tz'])
@@ -57,26 +57,26 @@ class Roster:
 
         For a full list of supported timezones, check out the bot's support server
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         time_zone = time_zone.upper()
         time_zone = "".join(time_zone.split())
 
         if time_zone in constants.TIME_ZONES:
             self.bot.db.add_user(ctx.author.id)
             self.bot.db.update_timezone(ctx.author.id, time_zone, ctx.guild.id)
-            await manager.say("Your time zone has been updated!")
+            await manager.send_message("Your time zone has been updated!")
         else:
-            await manager.say("Unsupported time zone. For a list of supported timezones, "
+            await manager.send_message("Unsupported time zone. For a list of supported timezones, "
                             + "check out the bot's support server.")
-        await manager.clear()
+        await manager.clean_messages()
 
 
     @settimezone.error
     async def settimezone_error(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
-            await manager.say("Oops! You didn't include your timezone.")
-            await manager.clear()
+            manager = MessageManager(ctx)
+            await manager.send_message("Oops! You didn't include your timezone.")
+            await manager.clean_messages()
 
 
     @roster.command(aliases=['view'])
@@ -90,7 +90,7 @@ class Roster:
         users who have set a role or timezone will be
         displayed on the roster.
         """
-        manager = MessageManager(self.bot, ctx.author, ctx.channel, ctx.prefix, [ctx.message])
+        manager = MessageManager(ctx)
         roster_groups = []
         roster = self.bot.db.get_roster(ctx.guild.id)
 
@@ -125,16 +125,16 @@ class Roster:
             embed_msg = discord.Embed(color=constants.BLUE)
             embed_msg.title="{} Roster".format(ctx.guild.name)
             embed_msg.description = roster_groups[0]
-            await manager.say(embed_msg, embed=True, delete=False)
+            await manager.send_embed(embed_msg)
 
             # Send additional roster messages if the roster is too long
             for group in roster_groups[1:]:
                 embed_msg = discord.Embed(color=constants.BLUE)
                 embed_msg.title="{} Roster (continued)".format(ctx.guild.name)
                 embed_msg.description = group
-                await manager.say(embed_msg, embed=True, delete=False)
+                await manager.send_embed(embed_msg)
 
         else:
-            await manager.say("No roster exists yet. Use '{}roster settimezone' or '{}roster ".format(ctx.prefix, ctx.prefix)
+            await manager.send_message("No roster exists yet. Use '{}roster settimezone' or '{}roster ".format(ctx.prefix, ctx.prefix)
                             + "setclass' to add the first entry!")
-        await manager.clear()
+        await manager.clean_messages()

@@ -8,18 +8,18 @@ import pydest
 import aioredis
 
 from db.dbase import DBase
-from cogs.events import Events
 from cogs.roster import Roster
-from cogs.help import Help
-from cogs.settings import Settings
 from cogs.general import General
-from cogs.core import Core
 from cogs.stats import Stats
 from cogs.owner import Owner
 from cogs.item import Item
-from cogs.register import Register
 from cogs.loadout import Loadout
 from cogs.destiny import Destiny
+from cogs.register import Register
+from cogs.settings import Settings
+from cogs.core import Core
+from cogs.help import Help
+from cogs.events import Events
 
 
 async def _prefix_callable(bot, message):
@@ -64,20 +64,19 @@ if __name__ == '__main__':
     bungie_api_key = file_dict['d2-api-key']
     bungie_client_id = file_dict['client-id']
 
-
     bot = Spirit(token, bungie_api_key, bungie_client_id)
 
     # Add modules to bot
-    bot.add_cog(Core(bot))
-    bot.add_cog(Events(bot))
-    bot.add_cog(General(bot))
     bot.add_cog(Help(bot))
+    bot.add_cog(Core(bot))
+    bot.add_cog(Settings(bot))
+    bot.add_cog(Events(bot))
+    bot.add_cog(Register(bot))
+    bot.add_cog(General(bot))
     bot.add_cog(Owner(bot))
     bot.add_cog(Roster(bot))
-    bot.add_cog(Settings(bot))
     bot.add_cog(Stats(bot))
     bot.add_cog(Item(bot))
-    bot.add_cog(Register(bot))
     bot.add_cog(Loadout(bot))
     bot.add_cog(Destiny(bot))
 

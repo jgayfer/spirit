@@ -23,3 +23,12 @@ def is_int(x):
         return False
     else:
         return a == b
+
+
+def is_private_channel(channel):
+    if isinstance(channel, discord.abc.PrivateChannel):
+        return True
+
+
+def is_message(message):
+    return True
