@@ -51,7 +51,7 @@ class Register:
             await manager.send_private_message("I'm not sure where you went. We can try this again later.")
             await registration_msg.delete()
             return await manager.clean_messages()
-        await ctx.channel.trigger_typing()
+        await ctx.author.dm_channel.trigger_typing() 
 
         # Save OAuth credentials and bungie ID
         bungie_id = user_info.get('membership_id')
