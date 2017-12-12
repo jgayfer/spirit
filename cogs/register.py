@@ -35,7 +35,7 @@ class Register:
         # Prompt user with link to Bungie.net OAuth authentication
         e = discord.Embed(colour=constants.BLUE)
         e.title = "Click Here to Register"
-        e.url = auth_url    
+        e.url = auth_url
         e.description = ("Click the above link to register your Bungie.net account with Spirit. "
                        + "Registering will allow Spirit to access your connected Destiny "
                        + "2 accounts.")
