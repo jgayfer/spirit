@@ -6,7 +6,6 @@ import pydest
 from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants, helpers
 
-
 class Stats:
 
     def __init__(self, bot):
@@ -51,17 +50,17 @@ class Stats:
         try:
             res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[5])
         except:
-            await manager.send_message("Sorry, I can't seem to retrieve those stats right now~")
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clean_messages()
 
         if res['ErrorCode'] != 1:
-            await manager.send_message("Sorry, I can't seem to retrieve those stats right now--")
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clean_messages()
 
         pvp_stats = res['Response']['allPvP'].get('allTime')
 
         if not pvp_stats:
-            await manager.send_message("Sorry, I can't seem to retrieve those stats right now- -")
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clean_messages()
 
         time_played = pvp_stats['secondsPlayed']['basic']['displayValue']
@@ -177,15 +176,15 @@ class Stats:
 
     @stats.command()
     async def trials(self, ctx, username=None, platform=None):
-        """Display Trials of the Nine stats across all characters on an account
+        """Display Trials stats across all characters on an account
 
         In order to use this command for your own account, you must first register your Destiny 2
         account with the bot via the register command.
 
-        `stats trials` - Display your Trials of the Nine stats (preferred platform)
-        \$`stats trials Asal#1502 bnet` - Display Asal's Trials of the Nine stats on Battle.net
-        \$`stats trials @user` - Display a registered user's Trials of the Nine stats (preferred platform)
-        \$`stats trials @user bnet` - Display a registered user's Trials of the Nine stats on Battle.net
+        `stats trials` - Display your Trials stats (preferred platform)
+        \$`stats trials Asal#1502 bnet` - Display Asal's Trials stats on Battle.net
+        \$`stats trials @user` - Display a registered user's Trials stats (preferred platform)
+        \$`stats trials @user bnet` - Display a registered user's Trials stats on Battle.net
         """
         manager = MessageManager(ctx)
         await ctx.channel.trigger_typing()
@@ -202,7 +201,7 @@ class Stats:
             res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[39])
 
             if res['ErrorCode'] != 1:
-                await manager.send_message("Sorry, I can't seem to retrieve those stats right now--")
+                await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
                 return await manager.clean_messages()
 
             trials_stats = res['Response']['trialsofthenine'].get('allTime')
@@ -247,5 +246,5 @@ class Stats:
             await manager.clean_messages()
 
         except:
-            await manager.send_message("Sorry, I can't seem to retrieve those stats right now~")
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clean_messages()
