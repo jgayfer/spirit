@@ -51,7 +51,7 @@ class Register:
             await manager.send_private_message("I'm not sure where you went. We can try this again later.")
             await registration_msg.delete()
             return await manager.clean_messages()
-        await ctx.author.dm_channel.trigger_typing() 
+        await ctx.author.dm_channel.trigger_typing()
 
         # Save OAuth credentials and bungie ID
         bungie_id = user_info.get('membership_id')
@@ -128,6 +128,7 @@ class Register:
         try:
             reaction, user = await self.bot.wait_for('reaction_add', timeout=120.0, check=check_reaction)
         except asyncio.TimeoutError:
+            await platform_msg.delete()
             await manager.send_private_message("I'm not sure where you went. We can try this again later.")
             return await manager.clean_messages()
 
