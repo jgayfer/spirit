@@ -72,6 +72,11 @@ class Register:
             await registration_msg.delete()
             return await manager.clean_messages()
 
+        if not self.user_has_connected_accounts(res):
+            await manager.send_private_message("Oops, you don't have any public accounts attached to your Bungie.net profile.")
+            await registration_msg.delete()
+            return await manager.clean_messages()
+
         for entry in res['Response']['destinyMemberships']:
             if entry['membershipType'] == 4:
                 bliz_name = entry['displayName']
@@ -173,6 +178,12 @@ class Register:
             e.set_footer(text="Your preferred platform has been set!")
 
         return e
+
+
+    def user_has_connected_accounts(self, json):
+        """Return true if user has connected destiny accounts"""
+        if len(json['Response']['destinyMemberships']):
+            return True
 
 
     def num_non_null_entries(self, list):
