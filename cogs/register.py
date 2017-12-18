@@ -51,7 +51,7 @@ class Register:
             await manager.send_private_message("I'm not sure where you went. We can try this again later.")
             await registration_msg.delete()
             return await manager.clean_messages()
-        await ctx.channel.trigger_typing()
+        await ctx.author.dm_channel.trigger_typing()
 
         # Save OAuth credentials and bungie ID
         bungie_id = user_info.get('membership_id')
@@ -69,6 +69,11 @@ class Register:
 
         if res['ErrorCode'] != 1:
             await manager.send_private_message("Oops, something went wrong during registration. Please try again.")
+            await registration_msg.delete()
+            return await manager.clean_messages()
+
+        if not self.user_has_connected_accounts(res):
+            await manager.send_private_message("Oops, you don't have any public accounts attached to your Bungie.net profile.")
             await registration_msg.delete()
             return await manager.clean_messages()
 
@@ -128,6 +133,7 @@ class Register:
         try:
             reaction, user = await self.bot.wait_for('reaction_add', timeout=120.0, check=check_reaction)
         except asyncio.TimeoutError:
+            await platform_msg.delete()
             await manager.send_private_message("I'm not sure where you went. We can try this again later.")
             return await manager.clean_messages()
 
@@ -172,6 +178,12 @@ class Register:
             e.set_footer(text="Your preferred platform has been set!")
 
         return e
+
+
+    def user_has_connected_accounts(self, json):
+        """Return true if user has connected destiny accounts"""
+        if len(json['Response']['destinyMemberships']):
+            return True
 
 
     def num_non_null_entries(self, list):
