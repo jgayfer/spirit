@@ -48,8 +48,11 @@ class Spirit(commands.AutoShardedBot):
         self.uptime = datetime.datetime.utcnow()
         self.command_count = 0
 
+
     def run(self):
+        self.db.migrator.migrate()
         super().run(self.token, reconnect=True)
+
 
     async def on_command(self, ctx):
         self.command_count += 1

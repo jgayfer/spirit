@@ -1,6 +1,8 @@
 import json
 import pymysql.cursors
 
+from db.migrator import Migrator
+
 
 class DBase:
 
@@ -10,6 +12,7 @@ class DBase:
         info = (credentials["dbhost"], credentials["dbuser"],
                 credentials["dbpass"], credentials["dbname"])
 
+        self.migrator = Migrator(self)
         self.connection = pymysql.connect(host=info[0],
                                           user=info[1],
                                           password=info[2],
@@ -26,6 +29,17 @@ class DBase:
                   ON DUPLICATE KEY UPDATE guild_id = %s;
                   """
             affected_count = cursor.execute(sql, (guild_id, guild_id))
+        self.connection.commit()
+        return affected_count
+
+
+    def add_migration_log(self, migration_name):
+        with self.connection.cursor() as cursor:
+            sql = """
+                  INSERT INTO migrations(script_name)
+                  VALUES (%s);
+                  """
+            affected_count = cursor.execute(sql, (migration_name,))
         self.connection.commit()
         return affected_count
 
@@ -54,6 +68,18 @@ class DBase:
         return affected_count
 
 
+    def create_migrations_table(self):
+        with self.connection.cursor() as cursor:
+            sql = """
+                  CREATE TABLE migrations (
+                  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                  executed_on timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                  script_name VARCHAR(80) NOT NULL);
+                  """
+            cursor.execute(sql)
+        self.connection.commit()
+
+
     def delete_event(self, guild_id, title):
         with self.connection.cursor() as cursor:
             sql = """
@@ -64,6 +90,12 @@ class DBase:
             affected_count = cursor.execute(sql, (guild_id, title))
         self.connection.commit()
         return affected_count
+
+
+    def execute_sql(self, sql):
+        with self.connection.cursor() as cursor:
+            cursor.execute(sql)
+        self.connection.commit()
 
 
     def get_cleanup(self, guild_id):
@@ -190,6 +222,16 @@ class DBase:
         return result
 
 
+    def get_last_executed_migration(self):
+        with self.connection.cursor() as cursor:
+            sql = """
+                  SELECT script_name FROM migrations ORDER BY `id` DESC
+                  """
+            cursor.execute(sql)
+            result = cursor.fetchone()
+        return result
+
+
     def get_platform(self, user_id):
         with self.connection.cursor() as cursor:
             sql = """
@@ -282,6 +324,16 @@ class DBase:
                   WHERE guild_id = %s;
                   """
             affected_count = cursor.execute(sql, (prefix, guild_id))
+        self.connection.commit()
+        return affected_count
+
+
+    def table_exists(self, table_name):
+        with self.connection.cursor() as cursor:
+            sql = """
+                  SHOW TABLES LIKE %s;
+                  """
+            affected_count = cursor.execute(sql, (table_name,))
         self.connection.commit()
         return affected_count
 

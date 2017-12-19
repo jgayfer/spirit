@@ -14,24 +14,8 @@ class Core:
 
 
     async def on_ready(self):
-        """Display startup information"""
-        print('Spirit v{}'.format(constants.VERSION))
-        print('Username: {}'.format(self.bot.user.name))
-        print('------')
-
-        # Get guilds in database
-        db_guilds = []
-        to_delete = []
-        results = self.bot.db.get_guilds()
-        for row in results:
-            guild_id = row.get('guild_id')
-            guild = self.bot.get_guild(guild_id)
-            if not guild:
-                to_delete.append(guild_id)
-
-        # Remove guilds
-        for guild_id in to_delete:
-            self.bot.db.remove_guild(guild_id)
+        self.display_startup_info()
+        self.add_remove_offline_guilds()
 
 
     async def on_member_remove(self, user):
@@ -79,3 +63,24 @@ class Core:
             raise error
 
         await manager.clean_messages()
+
+
+    def add_remove_offline_guilds(self):
+        """Add/remove guilds that may have added/removed the bot while it was offline"""
+        to_delete = []
+        results = self.bot.db.get_guilds()
+
+        for row in results:
+            guild_id = row.get('guild_id')
+            guild = self.bot.get_guild(guild_id)
+            if not guild:
+                to_delete.append(guild_id)
+
+        for guild_id in to_delete:
+            self.bot.db.remove_guild(guild_id)
+
+
+    def display_startup_info(self):
+        print('Spirit v{}'.format(constants.VERSION))
+        print('Username: {}'.format(self.bot.user.name))
+        print('------')
