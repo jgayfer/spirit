@@ -116,7 +116,7 @@ class Events:
 
         affected_rows = self.bot.db.create_event(title, start_time, time_zone, ctx.guild.id, description, max_members, ctx.author.id)
         if affected_rows == 0:
-            await manager.send_private_message("An event with that name already exists!", dm=True)
+            await manager.send_private_message("An event with that name already exists!")
             return await manager.clean_messages()
 
         event_channel = await self.get_events_channel(ctx.guild)
