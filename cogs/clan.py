@@ -71,7 +71,7 @@ class Clan:
             ms = await self.bot.destiny.api.get_weekly_milestones(group_id)
             ms_def = await self.bot.destiny.api.get_weekly_milestone_definitions(ms['Response']['milestoneHash'])
         except:
-            await manager.send_message("Sorry, I can't seem to retrieve that clan right now+=+")
+            await manager.send_message("Sorry, I can't seem to retrieve that clan right now")
             return await manager.clean_messages()
 
         clan_stats = res['Response']['results'][0]['group']
