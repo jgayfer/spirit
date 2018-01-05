@@ -78,7 +78,6 @@ class Clan:
         motto = clan_stats['motto'].strip()
         name = clan_stats['name'].strip()
         about = clan_stats['about'].strip()
-        call_sign = clan_stats['clanInfo']['clanCallsign'].strip()
         mc = str(clan_stats['memberCount']).strip()
         lvl = str(clan_stats['clanInfo']['d2ClanProgressions']['584850370']['level']).strip()
         weekly = clan_stats['clanInfo']['d2ClanProgressions']['584850370']['weeklyProgress']
@@ -121,7 +120,6 @@ class Clan:
         e.set_author(name="{}".format(name))
         e.add_field(name='Motto', value=motto, inline=True)
         e.add_field(name='About', value=about, inline=True)
-        e.add_field(name='Callsign', value =call_sign, inline=True)
         e.add_field(name='Number of Members', value=mc, inline=True)
         e.add_field(name='Level', value=lvl, inline=True)
         e.add_field(name='Weekly clan progression', value=weekly_prog, inline=True)
