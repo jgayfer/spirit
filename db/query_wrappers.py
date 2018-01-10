@@ -8,12 +8,12 @@ def get_event_role(ctx):
                 return role
 
 
-def get_event_delete_role(ctx):
+def get_event_delete_role(bot, guild):
     """Return the event delete role, if it exists"""
-    result = ctx.bot.db.get_event_delete_role_id(ctx.guild.id)
+    result = bot.db.get_event_delete_role_id(guild.id)
 
     if result:
-        for role in ctx.guild.roles:
+        for role in guild.roles:
             if role.id == result.get('event_delete_role_id'):
                 return role
 
