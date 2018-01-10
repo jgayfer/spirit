@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2018-01-10
+### Added
+- New trials stats command
+### Changed
+- Registration message is now deleted if the user times out. This will prevent users from being able to click on reactions that are no longer active.
+### Fixed
+- Fix unhelpful error message that occurred when attempting to register an account with no public profiles
+- Fix issue where bot would become unresponsive when looking up a user who isn't registered with the bot
+- Fix an issue where the 'Spirit is typing' message was sent to the wrong channel when registering
+
 ## [2.0.0] - 2017-11-22
 ### Added
 - New OAuth `register` command which allows for the bot to be aware of all accounts connected to your Bungie.net account. This is a breaking change, and as such, all users will need to register again.
