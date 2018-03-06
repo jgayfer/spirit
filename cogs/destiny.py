@@ -42,18 +42,10 @@ class Destiny:
             challenge_description = challenge['displayProperties']['description']
             challenges += "**{}** - {}\n".format(challenge_name, challenge_description)
 
-        modifiers = ""
-        for entry in weekly['Response']['2171429505']['availableQuests'][0]['activity']['modifierHashes']:
-            modifier = await self.bot.destiny.decode_hash(entry, 'DestinyActivityModifierDefinition')
-            modifier_name = modifier['displayProperties']['name']
-            modifier_description = modifier['displayProperties']['description']
-            modifiers += "**{}** - {}\n".format(modifier_name, modifier_description)
-
         e = discord.Embed(title='{}'.format(nightfall['displayProperties']['name']), colour=constants.BLUE)
         e.description = "*{}*".format(nightfall['displayProperties']['description'])
         e.set_thumbnail(url=('https://www.bungie.net' + nightfall['displayProperties']['icon']))
         e.add_field(name='Challenges', value=challenges)
-        e.add_field(name='Modifiers', value=modifiers)
 
         await manager.send_embed(e)
         await manager.clean_messages()
