@@ -10,9 +10,11 @@ def is_event(message):
                 and embed.fields[0]
                 and embed.fields[1]
                 and embed.fields[2]
+                and embed.fields[3]
                 and embed.fields[0].name == "Time"
                 and embed.fields[1].name.startswith("Accepted")
-                and embed.fields[2].name.startswith("Declined"))
+                and embed.fields[2].name.startswith("Declined")
+                and embed.fields[3].name.startswith("Maybe"))
 
 
 def is_int(x):

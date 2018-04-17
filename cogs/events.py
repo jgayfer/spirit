@@ -141,6 +141,7 @@ class Events:
                 msg = await events_channel.send(embed=event_embed)
                 await msg.add_reaction("\N{WHITE HEAVY CHECK MARK}")
                 await msg.add_reaction("\N{CROSS MARK}")
+                await msg.add_reaction("\N{WHITE QUESTION MARK ORNAMENT}")
         else:
             await events_channel.send("There are no upcoming events.")
 
@@ -167,6 +168,8 @@ class Events:
                 await self.set_attendance(member, guild, 1, title, message)
             elif emoji.name == "\N{CROSS MARK}":
                 await self.set_attendance(member, guild, 0, title, message)
+            elif emoji.name == "\N{WHITE QUESTION MARK ORNAMENT}":
+                await self.set_attendance(member, guild, None, title, message)
             elif emoji.name == "\N{SKULL}":
                 deleted = await self.delete_event(guild, title, member, channel)
 
@@ -233,6 +236,7 @@ class Events:
         creator_id = event.get('user_id')
         accepted = event.get('accepted')
         declined = event.get('declined')
+        maybe = event.get('maybe')
         max_members = event.get('max_members')
 
         embed_msg = discord.Embed(color=constants.BLUE)
@@ -280,6 +284,17 @@ class Events:
             embed_msg.add_field(name="Declined", value=text)
         else:
             embed_msg.add_field(name="Declined", value="-")
+
+        if maybe:
+            maybe_list = maybe.split(',')
+            text = ""
+            for user_id in maybe_list:
+                member = guild.get_member(int(user_id))
+                if member:
+                    text += "{}\n".format(member.display_name)
+            embed_msg.add_field(name="Maybe", value=text)
+        else:
+            embed_msg.add_field(name="Maybe", value="-")
 
         if accepted and max_members:
             standby_list = accepted.split(',')[max_members:]
