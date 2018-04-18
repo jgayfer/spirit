@@ -169,7 +169,7 @@ class Events:
             elif emoji.name == "\N{CROSS MARK}":
                 await self.set_attendance(member, guild, 0, title, message)
             elif emoji.name == "\N{WHITE QUESTION MARK ORNAMENT}":
-                await self.set_attendance(member, guild, None, title, message)
+                await self.set_attendance(member, guild, 2, title, message)
             elif emoji.name == "\N{SKULL}":
                 deleted = await self.delete_event(guild, title, member, channel)
 

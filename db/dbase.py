@@ -142,7 +142,7 @@ class DBase:
                     FROM user_event
                     WHERE user_event.guild_id = %s
                     AND user_event.title = %s
-                    AND user_event.attending IS NULL)
+                    AND user_event.attending = 2)
                     AS maybe,
                     max_members
                   FROM events
@@ -211,7 +211,7 @@ class DBase:
                     FROM user_event
                     WHERE user_event.guild_id = %s
                     AND user_event.title = event_title
-                    AND user_event.attending IS NULL)
+                    AND user_event.attending = 2)
                     AS maybe,
                     max_members
                   FROM events
@@ -363,8 +363,6 @@ class DBase:
 
 
     def update_attendance(self, user_id, guild_id, attending, title, last_updated):
-        if attending == None:
-            attending = 'NULL'
         with self.connection.cursor() as cursor:
             sql = """
                   INSERT INTO user_event (user_id, guild_id, title, attending, last_updated)
