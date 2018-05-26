@@ -137,13 +137,19 @@ class DBase:
                     WHERE user_event.guild_id = %s
                     AND user_event.title = %s
                     AND user_event.attending = 0)
-                    AS declined,
+                    AS declined, (
+                    SELECT GROUP_CONCAT(DISTINCT user_id ORDER BY last_updated)
+                    FROM user_event
+                    WHERE user_event.guild_id = %s
+                    AND user_event.title = %s
+                    AND user_event.attending = 2)
+                    AS maybe,
                     max_members
                   FROM events
                   WHERE guild_id = %s
                   AND title = %s;
                   """
-            cursor.execute(sql, (guild_id, title, guild_id, title, guild_id, title))
+            cursor.execute(sql, (guild_id, title, guild_id, title, guild_id, title, guild_id, title))
             result = cursor.fetchone()
         return result
 
@@ -200,14 +206,20 @@ class DBase:
                     WHERE user_event.guild_id = %s
                     AND user_event.title = event_title
                     AND user_event.attending = 0)
-                    AS declined,
+                    AS declined, (
+                    SELECT GROUP_CONCAT(DISTINCT user_id ORDER BY last_updated)
+                    FROM user_event
+                    WHERE user_event.guild_id = %s
+                    AND user_event.title = event_title
+                    AND user_event.attending = 2)
+                    AS maybe,
                     max_members
                   FROM events
                   WHERE events.guild_id = %s
                   GROUP BY title, description, start_time, timezone
                   ORDER BY start_time DESC;
                   """
-            cursor.execute(sql, (guild_id, guild_id, guild_id))
+            cursor.execute(sql, (guild_id, guild_id, guild_id, guild_id))
             result = cursor.fetchall()
         return result
 

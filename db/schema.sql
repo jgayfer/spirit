@@ -40,7 +40,7 @@ CREATE TABLE user_event (
 	user_id BIGINT NOT NULL,
 	guild_id BIGINT NOT NULL,
 	title VARCHAR(256) NOT NULL,
-	attending BOOLEAN NOT NULL,
+	attending INT NOT NULL,
 	last_updated DATETIME NOT NULL,
 	PRIMARY KEY (user_id, guild_id, title),
 	FOREIGN KEY (guild_id, title) REFERENCES events(guild_id, title)
