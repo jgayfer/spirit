@@ -145,34 +145,34 @@ class Events:
             await events_channel.send("There are no upcoming events.")
 
 
-    async def on_raw_reaction_add(self, emoji, message_id, channel_id, user_id):
+    async def on_raw_reaction_add(self, payload):
         """If a reaction represents a user RSVP, update the DB and event message"""
-        channel = self.bot.get_channel(channel_id)
+        channel = self.bot.get_channel(payload.channel_id)
         if isinstance(channel, discord.abc.PrivateChannel):
             return
         try:
-            message = await channel.get_message(message_id)
+            message = await channel.get_message(payload.message_id)
         except:
             return
 
         guild = channel.guild
-        member = guild.get_member(user_id)
+        member = guild.get_member(payload.user_id)
         deleted = None
 
         # We check that the user is not the message author as to not count
         # the initial reactions added by the bot as being indicative of attendance
         if is_event(message) and member != message.author:
             title = message.embeds[0].title
-            if emoji.name == "\N{WHITE HEAVY CHECK MARK}":
+            if payload.emoji.name == "\N{WHITE HEAVY CHECK MARK}":
                 await self.set_attendance(member, guild, 1, title, message)
-            elif emoji.name == "\N{CROSS MARK}":
+            elif payload.emoji.name == "\N{CROSS MARK}":
                 await self.set_attendance(member, guild, 0, title, message)
-            elif emoji.name == "\N{SKULL}":
+            elif payload.emoji.name == "\N{SKULL}":
                 deleted = await self.delete_event(guild, title, member, channel)
 
             if not deleted:
                 try:
-                    await message.remove_reaction(emoji, member)
+                    await message.remove_reaction(payload.emoji, member)
                 except:
                     pass
 
