@@ -20,6 +20,7 @@ from cogs.settings import Settings
 from cogs.core import Core
 from cogs.help import Help
 from cogs.events import Events
+from cogs.clan import Clan
 
 
 async def _prefix_callable(bot, message):
@@ -82,5 +83,6 @@ if __name__ == '__main__':
     bot.add_cog(Item(bot))
     bot.add_cog(Loadout(bot))
     bot.add_cog(Destiny(bot))
+    bot.add_cog(Clan(bot))
 
     bot.run()
