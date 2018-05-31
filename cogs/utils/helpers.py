@@ -111,3 +111,10 @@ async def get_membership_details(bot, ctx, username, platform):
                   + "`{}register` command.".format(ctx.prefix))
 
     return platform_id, membership_id, display_name
+
+
+def calc_win_rate(win_ratio):
+    if win_ratio == '-':
+        return '-'
+    win_ratio = float(win_ratio)
+    return str(round(win_ratio / (win_ratio + 1) * 100, 1)) + "%"

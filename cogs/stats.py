@@ -5,6 +5,9 @@ import pydest
 
 from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants, helpers
+from cogs.embed_builders import pvp_stats_embed
+from cogs.models.pvp_stats import PvPStats
+
 
 class Stats:
 
@@ -46,59 +49,13 @@ class Stats:
         else:
             platform_id, membership_id, display_name = membership_details
 
-        # Get PvP stats
-        try:
-            res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[5])
-        except:
+        pvp_stats_json = (await self.get_stats(platform_id, membership_id, [5]))['allPvP']['allTime']
+        if not pvp_stats_json:
             await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clean_messages()
 
-        if res['ErrorCode'] != 1:
-            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
-            return await manager.clean_messages()
-
-        pvp_stats = res['Response']['allPvP'].get('allTime')
-
-        if not pvp_stats:
-            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
-            return await manager.clean_messages()
-
-        time_played = pvp_stats['secondsPlayed']['basic']['displayValue']
-        kdr = pvp_stats['killsDeathsRatio']['basic']['displayValue']
-        best_weapon = pvp_stats['weaponBestType']['basic']['displayValue']
-        games_played = pvp_stats['activitiesEntered']['basic']['displayValue']
-        best_kills = pvp_stats['bestSingleGameKills']['basic']['displayValue']
-        best_spree = pvp_stats['longestKillSpree']['basic']['displayValue']
-        combat_rating = pvp_stats['combatRating']['basic']['displayValue']
-        kills = pvp_stats['kills']['basic']['displayValue']
-        assists = pvp_stats['assists']['basic']['displayValue']
-        deaths = pvp_stats['deaths']['basic']['displayValue']
-        kda = str(round((int(kills) + int(assists)) / int(deaths), 2))
-
-        # Can't convert a string of '-' to a float!
-        win_ratio = pvp_stats['winLossRatio']['basic']['displayValue']
-        if win_ratio != '-':
-            win_ratio = float(win_ratio)
-            win_rate = str(round(win_ratio / (win_ratio + 1) * 100, 1)) + "%"
-        else:
-            win_rate = win_ratio
-
-        e = discord.Embed(colour=constants.BLUE)
-        e.set_author(name="{} | Crucible Stats".format(display_name), icon_url=constants.PLATFORM_URLS.get(platform_id))
-        e.add_field(name='Kills', value=kills, inline=True)
-        e.add_field(name='Assists', value=assists, inline=True)
-        e.add_field(name='Deaths', value=deaths, inline=True)
-        e.add_field(name='KD', value=kdr, inline=True)
-        e.add_field(name='KA/D', value=kda, inline=True)
-        e.add_field(name='Win Rate', value=win_rate, inline=True)
-        e.add_field(name='Best Spree', value=best_spree, inline=True)
-        e.add_field(name='Most Kills in a Game', value=best_kills, inline=True)
-        e.add_field(name='Favorite Weapon', value=best_weapon, inline=True)
-        e.add_field(name='Combat Rating', value=combat_rating, inline=True)
-        e.add_field(name='Games Played', value=games_played, inline=True)
-        e.add_field(name='Time Played', value=time_played, inline=True)
-
-        await manager.send_embed(e)
+        pvp_stats = PvPStats(pvp_stats_json)
+        await manager.send_embed(pvp_stats_embed(pvp_stats, "Crucible Stats", display_name, platform_id))
         await manager.clean_messages()
 
 
@@ -127,17 +84,7 @@ class Stats:
         else:
             platform_id, membership_id, display_name = membership_details
 
-        # Get PvE stats
-        try:
-            res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[7,4,16,18])
-        except pydest.PydestException as e:
-            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
-            return await manager.clean_messages()
-        if res['ErrorCode'] != 1:
-            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
-            return await manager.clean_messages()
-        pve_stats = res['Response']
-
+        pve_stats = await self.get_stats(platform_id, membership_id, [7,4,16,18])
         if not pve_stats:
             await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clean_messages()
@@ -189,62 +136,170 @@ class Stats:
         manager = MessageManager(ctx)
         await ctx.channel.trigger_typing()
 
+        # Get membership details. This depends on whether or not a platform or username were given.
         membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
 
+        # If there was an error getting membership details, display it
         if isinstance(membership_details, str):
             await manager.send_message(membership_details)
             return await manager.clean_messages()
+        else:
+            platform_id, membership_id, display_name = membership_details
 
-        platform_id, membership_id, display_name = membership_details
-
-        try:
-            res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=[39])
-
-            if res['ErrorCode'] != 1:
-                await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
-                return await manager.clean_messages()
-
-            trials_stats = res['Response']['trialsofthenine'].get('allTime')
-
-            #| time played | KDR | best weapon | games played | most kills in sg | longest spree | combar rating | kills | assists | deaths | kda
-
-            time_played = trials_stats['secondsPlayed']['basic']['displayValue']
-            kdr = trials_stats['killsDeathsRatio']['basic']['displayValue']
-            best_weapon = trials_stats['weaponBestType']['basic']['displayValue']
-            games_played = trials_stats['activitiesEntered']['basic']['displayValue']
-            best_kills = trials_stats['bestSingleGameKills']['basic']['displayValue']
-            best_spree = trials_stats['longestKillSpree']['basic']['displayValue']
-            combat_rating = trials_stats['combatRating']['basic']['displayValue']
-            kills = trials_stats['kills']['basic']['displayValue']
-            assists = trials_stats['assists']['basic']['displayValue']
-            deaths = trials_stats['deaths']['basic']['displayValue']
-            kda = str(round((int(kills) + int(assists)) /int(deaths), 2))
-            win_ratio = trials_stats['winLossRatio']['basic']['displayValue']
-            if win_ratio != '-':
-                win_ratio = float(win_ratio)
-                win_rate = str(round(win_ratio / (win_ratio + 1) * 100, 1)) + "%"
-            else:
-                win_rate = win_ratio
-
-            e = discord.Embed(color=constants.BLUE)
-            e.set_author(name="{} | Trials of the Nine stats".format(display_name),
-            icon_url=constants.PLATFORM_URLS.get(platform_id))
-            e.add_field(name='Kills', value=kills, inline=True)
-            e.add_field(name='Assists', value=assists, inline=True)
-            e.add_field(name='Deaths', value=deaths, inline=True)
-            e.add_field(name='KD', value=kdr, inline=True)
-            e.add_field(name='KA/D', value=kda, inline=True)
-            e.add_field(name='Win Rate', value=win_rate, inline=True)
-            e.add_field(name='Best Spree', value=best_spree, inline=True)
-            e.add_field(name='Most kills in a Game', value=best_kills, inline=True)
-            e.add_field(name='Favorite Weapon', value=best_weapon, inline=True)
-            e.add_field(name='Combat Rating', value=combat_rating, inline=True)
-            e.add_field(name='Games Played', value=games_played, inline=True)
-            e.add_field(name='Time Played', value=time_played, inline=True)
-
-            await manager.send_embed(e)
-            await manager.clean_messages()
-
-        except:
+        trials_stats_json = (await self.get_stats(platform_id, membership_id, [39]))['trialsofthenine'].get('allTime')
+        if not trials_stats_json:
             await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clean_messages()
+
+        trials_stats = PvPStats(trials_stats_json)
+        await manager.send_embed(pvp_stats_embed(trials_stats, "Trials of the Nine Stats", display_name, platform_id))
+        await manager.clean_messages()
+
+
+    @stats.command()
+    async def ib(self, ctx, username=None, platform=None):
+        """Display Iron Banner stats across all characters on an account
+
+        In order to use this command for your own account, you must first register your Destiny 2
+        account with the bot via the register command.
+
+        `stats ib` - Display your Iron Banner stats (preferred platform)
+        \$`stats ib Asal#1502 bnet` - Display Asal's Iron Banner stats on Battle.net
+        \$`stats ib @user` - Display a registered user's Iron Banner stats (preferred platform)
+        \$`stats ib @user bnet` - Display a registered user's Iron Banner stats on Battle.net
+        """
+        manager = MessageManager(ctx)
+        await ctx.channel.trigger_typing()
+
+        # Get membership details. This depends on whether or not a platform or username were given.
+        membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
+
+        # If there was an error getting membership details, display it
+        if isinstance(membership_details, str):
+            await manager.send_message(membership_details)
+            return await manager.clean_messages()
+        else:
+            platform_id, membership_id, display_name = membership_details
+
+        ib_stats_json = (await self.get_stats(platform_id, membership_id, [19]))['ironBanner'].get('allTime')
+        if not ib_stats_json:
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
+            return await manager.clean_messages()
+
+        ib_stats = PvPStats(ib_stats_json)
+        await manager.send_embed(pvp_stats_embed(ib_stats, "Iron Banner Stats", display_name, platform_id))
+        await manager.clean_messages()
+
+
+    @stats.command()
+    async def rumble(self, ctx, username=None, platform=None):
+        """Display Rumble stats across all characters on an account
+
+        In order to use this command for your own account, you must first register your Destiny 2
+        account with the bot via the register command.
+
+        `stats rumble` - Display your Rumble stats (preferred platform)
+        \$`stats rumble Asal#1502 bnet` - Display Asal's Rumble stats on Battle.net
+        \$`stats rumble @user` - Display a registered user's Rumble stats (preferred platform)
+        \$`stats rumble @user bnet` - Display a registered user's Rumble stats on Battle.net
+        """
+        manager = MessageManager(ctx)
+        await ctx.channel.trigger_typing()
+
+        # Get membership details. This depends on whether or not a platform or username were given.
+        membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
+
+        # If there was an error getting membership details, display it
+        if isinstance(membership_details, str):
+            await manager.send_message(membership_details)
+            return await manager.clean_messages()
+        else:
+            platform_id, membership_id, display_name = membership_details
+
+        rumble_stats_json = (await self.get_stats(platform_id, membership_id, [48]))['rumble'].get('allTime')
+        if not rumble_stats_json:
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
+            return await manager.clean_messages()
+
+        rumble_stats = PvPStats(rumble_stats_json)
+        await manager.send_embed(pvp_stats_embed(rumble_stats, "Rumble Stats", display_name, platform_id))
+        await manager.clean_messages()
+
+
+    @stats.command()
+    async def doubles(self, ctx, username=None, platform=None):
+        """Display Doubles stats across all characters on an account
+
+        In order to use this command for your own account, you must first register your Destiny 2
+        account with the bot via the register command.
+
+        `stats doubles` - Display your Doubles stats (preferred platform)
+        \$`stats doubles Asal#1502 bnet` - Display Asal's Doubles stats on Battle.net
+        \$`stats doubles @user` - Display a registered user's Doubles stats (preferred platform)
+        \$`stats doubles @user bnet` - Display a registered user's Doubles stats on Battle.net
+        """
+        manager = MessageManager(ctx)
+        await ctx.channel.trigger_typing()
+
+        # Get membership details. This depends on whether or not a platform or username were given.
+        membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
+
+        # If there was an error getting membership details, display it
+        if isinstance(membership_details, str):
+            await manager.send_message(membership_details)
+            return await manager.clean_messages()
+        else:
+            platform_id, membership_id, display_name = membership_details
+
+        doubles_stats_json = (await self.get_stats(platform_id, membership_id, [49]))['allDoubles'].get('allTime')
+        if not doubles_stats_json:
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
+            return await manager.clean_messages()
+
+        doubles_stats = PvPStats(doubles_stats_json)
+        await manager.send_embed(pvp_stats_embed(doubles_stats, "Doubles Stats", display_name, platform_id))
+        await manager.clean_messages()
+
+
+    @stats.command()
+    async def mayhem(self, ctx, username=None, platform=None):
+        """Display Mayhem stats across all characters on an account
+
+        In order to use this command for your own account, you must first register your Destiny 2
+        account with the bot via the register command.
+
+        `stats mayhem` - Display your Mayhem stats (preferred platform)
+        \$`stats mayhem Asal#1502 bnet` - Display Asal's Mayhem stats on Battle.net
+        \$`stats mayhem @user` - Display a registered user's Mayhem stats (preferred platform)
+        \$`stats mayhem @user bnet` - Display a registered user's Mayhem stats on Battle.net
+        """
+        manager = MessageManager(ctx)
+        await ctx.channel.trigger_typing()
+
+        # Get membership details. This depends on whether or not a platform or username were given.
+        membership_details = await helpers.get_membership_details(self.bot, ctx, username, platform)
+
+        # If there was an error getting membership details, display it
+        if isinstance(membership_details, str):
+            await manager.send_message(membership_details)
+            return await manager.clean_messages()
+        else:
+            platform_id, membership_id, display_name = membership_details
+
+        mayhem_stats_json = (await self.get_stats(platform_id, membership_id, [25]))['allMayhem'].get('allTime')
+        if not mayhem_stats_json:
+            await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
+            return await manager.clean_messages()
+
+        mayhem_stats = PvPStats(mayhem_stats_json)
+        await manager.send_embed(pvp_stats_embed(mayhem_stats, "Mayhem Stats", display_name, platform_id))
+        await manager.clean_messages()
+
+
+    async def get_stats(self, platform_id, membership_id, modes):
+        try:
+            res = await self.bot.destiny.api.get_historical_stats(platform_id, membership_id, groups=['general'], modes=modes)
+        except:
+            return
+        if res['ErrorCode'] == 1:
+            return res['Response']
