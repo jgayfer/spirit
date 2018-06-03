@@ -5,8 +5,9 @@ import pydest
 
 from cogs.utils.message_manager import MessageManager
 from cogs.utils import constants, helpers
-from cogs.embed_builders import pvp_stats_embed
+from cogs.embed_builders import pvp_stats_embed, pve_stats_embed
 from cogs.models.pvp_stats import PvPStats
+from cogs.models.pve_stats import PvEStats
 
 
 class Stats:
@@ -84,40 +85,13 @@ class Stats:
         else:
             platform_id, membership_id, display_name = membership_details
 
-        pve_stats = await self.get_stats(platform_id, membership_id, [7,4,16,18])
-        if not pve_stats:
+        pve_stats_json = await self.get_stats(platform_id, membership_id, [7,4,16,17,18,46,47])
+        if not pve_stats_json:
             await manager.send_message("Sorry, I can't seem to retrieve those stats right now")
             return await manager.clean_messages()
 
-        time_played = pve_stats['allPvE']['allTime']['totalActivityDurationSeconds']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
-        best_weapon = pve_stats['allPvE']['allTime']['weaponBestType']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
-        num_heroic_events = pve_stats['allPvE']['allTime']['heroicPublicEventsCompleted']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
-        num_events = pve_stats['allPvE']['allTime']['publicEventsCompleted']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
-        num_raids = pve_stats['raid']['allTime']['activitiesCleared']['basic']['displayValue'] if len(pve_stats['raid']) else 0
-        raid_time = pve_stats['raid']['allTime']['totalActivityDurationSeconds']['basic']['displayValue'] if len(pve_stats['raid']) else 0
-        num_nightfall = pve_stats['nightfall']['allTime']['activitiesCleared']['basic']['displayValue'] if len(pve_stats['nightfall']) else 0
-        num_strikes = pve_stats['allStrikes']['allTime']['activitiesCleared']['basic']['displayValue'] if len(pve_stats['allStrikes']) else 0
-        fastest_nightfall = pve_stats['nightfall']['allTime']['fastestCompletionMs']['basic']['displayValue'] if len(pve_stats['nightfall']) else 0
-        kills = pve_stats['allPvE']['allTime']['kills']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
-        assists = pve_stats['allPvE']['allTime']['assists']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
-        deaths = pve_stats['allPvE']['allTime']['deaths']['basic']['displayValue'] if len(pve_stats['allPvE']) else 0
-
-        e = discord.Embed(colour=constants.BLUE)
-        e.set_author(name="{} | PvE Stats".format(display_name), icon_url=constants.PLATFORM_URLS.get(platform_id))
-        e.add_field(name='Kills', value=kills, inline=True)
-        e.add_field(name='Assists', value=assists, inline=True)
-        e.add_field(name='Deaths', value=deaths, inline=True)
-        e.add_field(name='Strikes', value=num_strikes, inline=True)
-        e.add_field(name='Nightfalls', value=num_nightfall, inline=True)
-        e.add_field(name='Fastest Nightfall', value=fastest_nightfall, inline=True)
-        e.add_field(name='Public Events', value=num_events, inline=True)
-        e.add_field(name='Heroic Public Events', value=num_heroic_events, inline=True)
-        e.add_field(name='Favorite Weapon', value=best_weapon, inline=True)
-        e.add_field(name='Total Raid Time', value=raid_time, inline=True)
-        e.add_field(name='Raids', value=num_raids, inline=True)
-        e.add_field(name='Time Played', value=time_played, inline=True)
-
-        await manager.send_embed(e)
+        pve_stats = PvEStats(pve_stats_json) 
+        await manager.send_embed(pve_stats_embed(pve_stats, display_name, platform_id))
         await manager.clean_messages()
 
 
