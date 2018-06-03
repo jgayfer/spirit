@@ -56,8 +56,10 @@ class PvEStats:
         if len(pve_stats['scored_heroicNightfall']):
             times['scored_heroicNightfall'] = pve_stats['scored_heroicNightfall']['allTime']['fastestCompletionMs']['basic']['value']
 
-        return pve_stats[min(times, key=times.get)]['allTime']['fastestCompletionMs']['basic']['displayValue']
-        
+        non_zero_times = {k:v for (k,v) in times.items() if v > 0} 
+        print(non_zero_times)
+        return pve_stats[min(non_zero_times, key=non_zero_times.get)]['allTime']['fastestCompletionMs']['basic']['displayValue']
+    
 
     def _sum_nightfalls(self, pve_stats):
         count = 0
